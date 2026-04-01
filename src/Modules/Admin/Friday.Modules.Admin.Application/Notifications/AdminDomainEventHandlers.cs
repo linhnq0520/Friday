@@ -1,3 +1,4 @@
+using Friday.BuildingBlocks.Application.IntegrationEvents;
 using Friday.Modules.Admin.Domain.Events;
 using LinKit.Core.Cqrs;
 using Microsoft.Extensions.Logging;
@@ -5,17 +6,30 @@ using Microsoft.Extensions.Logging;
 namespace Friday.Modules.Admin.Application.Notifications;
 
 [CqrsHandler]
-public sealed class UserCreatedDomainEventHandler(ILogger<UserCreatedDomainEventHandler> logger)
-    : INotificationHandler<UserCreatedDomainEvent>
+public sealed class UserCreatedDomainEventHandler(
+    ILogger<UserCreatedDomainEventHandler> logger,
+    IIntegrationEventPublisher integrationEvents
+) : INotificationHandler<UserCreatedDomainEvent>
 {
-    public Task HandleAsync(UserCreatedDomainEvent notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(
+        UserCreatedDomainEvent notification,
+        CancellationToken cancellationToken
+    )
     {
         logger.LogInformation(
-            "Admin domain event: user created. Username={Username}, Email={Email}",
+            "Admin domain event: user created. UserId={UserId}, Username={Username}, Email={Email}",
+            notification.UserId,
             notification.Username,
             notification.Email
         );
-        return Task.CompletedTask;
+        await integrationEvents.PublishAsync(
+            new UserCreatedIntegrationEvent(
+                notification.UserId,
+                notification.Username,
+                notification.Email
+            ),
+            cancellationToken
+        );
     }
 }
 

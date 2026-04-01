@@ -1,10 +1,14 @@
 using Friday.BuildingBlocks.Application.Abstractions;
+using Friday.BuildingBlocks.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Friday.BuildingBlocks.Infrastructure.Persistence;
 
-public sealed class EfUnitOfWork(FridayDbContext dbContext) : IUnitOfWork
+public sealed class EfUnitOfWork(
+    FridayDbContext dbContext,
+    IDomainEventDispatcher domainEventDispatcher
+) : IUnitOfWork
 {
     private IDbContextTransaction? _transaction;
 
@@ -26,6 +30,17 @@ public sealed class EfUnitOfWork(FridayDbContext dbContext) : IUnitOfWork
     public async Task CommitAsync(CancellationToken cancellationToken = default)
     {
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        List<Entity> domainEntities = dbContext
+            .ChangeTracker.Entries<Entity>()
+            .Where(x => x.Entity.DomainEvents.Count > 0)
+            .Select(x => x.Entity)
+            .ToList();
+
+        if (domainEntities.Count > 0)
+        {
+            await domainEventDispatcher.DispatchAsync(domainEntities, cancellationToken);
+        }
 
         if (_transaction is null)
         {

@@ -3,6 +3,8 @@ using Friday.API.Middlewares;
 using Friday.API.Modules.Admin;
 using Friday.API.Modules.Sample;
 using Friday.BuildingBlocks.Application;
+using Friday.BuildingBlocks.Application.Cqrs;
+using Friday.BuildingBlocks.Application.IntegrationEvents;
 using Friday.BuildingBlocks.Infrastructure;
 using Friday.Modules.Admin.Application;
 using Friday.Modules.Admin.Infrastructure;
@@ -35,6 +37,9 @@ try
     builder.Services.AddAdminInfrastructure(builder.Configuration);
     builder.Services.AddSampleApplication();
     builder.Services.AddSampleInfrastructure();
+    builder.Services.AddIntegrationEventsRouting(registry =>
+        registry.Register<UserCreatedIntegrationEvent>(ModuleKeys.Sample)
+    );
 
     WebApplication app = builder.Build();
 

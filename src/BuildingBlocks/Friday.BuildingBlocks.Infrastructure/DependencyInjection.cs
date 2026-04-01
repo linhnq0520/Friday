@@ -35,6 +35,7 @@ public static class DependencyInjection
                 options.UseInMemoryDatabase("Friday.Shared");
             }
         });
+        services.AddScoped<IDomainEventDispatcher, KeyedDomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IErrorLocalizationStore, EfErrorLocalizationStore>();
         return services;
