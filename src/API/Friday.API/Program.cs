@@ -5,11 +5,14 @@ using Friday.API.Modules.Sample;
 using Friday.BuildingBlocks.Application;
 using Friday.BuildingBlocks.Application.Cqrs;
 using Friday.BuildingBlocks.Application.IntegrationEvents;
+using Friday.BuildingBlocks.Application.Seeding;
 using Friday.BuildingBlocks.Infrastructure;
+using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.Modules.Admin.Application;
 using Friday.Modules.Admin.Infrastructure;
 using Friday.Modules.Sample.Application;
 using Friday.Modules.Sample.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
@@ -42,6 +45,17 @@ try
     );
 
     WebApplication app = builder.Build();
+
+    if (app.Configuration.GetValue($"{DatabaseOptions.SectionName}:SeedOnStartup", false))
+    {
+        using (IServiceScope scope = app.Services.CreateScope())
+        {
+            foreach (IDataSeeder seeder in scope.ServiceProvider.GetServices<IDataSeeder>())
+            {
+                await seeder.SeedAsync(CancellationToken.None);
+            }
+        }
+    }
 
     app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseSerilogRequestLogging(options =>

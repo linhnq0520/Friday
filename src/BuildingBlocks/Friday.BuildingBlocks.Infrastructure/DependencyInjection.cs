@@ -1,5 +1,6 @@
 using Friday.BuildingBlocks.Application.Abstractions;
 using Friday.BuildingBlocks.Application.Localization;
+using Friday.BuildingBlocks.Application.Seeding;
 using Friday.BuildingBlocks.Infrastructure.Localization;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,9 @@ public static class DependencyInjection
         IConfiguration configuration
     )
     {
+        services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+        services.AddScoped<IDataSeeder, ErrorLocalizationMessagesDataSeeder>();
+
         string? connectionString = configuration.GetConnectionString("FridayDb");
 
         services.AddScoped<ILinqToDbConnectionFactory>(

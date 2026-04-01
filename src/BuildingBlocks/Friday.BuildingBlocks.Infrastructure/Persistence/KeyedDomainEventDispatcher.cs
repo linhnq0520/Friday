@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Friday.BuildingBlocks.Infrastructure.Persistence;
 
-public sealed class KeyedDomainEventDispatcher(IKeyedServiceProvider keyedServiceProvider)
+public sealed class KeyedDomainEventDispatcher(IServiceProvider serviceProvider)
     : IDomainEventDispatcher
 {
     public async Task DispatchAsync(
@@ -28,7 +28,7 @@ public sealed class KeyedDomainEventDispatcher(IKeyedServiceProvider keyedServic
                 continue;
             }
 
-            IMediator mediator = keyedServiceProvider.GetRequiredKeyedService<IMediator>(moduleKey);
+            IMediator mediator = serviceProvider.GetRequiredKeyedService<IMediator>(moduleKey);
             foreach (IDomainEvent domainEvent in entity.DomainEvents)
             {
                 await mediator.PublishAsync(

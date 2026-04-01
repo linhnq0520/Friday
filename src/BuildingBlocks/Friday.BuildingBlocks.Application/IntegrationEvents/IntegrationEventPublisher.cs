@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Friday.BuildingBlocks.Application.IntegrationEvents;
 
 public sealed class IntegrationEventPublisher(
-    IKeyedServiceProvider keyedServices,
+    IServiceProvider serviceProvider,
     IIntegrationEventRouteRegistry registry
 ) : IIntegrationEventPublisher
 {
@@ -17,7 +17,7 @@ public sealed class IntegrationEventPublisher(
         IReadOnlyList<string> keys = registry.GetModuleKeys(typeof(TEvent));
         foreach (string key in keys)
         {
-            IMediator mediator = keyedServices.GetRequiredKeyedService<IMediator>(key);
+            IMediator mediator = serviceProvider.GetRequiredKeyedService<IMediator>(key);
             await mediator.PublishAsync(
                 integrationEvent,
                 PublishStrategy.Sequential,
