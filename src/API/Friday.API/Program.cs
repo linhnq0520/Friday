@@ -28,7 +28,6 @@ try
 
     builder.Services.AddBuildingBlocksApplication();
     builder.Services.AddBuildingBlocksInfrastructure(builder.Configuration);
-    builder.Services.AddMemoryCache();
     builder.Services.Configure<LocalizationOptions>(
         builder.Configuration.GetSection("Localization")
     );

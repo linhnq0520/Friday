@@ -1,9 +1,10 @@
+using FluentMigrator.Runner;
 using Friday.BuildingBlocks.Application.Abstractions;
 using Friday.BuildingBlocks.Application.Localization;
+using Friday.BuildingBlocks.Infrastructure.Caching;
 using Friday.BuildingBlocks.Infrastructure.DataMigrations;
 using Friday.BuildingBlocks.Infrastructure.Localization;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,8 @@ public static class DependencyInjection
     )
     {
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+        services.Configure<CacheOptions>(configuration.GetSection(CacheOptions.SectionName));
+        AddApplicationCache(services, configuration);
 
         string? connectionString = configuration.GetConnectionString("FridayDb");
 
@@ -53,5 +56,36 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IErrorLocalizationStore, EfErrorLocalizationStore>();
         return services;
+    }
+
+    private static void AddApplicationCache(
+        IServiceCollection services,
+        IConfiguration configuration
+    )
+    {
+        services.AddMemoryCache();
+
+        CacheOptions cacheOptions =
+            configuration.GetSection(CacheOptions.SectionName).Get<CacheOptions>()
+            ?? new CacheOptions();
+        string? redisConnection = !string.IsNullOrWhiteSpace(cacheOptions.RedisConnectionString)
+            ? cacheOptions.RedisConnectionString
+            : configuration.GetConnectionString("Redis");
+
+        if (cacheOptions.UseRedis && !string.IsNullOrWhiteSpace(redisConnection))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnection;
+                options.InstanceName = string.IsNullOrWhiteSpace(cacheOptions.RedisInstanceName)
+                    ? "Friday:"
+                    : cacheOptions.RedisInstanceName;
+            });
+            services.AddSingleton<ICacheService, RedisCacheService>();
+        }
+        else
+        {
+            services.AddSingleton<ICacheService, MemoryCacheService>();
+        }
     }
 }
