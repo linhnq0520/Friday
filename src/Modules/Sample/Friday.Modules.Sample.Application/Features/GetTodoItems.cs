@@ -6,7 +6,6 @@ namespace Friday.Modules.Sample.Application.Features;
 
 public sealed record GetTodoItemsQuery() : LinKit.Core.Cqrs.IQuery<IReadOnlyList<TodoItemDto>>;
 
-[CqrsHandler]
 public sealed class GetTodoItemsHandler(ITodoItemRepository repository)
     : IQueryHandler<GetTodoItemsQuery, IReadOnlyList<TodoItemDto>>
 {

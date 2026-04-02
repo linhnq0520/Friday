@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Friday.Modules.Sample.Application.Notifications;
 
-[CqrsHandler]
 public sealed class UserCreatedIntegrationEventHandler(
     ILogger<UserCreatedIntegrationEventHandler> logger
 ) : INotificationHandler<UserCreatedIntegrationEvent>

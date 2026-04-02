@@ -1,7 +1,7 @@
 using Friday.BuildingBlocks.Application.Abstractions;
 using LinKit.Core.Cqrs;
 
-namespace Friday.Modules.Admin.Application.Behaviors;
+namespace Friday.BuildingBlocks.Application.Behaviors;
 
 [CqrsBehavior(typeof(ICommand), 0)]
 public sealed class TransactionBehavior<TRequest, TResponse>(IUnitOfWork unitOfWork)

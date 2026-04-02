@@ -31,7 +31,7 @@ public sealed class Role : AggregateRoot
         {
             Code = code.Trim().ToUpperInvariant(),
             Name = name.Trim(),
-            IsActive = true
+            IsActive = true,
         };
     }
 

@@ -8,7 +8,6 @@ namespace Friday.Modules.Sample.Application.Features;
 
 public sealed record CreateTodoItemCommand(string Title) : LinKit.Core.Cqrs.ICommand<TodoItemDto>;
 
-[CqrsHandler]
 public sealed class CreateTodoItemHandler(ITodoItemRepository repository, IMediator mediator)
     : ICommandHandler<CreateTodoItemCommand, TodoItemDto>
 {

@@ -21,13 +21,10 @@ public static class DependencyInjection
 
         string? connectionString = configuration.GetConnectionString("FridayDb");
 
-        services.AddScoped<ILinqToDbConnectionFactory>(
-            _ =>
-                new LinqToDbConnectionFactory(
-                    connectionString
-                    ?? "Server=(localdb)\\MSSQLLocalDB;Database=FridayDb;Trusted_Connection=True;TrustServerCertificate=True;"
-                )
-        );
+        services.AddScoped<ILinqToDbConnectionFactory>(_ => new LinqToDbConnectionFactory(
+            connectionString
+                ?? "Server=(localdb)\\MSSQLLocalDB;Database=FridayDb;Trusted_Connection=True;TrustServerCertificate=True;"
+        ));
         services.AddDbContext<FridayDbContext>(options =>
         {
             if (!string.IsNullOrWhiteSpace(connectionString))
@@ -39,7 +36,7 @@ public static class DependencyInjection
                 options.UseInMemoryDatabase("Friday.Shared");
             }
         });
-        services.AddScoped<IDomainEventDispatcher, KeyedDomainEventDispatcher>();
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IErrorLocalizationStore, EfErrorLocalizationStore>();
         return services;

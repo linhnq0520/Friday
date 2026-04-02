@@ -1,8 +1,6 @@
-using Friday.BuildingBlocks.Application.Cqrs;
 using Friday.API.Common;
 using Friday.Modules.Sample.Application.Features;
 using LinKit.Core.Cqrs;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Friday.API.Modules.Sample;
 
@@ -17,7 +15,7 @@ public static class SampleEndpoints
             async (
                 HttpContext context,
                 CreateTodoItemCommand command,
-                [FromKeyedServices(ModuleKeys.Sample)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -28,13 +26,12 @@ public static class SampleEndpoints
 
         group.MapGet(
             "/todos",
-            async (
-                HttpContext context,
-                [FromKeyedServices(ModuleKeys.Sample)] IMediator mediator,
-                CancellationToken cancellationToken
-            ) =>
+            async (HttpContext context, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var response = await mediator.QueryAsync(new GetTodoItemsQuery(), cancellationToken);
+                var response = await mediator.QueryAsync(
+                    new GetTodoItemsQuery(),
+                    cancellationToken
+                );
                 return ApiResults.Ok(context, response);
             }
         );

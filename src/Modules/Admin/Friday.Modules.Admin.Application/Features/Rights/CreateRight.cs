@@ -7,17 +7,23 @@ using LinKit.Core.Cqrs;
 
 namespace Friday.Modules.Admin.Application.Features.Rights;
 
-public sealed record CreateRightCommand(string Code, string Name, string? Description) : ICommand<RightDto>;
+public sealed record CreateRightCommand(string Code, string Name, string? Description)
+    : ICommand<RightDto>;
 
-[CqrsHandler]
 public sealed class CreateRightHandler(IRightRepository rights)
     : ICommandHandler<CreateRightCommand, RightDto>
 {
-    public async Task<RightDto> HandleAsync(CreateRightCommand request, CancellationToken cancellationToken)
+    public async Task<RightDto> HandleAsync(
+        CreateRightCommand request,
+        CancellationToken cancellationToken
+    )
     {
         if (await rights.ExistsByCodeAsync(request.Code, cancellationToken))
         {
-            throw new FridayException(ErrorCodes.Admin.RightCodeExists, "Right code already exists.");
+            throw new FridayException(
+                ErrorCodes.Admin.RightCodeExists,
+                "Right code already exists."
+            );
         }
 
         Right right = Right.Create(request.Code, request.Name, request.Description);

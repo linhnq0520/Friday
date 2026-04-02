@@ -1,5 +1,4 @@
 using Friday.API.Common;
-using Friday.BuildingBlocks.Application.Cqrs;
 using Friday.Modules.Admin.Application.Features.Rights;
 using Friday.Modules.Admin.Application.Features.Roles;
 using Friday.Modules.Admin.Application.Features.Users;
@@ -18,7 +17,7 @@ public static class AdminEndpoints
             async (
                 HttpContext context,
                 CreateUserCommand command,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -29,11 +28,7 @@ public static class AdminEndpoints
 
         group.MapGet(
             "/users",
-            async (
-                HttpContext context,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
-                CancellationToken cancellationToken
-            ) =>
+            async (HttpContext context, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var response = await mediator.QueryAsync(new GetUsersQuery(), cancellationToken);
                 return ApiResults.Ok(context, response);
@@ -46,7 +41,7 @@ public static class AdminEndpoints
                 HttpContext context,
                 int userId,
                 int roleId,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -63,7 +58,7 @@ public static class AdminEndpoints
             async (
                 HttpContext context,
                 int userId,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -80,7 +75,7 @@ public static class AdminEndpoints
             async (
                 HttpContext context,
                 CreateRoleCommand command,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -91,11 +86,7 @@ public static class AdminEndpoints
 
         group.MapGet(
             "/roles",
-            async (
-                HttpContext context,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
-                CancellationToken cancellationToken
-            ) =>
+            async (HttpContext context, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var response = await mediator.QueryAsync(new GetRolesQuery(), cancellationToken);
                 return ApiResults.Ok(context, response);
@@ -108,7 +99,7 @@ public static class AdminEndpoints
                 HttpContext context,
                 int roleId,
                 int[] rightIds,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -125,7 +116,7 @@ public static class AdminEndpoints
             async (
                 HttpContext context,
                 CreateRightCommand command,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
+                IMediator mediator,
                 CancellationToken cancellationToken
             ) =>
             {
@@ -136,11 +127,7 @@ public static class AdminEndpoints
 
         group.MapGet(
             "/rights",
-            async (
-                HttpContext context,
-                [FromKeyedServices(ModuleKeys.Admin)] IMediator mediator,
-                CancellationToken cancellationToken
-            ) =>
+            async (HttpContext context, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var response = await mediator.QueryAsync(new GetRightsQuery(), cancellationToken);
                 return ApiResults.Ok(context, response);

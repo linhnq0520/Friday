@@ -4,13 +4,13 @@ using Friday.Modules.Admin.Application.Models;
 using Friday.Modules.Admin.Domain.Aggregates.UserAggregate;
 using Friday.Modules.Admin.Domain.Repositories;
 using LinKit.Core.Cqrs;
+using LinKit.Core.Endpoints;
 
 namespace Friday.Modules.Admin.Application.Features.Users;
 
 public sealed record CreateUserCommand(string Username, string Email, int[] RoleIds)
     : ICommand<UserDto>;
 
-[CqrsHandler]
 public sealed class CreateUserHandler(IUserRepository users, IRoleRepository roles)
     : ICommandHandler<CreateUserCommand, UserDto>
 {

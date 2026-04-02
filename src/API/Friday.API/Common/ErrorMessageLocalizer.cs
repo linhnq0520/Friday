@@ -1,4 +1,3 @@
-using Friday.BuildingBlocks.Application.Errors;
 using Friday.BuildingBlocks.Application.Localization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

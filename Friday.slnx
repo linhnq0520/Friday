@@ -1,5 +1,8 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Packages.props" />
+  </Folder>
   <Folder Name="/src/API/">
     <Project Path="src/API/Friday.API/Friday.API.csproj" />
   </Folder>

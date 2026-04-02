@@ -6,7 +6,6 @@ namespace Friday.Modules.Admin.Application.Features.Rights;
 
 public sealed record GetRightsQuery() : IQuery<IReadOnlyList<RightDto>>;
 
-[CqrsHandler]
 public sealed class GetRightsHandler(IRightRepository rights)
     : IQueryHandler<GetRightsQuery, IReadOnlyList<RightDto>>
 {

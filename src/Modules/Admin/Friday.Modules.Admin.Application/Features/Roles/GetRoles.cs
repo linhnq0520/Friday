@@ -6,7 +6,6 @@ namespace Friday.Modules.Admin.Application.Features.Roles;
 
 public sealed record GetRolesQuery() : IQuery<IReadOnlyList<RoleDto>>;
 
-[CqrsHandler]
 public sealed class GetRolesHandler(IRoleRepository roles)
     : IQueryHandler<GetRolesQuery, IReadOnlyList<RoleDto>>
 {
@@ -15,17 +14,17 @@ public sealed class GetRolesHandler(IRoleRepository roles)
         CancellationToken cancellationToken
     )
     {
-        IReadOnlyList<Domain.Aggregates.RoleAggregate.Role> items = await roles.ListAsync(cancellationToken);
+        IReadOnlyList<Domain.Aggregates.RoleAggregate.Role> items = await roles.ListAsync(
+            cancellationToken
+        );
         return items
-            .Select(x =>
-                new RoleDto(
-                    x.Id,
-                    x.Code,
-                    x.Name,
-                    x.IsActive,
-                    x.RoleRights.Select(rr => rr.RightId).ToArray()
-                )
-            )
+            .Select(x => new RoleDto(
+                x.Id,
+                x.Code,
+                x.Name,
+                x.IsActive,
+                x.RoleRights.Select(rr => rr.RightId).ToArray()
+            ))
             .ToArray();
     }
 }

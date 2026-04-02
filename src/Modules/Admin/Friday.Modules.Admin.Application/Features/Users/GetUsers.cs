@@ -6,7 +6,6 @@ namespace Friday.Modules.Admin.Application.Features.Users;
 
 public sealed record GetUsersQuery() : IQuery<IReadOnlyList<UserDto>>;
 
-[CqrsHandler]
 public sealed class GetUsersHandler(IUserRepository users)
     : IQueryHandler<GetUsersQuery, IReadOnlyList<UserDto>>
 {
@@ -19,16 +18,14 @@ public sealed class GetUsersHandler(IUserRepository users)
             cancellationToken
         );
         return items
-            .Select(x =>
-                new UserDto(
-                    x.Id,
-                    x.Username,
-                    x.Email,
-                    x.IsActive,
-                    x.IsLocked,
-                    x.UserRoles.Select(ur => ur.RoleId).ToArray()
-                )
-            )
+            .Select(x => new UserDto(
+                x.Id,
+                x.Username,
+                x.Email,
+                x.IsActive,
+                x.IsLocked,
+                x.UserRoles.Select(ur => ur.RoleId).ToArray()
+            ))
             .ToArray();
     }
 }

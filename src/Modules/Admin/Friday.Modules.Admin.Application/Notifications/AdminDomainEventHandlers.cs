@@ -5,10 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Friday.Modules.Admin.Application.Notifications;
 
-[CqrsHandler]
 public sealed class UserCreatedDomainEventHandler(
     ILogger<UserCreatedDomainEventHandler> logger,
-    IIntegrationEventPublisher integrationEvents
+    IMediator mediator
 ) : INotificationHandler<UserCreatedDomainEvent>
 {
     public async Task HandleAsync(
@@ -22,18 +21,17 @@ public sealed class UserCreatedDomainEventHandler(
             notification.Username,
             notification.Email
         );
-        await integrationEvents.PublishAsync(
+        await mediator.PublishAsync(
             new UserCreatedIntegrationEvent(
                 notification.UserId,
                 notification.Username,
                 notification.Email
             ),
-            cancellationToken
+            ct: cancellationToken
         );
     }
 }
 
-[CqrsHandler]
 public sealed class UserRoleAssignedDomainEventHandler(
     ILogger<UserRoleAssignedDomainEventHandler> logger
 ) : INotificationHandler<UserRoleAssignedDomainEvent>
@@ -52,7 +50,6 @@ public sealed class UserRoleAssignedDomainEventHandler(
     }
 }
 
-[CqrsHandler]
 public sealed class RoleRightsChangedDomainEventHandler(
     ILogger<RoleRightsChangedDomainEventHandler> logger
 ) : INotificationHandler<RoleRightsChangedDomainEvent>

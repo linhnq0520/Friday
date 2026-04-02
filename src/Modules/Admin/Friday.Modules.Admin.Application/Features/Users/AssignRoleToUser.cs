@@ -9,7 +9,6 @@ namespace Friday.Modules.Admin.Application.Features.Users;
 
 public sealed record AssignRoleToUserCommand(int UserId, int RoleId) : ICommand<UserDto>;
 
-[CqrsHandler]
 public sealed class AssignRoleToUserHandler(IUserRepository users, IRoleRepository roles)
     : ICommandHandler<AssignRoleToUserCommand, UserDto>
 {

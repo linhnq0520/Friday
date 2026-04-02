@@ -9,7 +9,6 @@ namespace Friday.Modules.Admin.Application.Features.Roles;
 
 public sealed record GrantRightsToRoleCommand(int RoleId, int[] RightIds) : ICommand<RoleDto>;
 
-[CqrsHandler]
 public sealed class GrantRightsToRoleHandler(IRoleRepository roles, IRightRepository rights)
     : ICommandHandler<GrantRightsToRoleCommand, RoleDto>
 {
@@ -38,7 +37,10 @@ public sealed class GrantRightsToRoleHandler(IRoleRepository roles, IRightReposi
                 await rights.GetByIdsAsync(rightIds, cancellationToken);
             if (existingRights.Count != rightIds.Length)
             {
-                throw new FridayException(ErrorCodes.Admin.RightNotFound, "Some rights are not found.");
+                throw new FridayException(
+                    ErrorCodes.Admin.RightNotFound,
+                    "Some rights are not found."
+                );
             }
         }
 

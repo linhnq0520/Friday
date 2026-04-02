@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Friday.Modules.Sample.Application.Notifications;
 
-[CqrsHandler]
 public sealed class TodoItemCreatedAuditHandler(ILogger<TodoItemCreatedAuditHandler> logger)
     : INotificationHandler<TodoItemCreatedDomainEvent>
 {
@@ -24,7 +23,6 @@ public sealed class TodoItemCreatedAuditHandler(ILogger<TodoItemCreatedAuditHand
     }
 }
 
-[CqrsHandler]
 public sealed class TodoItemCreatedProjectionHandler(ILogger<TodoItemCreatedProjectionHandler> logger)
     : INotificationHandler<TodoItemCreatedDomainEvent>
 {

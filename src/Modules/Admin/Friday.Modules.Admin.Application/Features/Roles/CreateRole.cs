@@ -9,10 +9,13 @@ namespace Friday.Modules.Admin.Application.Features.Roles;
 
 public sealed record CreateRoleCommand(string Code, string Name) : ICommand<RoleDto>;
 
-[CqrsHandler]
-public sealed class CreateRoleHandler(IRoleRepository roles) : ICommandHandler<CreateRoleCommand, RoleDto>
+public sealed class CreateRoleHandler(IRoleRepository roles)
+    : ICommandHandler<CreateRoleCommand, RoleDto>
 {
-    public async Task<RoleDto> HandleAsync(CreateRoleCommand request, CancellationToken cancellationToken)
+    public async Task<RoleDto> HandleAsync(
+        CreateRoleCommand request,
+        CancellationToken cancellationToken
+    )
     {
         if (await roles.ExistsByCodeAsync(request.Code, cancellationToken))
         {

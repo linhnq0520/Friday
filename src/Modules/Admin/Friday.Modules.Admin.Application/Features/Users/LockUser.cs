@@ -9,10 +9,13 @@ namespace Friday.Modules.Admin.Application.Features.Users;
 
 public sealed record LockUserCommand(int UserId) : ICommand<UserDto>;
 
-[CqrsHandler]
-public sealed class LockUserHandler(IUserRepository users) : ICommandHandler<LockUserCommand, UserDto>
+public sealed class LockUserHandler(IUserRepository users)
+    : ICommandHandler<LockUserCommand, UserDto>
 {
-    public async Task<UserDto> HandleAsync(LockUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserDto> HandleAsync(
+        LockUserCommand request,
+        CancellationToken cancellationToken
+    )
     {
         Domain.Aggregates.UserAggregate.User? user = await users.GetByIdAsync(
             request.UserId,
