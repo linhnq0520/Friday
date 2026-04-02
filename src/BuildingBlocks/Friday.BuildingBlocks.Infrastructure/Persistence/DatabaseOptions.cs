@@ -5,8 +5,8 @@ public sealed class DatabaseOptions
     public const string SectionName = "Database";
 
     /// <summary>
-    /// When true, runs all registered <c>IDataSeeder</c> implementations after the host starts.
-    /// Prefer false in production and run seeding from CI/release jobs unless you intentionally bootstrap reference data from the app.
+    /// When true, runs <see cref="Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync"/> on the shared
+    /// <see cref="FridayDbContext"/>, then FluentMigrator data migrations (same connection). Skipped for non-relational providers (e.g. in-memory).
     /// </summary>
-    public bool SeedOnStartup { get; set; }
+    public bool ApplyMigrationsOnStartup { get; set; }
 }

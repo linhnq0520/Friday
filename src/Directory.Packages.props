@@ -3,6 +3,9 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="FluentMigrator" Version="7.1.0" />
+    <PackageVersion Include="FluentMigrator.Runner" Version="7.1.0" />
+    <PackageVersion Include="FluentMigrator.Runner.SqlServer" Version="7.1.0" />
     <PackageVersion Include="LinKit.Core" Version="2.2.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
@@ -12,15 +15,9 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
-    <PackageVersion
-      Include="Microsoft.Extensions.DependencyInjection.Abstractions"
-      Version="10.0.5"
-    />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
-    <PackageVersion
-      Include="Microsoft.Extensions.Options.ConfigurationExtensions"
-      Version="10.0.5"
-    />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
     <PackageVersion Include="linq2db" Version="6.2.1" />
     <PackageVersion Include="linq2db.SqlServer" Version="6.2.1" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />

@@ -1,8 +1,9 @@
 using Friday.BuildingBlocks.Application.Abstractions;
 using Friday.BuildingBlocks.Application.Localization;
-using Friday.BuildingBlocks.Application.Seeding;
+using Friday.BuildingBlocks.Infrastructure.DataMigrations;
 using Friday.BuildingBlocks.Infrastructure.Localization;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
+using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,6 @@ public static class DependencyInjection
     )
     {
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
-        services.AddScoped<IDataSeeder, ErrorLocalizationMessagesDataSeeder>();
 
         string? connectionString = configuration.GetConnectionString("FridayDb");
 
@@ -36,6 +36,19 @@ public static class DependencyInjection
                 options.UseInMemoryDatabase("Friday.Shared");
             }
         });
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            services
+                .AddFluentMigratorCore()
+                .ConfigureRunner(rb =>
+                    rb.AddSqlServer()
+                        .WithGlobalConnectionString(connectionString)
+                        .ScanIn(typeof(DataMigrationAssemblyMarker).Assembly)
+                        .For.Migrations()
+                )
+                .AddLogging(lb => lb.AddFluentMigratorConsole());
+        }
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         services.AddScoped<IErrorLocalizationStore, EfErrorLocalizationStore>();

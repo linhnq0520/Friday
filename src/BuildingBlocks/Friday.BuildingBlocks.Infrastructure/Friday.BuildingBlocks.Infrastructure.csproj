@@ -4,6 +4,9 @@
     <ProjectReference Include="..\Friday.BuildingBlocks.Application\Friday.BuildingBlocks.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FluentMigrator" />
+    <PackageReference Include="FluentMigrator.Runner" />
+    <PackageReference Include="FluentMigrator.Runner.SqlServer" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />

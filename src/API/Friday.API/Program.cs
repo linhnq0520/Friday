@@ -3,8 +3,8 @@ using Friday.API.Middlewares;
 using Friday.API.Modules.Admin;
 using Friday.API.Modules.Sample;
 using Friday.BuildingBlocks.Application;
-using Friday.BuildingBlocks.Application.Seeding;
 using Friday.BuildingBlocks.Infrastructure;
+using Friday.BuildingBlocks.Infrastructure.Hosting;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.Modules.Admin.Application;
 using Friday.Modules.Admin.Infrastructure;
@@ -40,17 +40,9 @@ try
     builder.Services.AddSampleInfrastructure();
 
     WebApplication app = builder.Build();
+    ApplicationServiceProviderAccessor.SetRoot(app.Services);
 
-    if (app.Configuration.GetValue($"{DatabaseOptions.SectionName}:SeedOnStartup", false))
-    {
-        using (IServiceScope scope = app.Services.CreateScope())
-        {
-            foreach (IDataSeeder seeder in scope.ServiceProvider.GetServices<IDataSeeder>())
-            {
-                await seeder.SeedAsync(CancellationToken.None);
-            }
-        }
-    }
+    await app.Services.ApplyEfThenDataMigrationsAsync(app.Configuration);
 
     app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseSerilogRequestLogging(options =>
