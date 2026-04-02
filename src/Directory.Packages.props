@@ -5,23 +5,32 @@
   <ItemGroup>
     <PackageVersion Include="FluentMigrator" Version="7.1.0" />
     <PackageVersion Include="FluentMigrator.Runner" Version="7.1.0" />
+    <PackageVersion Include="FluentMigrator.Runner.MySql" Version="7.1.0" />
+    <PackageVersion Include="FluentMigrator.Runner.Oracle" Version="7.1.0" />
+    <PackageVersion Include="FluentMigrator.Runner.Postgres" Version="7.1.0" />
     <PackageVersion Include="FluentMigrator.Runner.SqlServer" Version="7.1.0" />
     <PackageVersion Include="LinKit.Core" Version="2.2.3" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="linq2db.MySql" Version="6.2.1" />
+    <PackageVersion Include="linq2db.PostgreSQL" Version="6.2.1" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
     <PackageVersion Include="linq2db" Version="6.2.1" />
+    <PackageVersion Include="linq2db.Oracle" Version="6.2.1" />
     <PackageVersion Include="linq2db.SqlServer" Version="6.2.1" />
+    <PackageVersion Include="MySql.EntityFrameworkCore" Version="10.0.1" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+    <PackageVersion Include="Oracle.EntityFrameworkCore" Version="10.23.26000" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageVersion Include="Serilog.Enrichers.Process" Version="3.0.0" />

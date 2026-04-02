@@ -19,42 +19,71 @@ public static class DependencyInjection
     )
     {
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+
         services.Configure<CacheOptions>(configuration.GetSection(CacheOptions.SectionName));
+
         AddApplicationCache(services, configuration);
+
+        DatabaseOptions dbSettings =
+            configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
+            ?? new DatabaseOptions();
 
         string? connectionString = configuration.GetConnectionString("FridayDb");
 
-        services.AddScoped<ILinqToDbConnectionFactory>(_ => new LinqToDbConnectionFactory(
+        string linq2DbConnection =
             connectionString
-                ?? "Server=(localdb)\\MSSQLLocalDB;Database=FridayDb;Trusted_Connection=True;TrustServerCertificate=True;"
+            ?? "Server=(localdb)\\MSSQLLocalDB;Database=FridayDb;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        services.AddScoped<ILinqToDbConnectionFactory>(_ => new LinqToDbConnectionFactory(
+            linq2DbConnection,
+            dbSettings.Provider
         ));
+
         services.AddDbContext<FridayDbContext>(options =>
-        {
-            if (!string.IsNullOrWhiteSpace(connectionString))
-            {
-                options.UseSqlServer(connectionString);
-            }
-            else
-            {
-                options.UseInMemoryDatabase("Friday.Shared");
-            }
-        });
+            RelationalDbContextConfigurer.Configure(options, connectionString, dbSettings.Provider)
+        );
 
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
             services
                 .AddFluentMigratorCore()
                 .ConfigureRunner(rb =>
-                    rb.AddSqlServer()
-                        .WithGlobalConnectionString(connectionString)
+                {
+                    switch (dbSettings.Provider)
+                    {
+                        case RelationalDatabaseProvider.SqlServer:
+                            rb.AddSqlServer();
+                            break;
+                        case RelationalDatabaseProvider.PostgreSql:
+                            rb.AddPostgres15_0();
+                            break;
+                        case RelationalDatabaseProvider.MySql:
+                            rb.AddMySql8();
+                            break;
+                        case RelationalDatabaseProvider.Oracle:
+                            rb.AddOracleManaged();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(
+                                nameof(dbSettings.Provider),
+                                dbSettings.Provider,
+                                "Unknown database provider."
+                            );
+                    }
+
+                    rb.WithGlobalConnectionString(connectionString)
                         .ScanIn(typeof(DataMigrationAssemblyMarker).Assembly)
-                        .For.Migrations()
-                )
+                        .For.Migrations();
+                })
                 .AddLogging(lb => lb.AddFluentMigratorConsole());
         }
+
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+
         services.AddScoped<IErrorLocalizationStore, EfErrorLocalizationStore>();
+
         return services;
     }
 
@@ -68,6 +97,7 @@ public static class DependencyInjection
         CacheOptions cacheOptions =
             configuration.GetSection(CacheOptions.SectionName).Get<CacheOptions>()
             ?? new CacheOptions();
+
         string? redisConnection = !string.IsNullOrWhiteSpace(cacheOptions.RedisConnectionString)
             ? cacheOptions.RedisConnectionString
             : configuration.GetConnectionString("Redis");
@@ -77,10 +107,12 @@ public static class DependencyInjection
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = redisConnection;
+
                 options.InstanceName = string.IsNullOrWhiteSpace(cacheOptions.RedisInstanceName)
                     ? "Friday:"
                     : cacheOptions.RedisInstanceName;
             });
+
             services.AddSingleton<ICacheService, RedisCacheService>();
         }
         else

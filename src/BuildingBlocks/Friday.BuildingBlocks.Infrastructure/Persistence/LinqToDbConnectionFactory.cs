@@ -3,10 +3,17 @@ using LinqToDB.Data;
 
 namespace Friday.BuildingBlocks.Infrastructure.Persistence;
 
-public sealed class LinqToDbConnectionFactory(string connectionString) : ILinqToDbConnectionFactory
+public sealed class LinqToDbConnectionFactory : ILinqToDbConnectionFactory
 {
-    private readonly string _connectionString = connectionString;
+    private readonly string _connectionString;
+    private readonly RelationalDatabaseProvider _provider;
     private DataConnection? _connection;
+
+    public LinqToDbConnectionFactory(string connectionString, RelationalDatabaseProvider provider)
+    {
+        _connectionString = connectionString;
+        _provider = provider;
+    }
 
     public DataConnection GetOrCreateConnection()
     {
@@ -15,7 +22,14 @@ public sealed class LinqToDbConnectionFactory(string connectionString) : ILinqTo
             return _connection;
         }
 
-        DataOptions options = new DataOptions().UseSqlServer(_connectionString);
+        DataOptions options = _provider switch
+        {
+            RelationalDatabaseProvider.SqlServer => new DataOptions().UseSqlServer(_connectionString),
+            RelationalDatabaseProvider.PostgreSql => new DataOptions().UsePostgreSQL(_connectionString),
+            RelationalDatabaseProvider.MySql => new DataOptions().UseMySql(_connectionString),
+            RelationalDatabaseProvider.Oracle => new DataOptions().UseOracle(_connectionString),
+            _ => throw new ArgumentOutOfRangeException(nameof(_provider), _provider, null),
+        };
         _connection = new DataConnection(options);
         return _connection;
     }
