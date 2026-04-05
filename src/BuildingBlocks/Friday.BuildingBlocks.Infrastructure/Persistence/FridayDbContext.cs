@@ -5,16 +5,30 @@ namespace Friday.BuildingBlocks.Infrastructure.Persistence;
 
 public sealed class FridayDbContext(DbContextOptions<FridayDbContext> options) : DbContext(options)
 {
+    /// <summary>
+    /// Explicit list so <c>dotnet ef</c> and minimal hosts load module EF configurations (not only whatever is already in <see cref="AppDomain"/>).
+    /// </summary>
+    private static readonly string[] ModuleConfigurationAssemblyNames =
+    [
+        "Friday.Modules.Admin.Infrastructure",
+        "Friday.Modules.Sample.Infrastructure",
+    ];
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        Assembly[] assemblies = AppDomain
-            .CurrentDomain.GetAssemblies()
-            .Where(x => x.GetName().Name?.StartsWith("Friday.") == true)
-            .ToArray();
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(FridayDbContext).Assembly);
 
-        foreach (Assembly assembly in assemblies)
+        foreach (string name in ModuleConfigurationAssemblyNames)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+            try
+            {
+                Assembly assembly = Assembly.Load(name);
+                modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+            }
+            catch (FileNotFoundException)
+            {
+                // Slim deployment without that module.
+            }
         }
     }
 }

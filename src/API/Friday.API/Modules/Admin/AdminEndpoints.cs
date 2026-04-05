@@ -2,6 +2,7 @@ using Friday.API.Common;
 using Friday.Modules.Admin.Application.Features.Rights;
 using Friday.Modules.Admin.Application.Features.Roles;
 using Friday.Modules.Admin.Application.Features.Users;
+using Friday.Modules.Admin.Application.Models;
 using LinKit.Core.Cqrs;
 
 namespace Friday.API.Modules.Admin;
@@ -10,7 +11,10 @@ public static class AdminEndpoints
 {
     public static IEndpointRouteBuilder MapAdminModule(this IEndpointRouteBuilder endpoints)
     {
-        RouteGroupBuilder group = endpoints.MapGroup("/api/admin").WithTags("Admin");
+        RouteGroupBuilder group = endpoints
+            .MapGroup("/api/admin")
+            .WithTags("Admin")
+            .RequireAuthorization();
 
         group.MapPost(
             "/users",
@@ -21,7 +25,7 @@ public static class AdminEndpoints
                 CancellationToken cancellationToken
             ) =>
             {
-                var response = await mediator.SendAsync(command, cancellationToken);
+                UserDto response = await mediator.SendAsync(command, cancellationToken);
                 return ApiResults.Ok(context, response);
             }
         );
@@ -30,7 +34,72 @@ public static class AdminEndpoints
             "/users",
             async (HttpContext context, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var response = await mediator.QueryAsync(new GetUsersQuery(), cancellationToken);
+                IReadOnlyList<UserDto> response = await mediator.QueryAsync(
+                    new GetUsersQuery(),
+                    cancellationToken
+                );
+                return ApiResults.Ok(context, response);
+            }
+        );
+
+        group.MapGet(
+            "/users/{userId:int}",
+            async (
+                HttpContext context,
+                int userId,
+                IMediator mediator,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                UserDto response = await mediator.QueryAsync(
+                    new GetUserByIdQuery(userId),
+                    cancellationToken
+                );
+                return ApiResults.Ok(context, response);
+            }
+        );
+
+        group.MapPut(
+            "/users/{userId:int}",
+            async (
+                HttpContext context,
+                int userId,
+                UpdateUserRequest body,
+                IMediator mediator,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                UpdateUserCommand command = new(
+                    userId,
+                    body.UserCode,
+                    body.Username,
+                    body.Email,
+                    body.FullName,
+                    body.Phone,
+                    body.Address,
+                    body.CompanyName,
+                    body.JobTitle,
+                    body.Notes
+                );
+                UserDto response = await mediator.SendAsync(command, cancellationToken);
+                return ApiResults.Ok(context, response);
+            }
+        );
+
+        group.MapPost(
+            "/users/{userId:int}/password",
+            async (
+                HttpContext context,
+                int userId,
+                ResetUserPasswordRequest body,
+                IMediator mediator,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                UserDto response = await mediator.SendAsync(
+                    new ResetUserPasswordCommand(userId, body.NewPassword),
+                    cancellationToken
+                );
                 return ApiResults.Ok(context, response);
             }
         );

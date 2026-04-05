@@ -20,6 +20,40 @@ public sealed class UserRepository(FridayDbContext dbContext) : IUserRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public Task<User?> GetByIdWithPasswordAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return dbContext
+            .Set<User>()
+            .Include(x => x.UserRoles)
+            .Include(x => x.PasswordCredential)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public Task<User?> GetByLoginWithPasswordAsync(
+        string login,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string trimmed = login.Trim();
+        string normalizedEmail = trimmed.ToLowerInvariant();
+        string upper = trimmed.ToUpperInvariant();
+
+        return dbContext
+            .Set<User>()
+            .Include(x => x.UserRoles)
+            .Include(x => x.PasswordCredential)
+            .FirstOrDefaultAsync(
+                x =>
+                    x.Username.ToUpper() == upper
+                    || x.Email == normalizedEmail
+                    || x.UserCode == upper,
+                cancellationToken
+            );
+    }
+
     public Task<bool> ExistsByUsernameAsync(
         string username,
         CancellationToken cancellationToken = default
@@ -36,10 +70,17 @@ public sealed class UserRepository(FridayDbContext dbContext) : IUserRepository
         CancellationToken cancellationToken = default
     )
     {
-        string normalized = email.Trim().ToUpperInvariant();
-        return dbContext
-            .Set<User>()
-            .AnyAsync(x => x.Email.ToUpper() == normalized, cancellationToken);
+        string normalized = email.Trim().ToLowerInvariant();
+        return dbContext.Set<User>().AnyAsync(x => x.Email == normalized, cancellationToken);
+    }
+
+    public Task<bool> ExistsByUserCodeAsync(
+        string userCode,
+        CancellationToken cancellationToken = default
+    )
+    {
+        string normalized = userCode.Trim().ToUpperInvariant();
+        return dbContext.Set<User>().AnyAsync(x => x.UserCode == normalized, cancellationToken);
     }
 
     public async Task<IReadOnlyList<User>> ListAsync(CancellationToken cancellationToken = default)

@@ -16,6 +16,14 @@ public static class ErrorCodes
         public const string UserUsernameExists = "ADMIN_USER_USERNAME_EXISTS";
         public const string UserEmailExists = "ADMIN_USER_EMAIL_EXISTS";
         public const string UserRoleNotFound = "ADMIN_USER_ROLE_NOT_FOUND";
+        public const string UserCodeExists = "ADMIN_USER_CODE_EXISTS";
+        public const string InvalidCredentials = "ADMIN_INVALID_CREDENTIALS";
+        public const string UserInactive = "ADMIN_USER_INACTIVE";
+        public const string UserLockedAuth = "ADMIN_USER_LOCKED";
+        public const string PasswordRequired = "ADMIN_PASSWORD_REQUIRED";
+        public const string InvalidRefreshToken = "ADMIN_INVALID_REFRESH_TOKEN";
+        public const string SessionInvalid = "ADMIN_SESSION_INVALID";
+        public const string RegistrationDisabled = "ADMIN_REGISTRATION_DISABLED";
 
         public const string RoleNotFound = "ADMIN_ROLE_NOT_FOUND";
         public const string RoleCodeExists = "ADMIN_ROLE_CODE_EXISTS";

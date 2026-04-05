@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Serilog.Context;
 
 namespace Friday.API.Middlewares;
@@ -9,7 +10,9 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context)
     {
         string correlationId =
-            context.Request.Headers[HeaderName].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
+            context.Request.Headers[HeaderName].FirstOrDefault()
+            ?? Activity.Current?.TraceId.ToString()
+            ?? context.TraceIdentifier;
 
         context.Response.Headers[HeaderName] = correlationId;
 

@@ -9,7 +9,7 @@ namespace Friday.Modules.Admin.Application.Features.Users;
 
 public sealed record LockUserCommand(int UserId) : ICommand<UserDto>;
 
-public sealed class LockUserHandler(IUserRepository users)
+public sealed class LockUserHandler(IUserRepository users, IUserSessionRepository sessions)
     : ICommandHandler<LockUserCommand, UserDto>
 {
     public async Task<UserDto> HandleAsync(
@@ -31,14 +31,8 @@ public sealed class LockUserHandler(IUserRepository users)
         }
 
         user.Lock();
+        await sessions.RevokeAllForUserAsync(user.Id, cancellationToken);
 
-        return new UserDto(
-            user.Id,
-            user.Username,
-            user.Email,
-            user.IsActive,
-            user.IsLocked,
-            user.UserRoles.Select(x => x.RoleId).ToArray()
-        );
+        return UserDto.FromUser(user);
     }
 }

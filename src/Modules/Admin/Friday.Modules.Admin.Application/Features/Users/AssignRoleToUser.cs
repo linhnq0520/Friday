@@ -45,13 +45,6 @@ public sealed class AssignRoleToUserHandler(IUserRepository users, IRoleReposito
 
         user.AssignRole(request.RoleId);
 
-        return new UserDto(
-            user.Id,
-            user.Username,
-            user.Email,
-            user.IsActive,
-            user.IsLocked,
-            user.UserRoles.Select(x => x.RoleId).ToArray()
-        );
+        return UserDto.FromUser(user);
     }
 }

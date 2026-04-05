@@ -7,11 +7,10 @@ namespace Friday.API.Middlewares;
 
 public sealed class ExceptionHandlingMiddleware(
     RequestDelegate next,
-    ILogger<ExceptionHandlingMiddleware> logger,
-    IErrorMessageLocalizer localizer
+    ILogger<ExceptionHandlingMiddleware> logger
 )
 {
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IErrorMessageLocalizer localizer)
     {
         try
         {

@@ -17,15 +17,6 @@ public sealed class GetUsersHandler(IUserRepository users)
         IReadOnlyList<Domain.Aggregates.UserAggregate.User> items = await users.ListAsync(
             cancellationToken
         );
-        return items
-            .Select(x => new UserDto(
-                x.Id,
-                x.Username,
-                x.Email,
-                x.IsActive,
-                x.IsLocked,
-                x.UserRoles.Select(ur => ur.RoleId).ToArray()
-            ))
-            .ToArray();
+        return items.Select(UserDto.FromUser).ToArray();
     }
 }
