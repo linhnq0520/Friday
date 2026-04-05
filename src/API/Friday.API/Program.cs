@@ -79,7 +79,9 @@ try
     ApplicationServiceProviderAccessor.SetRoot(app.Services);
 
     Microsoft.Extensions.Logging.ILogger startupLogger = app.Logger;
-    startupLogger.LogInformation("Friday.API build complete; running database migrations if enabled.");
+    startupLogger.LogInformation(
+        "Friday.API build complete; running database migrations if enabled."
+    );
     await app.Services.ApplyEfThenDataMigrationsAsync(app.Configuration);
     startupLogger.LogInformation("Database migration step finished; configuring HTTP pipeline.");
 
@@ -115,7 +117,8 @@ try
     });
     app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-    if (app.Environment.IsDevelopment())
+    // Development: dotnet run. Docker: compose dùng ASPNETCORE_ENVIRONMENT=Docker — vẫn bật Swagger cho tiện thử API.
+    if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Docker"))
     {
         app.UseSwagger();
         app.UseSwaggerUI(options =>

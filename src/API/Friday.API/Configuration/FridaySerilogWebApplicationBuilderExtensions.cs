@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Formatting.Compact;
+using Serilog.Sinks.Grafana.Loki;
 
 namespace Friday.API.Configuration;
 
@@ -32,34 +33,27 @@ public static class FridaySerilogWebApplicationBuilderExtensions
                     StringComparison.OrdinalIgnoreCase
                 );
 
-                if (otelLogs)
+                if (
+                    otelLogs
+                    && !string.IsNullOrWhiteSpace(otel.OtlpEndpoint)
+                    && Uri.TryCreate(otel.OtlpEndpoint, UriKind.Absolute, out _)
+                )
                 {
-                    if (
-                        string.IsNullOrWhiteSpace(otel.OtlpEndpoint)
-                        || !Uri.TryCreate(otel.OtlpEndpoint, UriKind.Absolute, out _)
-                    )
+                    loggerConfiguration.WriteTo.OpenTelemetry(o =>
                     {
-                        loggerConfiguration.ReadFrom.Configuration(
-                            configuration.GetSection("SerilogClassic")
-                        );
-                        AppendRollingJsonFile(loggerConfiguration, env.ContentRootPath);
-                    }
-                    else
-                    {
-                        loggerConfiguration.WriteTo.OpenTelemetry(o =>
-                        {
-                            o.Endpoint = otel.OtlpEndpoint;
-                            o.ResourceAttributes["service.name"] = otel.ServiceName;
-                        });
-                    }
+                        o.Endpoint = otel.OtlpEndpoint;
+                        o.ResourceAttributes["service.name"] = otel.ServiceName;
+                    });
                 }
                 else
                 {
                     loggerConfiguration.ReadFrom.Configuration(
                         configuration.GetSection("SerilogClassic")
                     );
-                    AppendRollingJsonFile(loggerConfiguration, env.ContentRootPath);
                 }
+
+                AppendRollingJsonFile(loggerConfiguration, env.ContentRootPath);
+                AppendGrafanaLoki(loggerConfiguration, configuration, otel);
             }
         );
 
@@ -81,6 +75,34 @@ public static class FridaySerilogWebApplicationBuilderExtensions
             retainedFileCountLimit: 14,
             shared: true,
             flushToDiskInterval: TimeSpan.FromSeconds(1)
+        );
+    }
+
+    private static void AppendGrafanaLoki(
+        LoggerConfiguration loggerConfiguration,
+        IConfiguration configuration,
+        OpenTelemetryOptions otel
+    )
+    {
+        GrafanaLokiOptions loki =
+            configuration.GetSection(GrafanaLokiOptions.SectionName).Get<GrafanaLokiOptions>()
+            ?? new GrafanaLokiOptions();
+
+        if (!loki.Enabled || string.IsNullOrWhiteSpace(loki.Uri))
+        {
+            return;
+        }
+
+        if (!Uri.TryCreate(loki.Uri.Trim(), UriKind.Absolute, out Uri? lokiUri))
+        {
+            return;
+        }
+
+        string serviceName = string.IsNullOrWhiteSpace(otel.ServiceName) ? "Friday.API" : otel.ServiceName;
+
+        loggerConfiguration.WriteTo.GrafanaLoki(
+            lokiUri.GetLeftPart(UriPartial.Authority),
+            [new LokiLabel { Key = "service_name", Value = serviceName }]
         );
     }
 }

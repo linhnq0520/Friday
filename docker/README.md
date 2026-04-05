@@ -1,6 +1,6 @@
 # Friday — Docker & PostgreSQL
 
-Compose khởi chạy **PostgreSQL 16**, **Redis 7**, **Jaeger** (UI trace OpenTelemetry) và **Friday.API** (.NET 10). API dùng Npgsql (`Database:Provider = PostgreSql`).
+Compose khởi chạy **PostgreSQL 16**, **Redis 7**, stack quan sát **Grafana** (UI), **Loki** (log), **Tempo** (trace), **Prometheus** (metric), **OpenTelemetry Collector** (OTLP vào Tempo + exporter metric), và tùy chọn **Friday.API** (.NET 10). API dùng Npgsql (`Database:Provider = PostgreSql`).
 
 ## Yêu cầu
 
@@ -14,11 +14,14 @@ Từ thư mục gốc repo (`Friday/`):
 docker compose up -d --build
 ```
 
-- API: `http://localhost:8080`
-- PostgreSQL: `localhost:5432` (user / password / database: `friday`)
-- Redis: `localhost:6379`
-- **Jaeger UI** (trace): `http://localhost:16686` — chọn service `Friday.API`, gọi vài request vào API rồi Search trace.
-- OTLP gRPC (nếu chạy API trên máy host nhưng gửi trace vào Jaeger trong Docker): `localhost:4317` — trong `appsettings.Development.json` hoặc user-secrets đặt `OpenTelemetry:OtlpEndpoint` = `http://localhost:4317`.
+- **API:** `http://localhost:8080`
+- **PostgreSQL:** `localhost:5432` (user / password / database: `friday`)
+- **Redis:** `localhost:6379`
+- **Grafana:** `http://localhost:3000` (anonymous admin đã bật trong compose) — datasource Loki, Tempo, Prometheus đã provision.
+- **Loki:** `http://localhost:3100` (API push log; thường dùng qua Grafana Explore)
+- **Tempo:** trace backend nội bộ; Grafana trỏ `http://tempo:3200`. Có thể mở `http://localhost:3200` nếu cần gỡ lỗi.
+- **Prometheus:** `http://localhost:9090` — scrape metric từ collector `:8889`.
+- **OTLP** (trace + metric từ app): **gRPC** `localhost:4317`, HTTP `localhost:4318` → collector → Tempo + Prometheus.
 
 Dừng và xóa container (giữ volume DB):
 
@@ -34,14 +37,28 @@ docker compose down -v
 
 ## Chỉ chạy Postgres + Redis (phát triển local)
 
-Khi bạn muốn chạy API bằng `dotnet run` nhưng DB/Redis trong Docker:
-
 ```bash
 docker compose up -d postgres redis
 ```
 
-Connection string mặc định trong `appsettings.json` / `appsettings.Development.json` đã trỏ `localhost:5432` và Redis `localhost:6379`.  
-Bật Redis cache trong Development: trong `appsettings.Development.json` đặt `Cache:UseRedis` = `true`.
+Connection string mặc định trong `appsettings.json` / `appsettings.Development.json` đã trỏ `localhost:5432` và Redis `localhost:6379`.
+
+## Chạy API trên host + quan sát trong Docker
+
+1. Khởi động observability (và DB nếu cần):
+
+   ```bash
+   docker compose up -d postgres redis loki tempo otel-collector prometheus grafana
+   ```
+
+2. Trong `appsettings.Development.json` (hoặc user-secrets):
+   - `OpenTelemetry:OtlpEndpoint` = `http://127.0.0.1:4317`
+   - `Serilog:GrafanaLoki:Enabled` = `true`
+   - `Serilog:GrafanaLoki:Uri` = `http://127.0.0.1:3100`
+
+3. Chạy API: `dotnet run` trong `src/API/Friday.API`.
+
+Log: vẫn ghi **file** JSON dưới `logs/`; đồng thời gửi **Loki** khi Grafana Loki bật. Trace/metric: **OpenTelemetry** → OTLP collector (không dùng `OpenTelemetry:LogExport = OpenTelemetry` cho luồng Grafana mặc định — log đi Loki qua Serilog).
 
 ## Build image API riêng
 
@@ -51,7 +68,7 @@ docker build -f docker/Dockerfile -t friday-api:latest .
 
 ## EF Core — tạo / cập nhật schema (PostgreSQL)
 
-**Thư mục chứa file migration** (EF luôn ghi vào đây khi `migrations add`):
+**Thư mục chức file migration** (EF luôn ghi vào đây khi `migrations add`):
 
 `src/BuildingBlocks/Friday.BuildingBlocks.Infrastructure/Migrations/`
 
