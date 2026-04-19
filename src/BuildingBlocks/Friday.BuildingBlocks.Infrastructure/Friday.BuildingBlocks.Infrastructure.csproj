@@ -2,6 +2,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Friday.BuildingBlocks.Domain\Friday.BuildingBlocks.Domain.csproj" />
     <ProjectReference Include="..\Friday.BuildingBlocks.Application\Friday.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Admin\Friday.Modules.Admin.Application\Friday.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Admin\Friday.Modules.Admin.Domain\Friday.Modules.Admin.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentMigrator" />

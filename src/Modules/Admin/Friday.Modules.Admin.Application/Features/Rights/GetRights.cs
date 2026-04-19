@@ -1,4 +1,5 @@
 using Friday.Modules.Admin.Application.Models;
+using Friday.Modules.Admin.Domain.Aggregates.RightAggregate;
 using Friday.Modules.Admin.Domain.Repositories;
 using LinKit.Core.Cqrs;
 
@@ -14,9 +15,13 @@ public sealed class GetRightsHandler(IRightRepository rights)
         CancellationToken cancellationToken
     )
     {
-        IReadOnlyList<Domain.Aggregates.RightAggregate.Right> items = await rights.ListAsync(
-            cancellationToken
-        );
-        return items.Select(x => new RightDto(x.Id, x.Code, x.Name, x.Description)).ToArray();
+        IReadOnlyList<Right> items = await rights.ListAsync(cancellationToken);
+        return items.Select(ToDto).ToArray();
+    }
+
+    private static RightDto ToDto(Right x)
+    {
+        string level = x.AccessLevel == PermissionAccessLevel.Manage ? "manage" : "read";
+        return new RightDto(x.Id, x.Module, x.Resource, level, x.Name, x.Description, x.PermissionKey);
     }
 }

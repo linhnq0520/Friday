@@ -86,5 +86,5 @@ Admin endpoints:
 - `POST /api/admin/roles`
 - `GET /api/admin/roles`
 - `POST /api/admin/roles/{roleId}/rights` (body: `int[]`)
-- `POST /api/admin/rights`
+- `POST /api/admin/rights/sync-catalog` (syncs permissions from the in-code catalog; no arbitrary body)
 - `GET /api/admin/rights`

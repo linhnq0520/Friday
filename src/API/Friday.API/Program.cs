@@ -1,4 +1,5 @@
 using System.Text;
+using Friday.API.Authorization;
 using Friday.API.Common;
 using Friday.API.Configuration;
 using Friday.API.Middlewares;
@@ -72,6 +73,7 @@ try
         });
 
     builder.Services.AddAuthorization();
+    builder.Services.AddAdminPermissionAuthorization();
 
     builder.Services.AddFridaySwagger();
 

@@ -29,6 +29,5 @@ public static class ErrorCodes
         public const string RoleCodeExists = "ADMIN_ROLE_CODE_EXISTS";
 
         public const string RightNotFound = "ADMIN_RIGHT_NOT_FOUND";
-        public const string RightCodeExists = "ADMIN_RIGHT_CODE_EXISTS";
     }
 }

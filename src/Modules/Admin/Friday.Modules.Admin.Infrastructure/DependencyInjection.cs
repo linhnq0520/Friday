@@ -1,9 +1,9 @@
 using Friday.Modules.Admin.Application.Configuration;
 using Friday.Modules.Admin.Application.Security;
+using Friday.Modules.Admin.Infrastructure.Security;
 using Friday.Modules.Admin.Domain.Repositories;
 using Friday.Modules.Admin.Domain.Security;
 using Friday.Modules.Admin.Infrastructure.Repositories;
-using Friday.Modules.Admin.Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRightRepository, RightRepository>();
+        services.AddScoped<IEffectivePermissionResolver, EffectivePermissionResolver>();
 
         return services;
     }

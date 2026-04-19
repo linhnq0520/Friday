@@ -6,7 +6,12 @@ public interface IRightRepository
 {
     Task AddAsync(Right right, CancellationToken cancellationToken = default);
     Task<Right?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-    Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(
+        string module,
+        string resource,
+        PermissionAccessLevel accessLevel,
+        CancellationToken cancellationToken = default
+    );
     Task<IReadOnlyList<Right>> ListAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Right>> GetByIdsAsync(
         int[] ids,

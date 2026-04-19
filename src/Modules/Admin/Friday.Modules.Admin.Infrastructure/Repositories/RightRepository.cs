@@ -17,17 +17,26 @@ public sealed class RightRepository(FridayDbContext dbContext) : IRightRepositor
         return dbContext.Set<Right>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default)
+    public Task<bool> ExistsAsync(
+        string module,
+        string resource,
+        PermissionAccessLevel accessLevel,
+        CancellationToken cancellationToken = default
+    )
     {
-        string normalized = code.Trim().ToUpperInvariant();
-        return dbContext
-            .Set<Right>()
-            .AnyAsync(x => x.Code.ToUpper() == normalized, cancellationToken);
+        string m = module.Trim().ToLowerInvariant();
+        string r = resource.Trim().ToLowerInvariant();
+        return dbContext.Set<Right>().AnyAsync(x => x.Module == m && x.Resource == r && x.AccessLevel == accessLevel, cancellationToken);
     }
 
     public async Task<IReadOnlyList<Right>> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await dbContext.Set<Right>().OrderBy(x => x.Id).ToListAsync(cancellationToken);
+        return await dbContext
+            .Set<Right>()
+            .OrderBy(x => x.Module)
+            .ThenBy(x => x.Resource)
+            .ThenBy(x => x.AccessLevel)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Right>> GetByIdsAsync(
