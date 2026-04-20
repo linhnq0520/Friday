@@ -7,6 +7,8 @@ namespace Friday.API.Modules.Auth;
 
 public static class AuthEndpoints
 {
+    public sealed record OAuth2LoginRequest(string Code, string RedirectUri);
+
     public static IEndpointRouteBuilder MapAuthModule(this IEndpointRouteBuilder endpoints)
     {
         RouteGroupBuilder group = endpoints.MapGroup("/api/auth").WithTags("Auth");
@@ -35,6 +37,24 @@ public static class AuthEndpoints
             ) =>
             {
                 LoginResponseDto response = await mediator.SendAsync(command, cancellationToken);
+                return ApiResults.Ok(context, response);
+            }
+        );
+
+        group.MapPost(
+            "/oauth2/{provider}/login",
+            async (
+                HttpContext context,
+                string provider,
+                OAuth2LoginRequest body,
+                IMediator mediator,
+                CancellationToken cancellationToken
+            ) =>
+            {
+                LoginResponseDto response = await mediator.SendAsync(
+                    new OAuth2LoginCommand(provider, body.Code, body.RedirectUri),
+                    cancellationToken
+                );
                 return ApiResults.Ok(context, response);
             }
         );

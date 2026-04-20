@@ -54,6 +54,15 @@ public sealed class UserRepository(FridayDbContext dbContext) : IUserRepository
             );
     }
 
+    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        string normalized = email.Trim().ToLowerInvariant();
+        return dbContext
+            .Set<User>()
+            .Include(x => x.UserRoles)
+            .FirstOrDefaultAsync(x => x.Email == normalized, cancellationToken);
+    }
+
     public Task<bool> ExistsByUsernameAsync(
         string username,
         CancellationToken cancellationToken = default

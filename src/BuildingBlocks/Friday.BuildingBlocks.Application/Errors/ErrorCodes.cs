@@ -24,6 +24,12 @@ public static class ErrorCodes
         public const string InvalidRefreshToken = "ADMIN_INVALID_REFRESH_TOKEN";
         public const string SessionInvalid = "ADMIN_SESSION_INVALID";
         public const string RegistrationDisabled = "ADMIN_REGISTRATION_DISABLED";
+        public const string OAuth2ProviderInvalid = "ADMIN_OAUTH2_PROVIDER_INVALID";
+        public const string OAuth2ProviderDisabled = "ADMIN_OAUTH2_PROVIDER_DISABLED";
+        public const string OAuth2AuthorizationCodeInvalid = "ADMIN_OAUTH2_AUTHORIZATION_CODE_INVALID";
+        public const string OAuth2TokenExchangeFailed = "ADMIN_OAUTH2_TOKEN_EXCHANGE_FAILED";
+        public const string OAuth2UserInfoFailed = "ADMIN_OAUTH2_USERINFO_FAILED";
+        public const string OAuth2EmailMissing = "ADMIN_OAUTH2_EMAIL_MISSING";
 
         public const string RoleNotFound = "ADMIN_ROLE_NOT_FOUND";
         public const string RoleCodeExists = "ADMIN_ROLE_CODE_EXISTS";
