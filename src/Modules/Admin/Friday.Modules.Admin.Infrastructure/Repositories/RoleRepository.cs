@@ -20,6 +20,15 @@ public sealed class RoleRepository(FridayDbContext dbContext) : IRoleRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public Task<Role?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
+    {
+        string normalized = code.Trim().ToUpperInvariant();
+        return dbContext
+            .Set<Role>()
+            .Include(x => x.RoleRights)
+            .FirstOrDefaultAsync(x => x.Code.ToUpper() == normalized, cancellationToken);
+    }
+
     public Task<bool> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
         string normalized = code.Trim().ToUpperInvariant();

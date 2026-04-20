@@ -4,6 +4,8 @@ public sealed class OAuth2Options
 {
     public const string SectionName = "Authentication:OAuth2";
 
+    public string DefaultRoleCode { get; set; } = "VIEWER";
+
     public Dictionary<string, OAuth2ProviderOptions> Providers { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 }

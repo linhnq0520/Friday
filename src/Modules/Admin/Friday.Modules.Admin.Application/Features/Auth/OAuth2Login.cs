@@ -25,6 +25,7 @@ public sealed class OAuth2LoginCommandHandler(
     IOAuth2ProfileClient oAuth2ProfileClient,
     IUnitOfWork unitOfWork,
     IOptions<JwtSettings> jwtSettings,
+    IOptions<OAuth2Options> oauth2Options,
     IOptionsMonitor<RegistrationOptions> registrationOptions,
     IHttpContextAccessor httpContextAccessor
 ) : ICommandHandler<OAuth2LoginCommand, LoginResponseDto>
@@ -78,7 +79,11 @@ public sealed class OAuth2LoginCommandHandler(
         int[] roleIds = user.UserRoles.Select(x => x.RoleId).ToArray();
         IReadOnlyList<Domain.Aggregates.RoleAggregate.Role> roleEntities =
             await roles.GetByIdsAsync(roleIds, cancellationToken);
-        string[] roleCodes = roleEntities.Where(x => x.IsActive).Select(x => x.Code).Distinct().ToArray();
+        string[] roleCodes = roleEntities
+            .Where(x => x.IsActive)
+            .Select(x => x.Code)
+            .Distinct()
+            .ToArray();
 
         string refreshToken = RefreshTokenUtilities.GenerateOpaqueToken();
         string refreshHash = RefreshTokenUtilities.Hash(refreshToken);
@@ -100,7 +105,12 @@ public sealed class OAuth2LoginCommandHandler(
         await sessions.AddAsync(session, cancellationToken);
 
         JwtAccessTokenResult access = jwt.CreateAccessToken(user.Id, session.Id, roleCodes);
-        return new LoginResponseDto(access.Token, access.ExpiresAtUtc, refreshToken, UserDto.FromUser(user));
+        return new LoginResponseDto(
+            access.Token,
+            access.ExpiresAtUtc,
+            refreshToken,
+            UserDto.FromUser(user)
+        );
     }
 
     private async Task<User> CreateOAuth2UserAsync(
@@ -124,6 +134,30 @@ public sealed class OAuth2LoginCommandHandler(
             null
         );
 
+        string defaultRoleCode = oauth2Options.Value.DefaultRoleCode;
+        if (string.IsNullOrWhiteSpace(defaultRoleCode))
+        {
+            throw new FridayException(
+                ErrorCodes.Admin.OAuth2DefaultRoleInvalid,
+                "OAuth2 default role code is not configured.",
+                StatusCodes.Status500InternalServerError
+            );
+        }
+
+        Domain.Aggregates.RoleAggregate.Role? defaultRole = await roles.GetByCodeAsync(
+            defaultRoleCode,
+            cancellationToken
+        );
+        if (defaultRole is null || !defaultRole.IsActive)
+        {
+            throw new FridayException(
+                ErrorCodes.Admin.OAuth2DefaultRoleInvalid,
+                $"OAuth2 default role '{defaultRoleCode}' is not found or inactive.",
+                StatusCodes.Status500InternalServerError
+            );
+        }
+
+        user.AssignRole(defaultRole.Id);
         await users.AddAsync(user, cancellationToken);
         return user;
     }
