@@ -1,33 +1,48 @@
 using Friday.BuildingBlocks.Infrastructure.Persistence;
+using Friday.Modules.Admin.Application.Configuration;
 using Friday.Modules.Admin.Application.Security;
 using Friday.Modules.Admin.Domain.Aggregates.RightAggregate;
 using Friday.Modules.Admin.Domain.Aggregates.RoleAggregate;
 using Friday.Modules.Admin.Domain.Aggregates.UserAggregate;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Friday.Modules.Admin.Infrastructure.Security;
 
 /// <summary>
-/// Loads union of permission keys from active roles (scoped: memoized per request / scope).
+/// Loads union of permission keys from active roles. Results are cached per user (in-process)
+/// with a configurable absolute TTL; cache is logically cleared when role rights change.
 /// </summary>
-public sealed class EffectivePermissionResolver(FridayDbContext dbContext)
-    : IEffectivePermissionResolver
+public sealed class EffectivePermissionResolver(
+    FridayDbContext dbContext,
+    IMemoryCache memoryCache,
+    IOptions<EffectivePermissionCacheOptions> cacheOptions,
+    IEffectivePermissionGrantCacheCoordinator grantCacheCoordinator
+) : IEffectivePermissionResolver
 {
-    private int? _cachedUserId;
-    private IReadOnlySet<string>? _cachedKeys;
+    private const string CacheKeyPrefix = "Friday:Admin:EffectivePermissionKeys:v1:u:";
 
     public async Task<IReadOnlySet<string>> GetEffectivePermissionKeysAsync(
         int userId,
         CancellationToken cancellationToken = default
     )
     {
-        if (_cachedUserId == userId && _cachedKeys is not null)
+        long generation = grantCacheCoordinator.CurrentGeneration;
+        string cacheKey = CacheKeyPrefix + userId;
+
+        if (
+            memoryCache.TryGetValue(cacheKey, out CachedEffectiveGrants? cached)
+            && cached is not null
+            && cached.Generation == generation
+        )
         {
-            return _cachedKeys;
+            return cached.Keys;
         }
 
         List<string> keys = await dbContext
             .Set<UserRole>()
+            .AsNoTracking()
             .Where(ur => ur.UserId == userId)
             .Join(dbContext.Set<Role>(), ur => ur.RoleId, r => r.Id, (ur, r) => r)
             .Where(r => r.IsActive)
@@ -38,8 +53,18 @@ public sealed class EffectivePermissionResolver(FridayDbContext dbContext)
             .ToListAsync(cancellationToken);
 
         HashSet<string> set = keys.ToHashSet(StringComparer.Ordinal);
-        _cachedUserId = userId;
-        _cachedKeys = set;
+        int ttlMinutes = Math.Clamp(cacheOptions.Value.GrantListTtlMinutes, 1, 24 * 60);
+        memoryCache.Set(
+            cacheKey,
+            new CachedEffectiveGrants(generation, set),
+            new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ttlMinutes),
+            }
+        );
+
         return set;
     }
+
+    private sealed record CachedEffectiveGrants(long Generation, HashSet<string> Keys);
 }

@@ -1,4 +1,5 @@
 using Friday.BuildingBlocks.Application.IntegrationEvents;
+using Friday.Modules.Admin.Application.Security;
 using Friday.Modules.Admin.Domain.Events;
 using LinKit.Core.Cqrs;
 using Microsoft.Extensions.Logging;
@@ -51,7 +52,8 @@ public sealed class UserRoleAssignedDomainEventHandler(
 }
 
 public sealed class RoleRightsChangedDomainEventHandler(
-    ILogger<RoleRightsChangedDomainEventHandler> logger
+    ILogger<RoleRightsChangedDomainEventHandler> logger,
+    IEffectivePermissionGrantCacheCoordinator grantCacheCoordinator
 ) : INotificationHandler<RoleRightsChangedDomainEvent>
 {
     public Task HandleAsync(
@@ -59,8 +61,9 @@ public sealed class RoleRightsChangedDomainEventHandler(
         CancellationToken cancellationToken
     )
     {
+        grantCacheCoordinator.InvalidateAllGrants();
         logger.LogInformation(
-            "Admin domain event: role rights changed. RoleId={RoleId}, RightCount={RightCount}",
+            "Admin domain event: role rights changed; effective permission grant cache invalidated. RoleId={RoleId}, RightCount={RightCount}",
             notification.RoleId,
             notification.RightIds.Length
         );

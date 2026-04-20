@@ -18,6 +18,10 @@ public static class DependencyInjection
     )
     {
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<EffectivePermissionCacheOptions>(
+            configuration.GetSection(EffectivePermissionCacheOptions.SectionName)
+        );
+        services.AddSingleton<IEffectivePermissionGrantCacheCoordinator, EffectivePermissionGrantCacheCoordinator>();
         services.AddSingleton<IJwtTokenIssuer, JwtTokenIssuer>();
         services.AddScoped<IPasswordHasher<CredentialUser>, PasswordHasher<CredentialUser>>();
 
