@@ -17,6 +17,11 @@
     <Project Path="src/Modules/Admin/Friday.Modules.Admin.Domain/Friday.Modules.Admin.Domain.csproj" />
     <Project Path="src/Modules/Admin/Friday.Modules.Admin.Infrastructure/Friday.Modules.Admin.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Integration/">
+    <Project Path="src/Modules/Integration/Friday.Modules.Integration.Application/Friday.Modules.Integration.Application.csproj" />
+    <Project Path="src/Modules/Integration/Friday.Modules.Integration.Domain/Friday.Modules.Integration.Domain.csproj" />
+    <Project Path="src/Modules/Integration/Friday.Modules.Integration.Infrastructure/Friday.Modules.Integration.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Sample/">
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Application/Friday.Modules.Sample.Application.csproj" />
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Domain/Friday.Modules.Sample.Domain.csproj" />

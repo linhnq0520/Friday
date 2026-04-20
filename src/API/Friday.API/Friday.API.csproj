@@ -4,6 +4,8 @@
     <ProjectReference Include="..\..\BuildingBlocks\Friday.BuildingBlocks.Infrastructure\Friday.BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Admin\Friday.Modules.Admin.Application\Friday.Modules.Admin.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Admin\Friday.Modules.Admin.Infrastructure\Friday.Modules.Admin.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Integration\Friday.Modules.Integration.Application\Friday.Modules.Integration.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Integration\Friday.Modules.Integration.Infrastructure\Friday.Modules.Integration.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Sample\Friday.Modules.Sample.Application\Friday.Modules.Sample.Application.csproj" />
     <ProjectReference Include="..\..\Modules\Sample\Friday.Modules.Sample.Infrastructure\Friday.Modules.Sample.Infrastructure.csproj" />
   </ItemGroup>

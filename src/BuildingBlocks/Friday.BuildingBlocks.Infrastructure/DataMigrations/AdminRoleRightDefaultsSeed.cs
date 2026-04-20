@@ -40,6 +40,8 @@ internal static class AdminRoleRightDefaultsSeed
                 new("admin", "roles", PermissionAccessLevel.Manage),
                 new("admin", "permissions", PermissionAccessLevel.Read),
                 new("admin", "permissions", PermissionAccessLevel.Manage),
+                new("admin", "notification-templates", PermissionAccessLevel.Read),
+                new("admin", "notification-templates", PermissionAccessLevel.Manage),
             ]
         ),
         new(
@@ -50,6 +52,7 @@ internal static class AdminRoleRightDefaultsSeed
                 new("admin", "users", PermissionAccessLevel.Manage),
                 new("admin", "roles", PermissionAccessLevel.Read),
                 new("admin", "permissions", PermissionAccessLevel.Read),
+                new("admin", "notification-templates", PermissionAccessLevel.Read),
             ]
         ),
         new(
@@ -59,6 +62,7 @@ internal static class AdminRoleRightDefaultsSeed
                 new("admin", "users", PermissionAccessLevel.Read),
                 new("admin", "roles", PermissionAccessLevel.Read),
                 new("admin", "permissions", PermissionAccessLevel.Read),
+                new("admin", "notification-templates", PermissionAccessLevel.Read),
             ]
         ),
     ];

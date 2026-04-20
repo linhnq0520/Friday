@@ -25,4 +25,10 @@ public static class AdminPermissionKeys
 
     public static string PermissionsManage =>
         PermissionKeys.Format("admin", "permissions", PermissionAccessLevel.Manage);
+
+    public static string NotificationTemplatesRead =>
+        PermissionKeys.Format("admin", "notification-templates", PermissionAccessLevel.Read);
+
+    public static string NotificationTemplatesManage =>
+        PermissionKeys.Format("admin", "notification-templates", PermissionAccessLevel.Manage);
 }

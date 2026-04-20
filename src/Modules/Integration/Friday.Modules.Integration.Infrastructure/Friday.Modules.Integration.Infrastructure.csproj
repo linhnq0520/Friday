@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Friday.BuildingBlocks.Infrastructure\Friday.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\Friday.Modules.Integration.Application\Friday.Modules.Integration.Application.csproj" />
+    <ProjectReference Include="..\Friday.Modules.Integration.Domain\Friday.Modules.Integration.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+</Project>

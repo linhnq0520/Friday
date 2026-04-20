@@ -1,6 +1,8 @@
+using System.Security.Cryptography;
 using Friday.BuildingBlocks.Application.Errors;
 using Friday.BuildingBlocks.Application.Exceptions;
 using Friday.Modules.Admin.Application.Models;
+using Friday.Modules.Integration.Application.Abstractions;
 using Friday.Modules.Admin.Domain.Aggregates.UserAggregate;
 using Friday.Modules.Admin.Domain.Repositories;
 using Friday.Modules.Admin.Domain.Security;
@@ -14,7 +16,7 @@ public sealed record CreateUserCommand(
     string Username,
     string Email,
     string FullName,
-    string Password,
+    string? Password,
     string? Phone,
     string? Address,
     string? CompanyName,
@@ -26,7 +28,8 @@ public sealed record CreateUserCommand(
 public sealed class CreateUserHandler(
     IUserRepository users,
     IRoleRepository roles,
-    IPasswordHasher<CredentialUser> passwordHasher
+    IPasswordHasher<CredentialUser> passwordHasher,
+    IUserCredentialNotificationService notifications
 ) : ICommandHandler<CreateUserCommand, UserDto>
 {
     private static readonly CredentialUser CredentialMarker = new();
@@ -36,11 +39,6 @@ public sealed class CreateUserHandler(
         CancellationToken cancellationToken
     )
     {
-        if (string.IsNullOrWhiteSpace(request.Password))
-        {
-            throw new FridayException(ErrorCodes.Admin.PasswordRequired, "Password is required.");
-        }
-
         if (await users.ExistsByUsernameAsync(request.Username, cancellationToken))
         {
             throw new FridayException(
@@ -85,8 +83,12 @@ public sealed class CreateUserHandler(
             request.Notes
         );
 
-        string hash = passwordHasher.HashPassword(CredentialMarker, request.Password);
+        string rawPassword = string.IsNullOrWhiteSpace(request.Password)
+            ? GenerateTemporaryPassword()
+            : request.Password;
+        string hash = passwordHasher.HashPassword(CredentialMarker, rawPassword);
         user.SetPasswordCredential(UserPassword.Create(user, hash));
+        user.MarkPasswordChangeRequired();
 
         foreach (int roleId in roleIds)
         {
@@ -95,6 +97,26 @@ public sealed class CreateUserHandler(
 
         await users.AddAsync(user, cancellationToken);
 
+        await notifications.SendTemporaryPasswordAsync(
+            user.Email,
+            user.FullName,
+            rawPassword,
+            cancellationToken
+        );
+
         return UserDto.FromUser(user);
+    }
+
+    private static string GenerateTemporaryPassword()
+    {
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+        Span<char> buffer = stackalloc char[14];
+        byte[] random = RandomNumberGenerator.GetBytes(buffer.Length);
+        for (int i = 0; i < buffer.Length; i++)
+        {
+            buffer[i] = chars[random[i] % chars.Length];
+        }
+
+        return new string(buffer);
     }
 }

@@ -18,10 +18,12 @@ public sealed record LoginCommand(string Login, string Password) : ICommand<Logi
 public sealed class LoginCommandHandler(
     IUserRepository users,
     IUserSessionRepository sessions,
+    IUserPasswordActionRepository passwordActions,
     IRoleRepository roles,
     IPasswordHasher<CredentialUser> passwordHasher,
     IJwtTokenIssuer jwt,
     IOptions<JwtSettings> jwtSettings,
+    IOptions<PasswordFlowOptions> passwordFlowOptions,
     IHttpContextAccessor httpContextAccessor
 ) : ICommandHandler<LoginCommand, LoginResponseDto>
 {
@@ -105,12 +107,35 @@ public sealed class LoginCommandHandler(
         await sessions.AddAsync(session, cancellationToken);
 
         JwtAccessTokenResult access = jwt.CreateAccessToken(user.Id, session.Id, roleCodes);
+        string? passwordActionKey = null;
+        if (user.RequirePasswordChange)
+        {
+            await passwordActions.InvalidateActiveForUserAsync(
+                user.Id,
+                PasswordActionTypes.ForceChange,
+                cancellationToken
+            );
+            passwordActionKey = PasswordActionTokenUtilities.GenerateKey();
+            string keyHash = PasswordActionTokenUtilities.Hash(passwordActionKey);
+            int ttlMinutes = Math.Clamp(passwordFlowOptions.Value.ForceChangeTokenMinutes, 5, 24 * 60);
+            await passwordActions.AddAsync(
+                Domain.Aggregates.UserAggregate.UserPasswordAction.Create(
+                    user.Id,
+                    PasswordActionTypes.ForceChange,
+                    keyHash,
+                    DateTime.UtcNow.AddMinutes(ttlMinutes)
+                ),
+                cancellationToken
+            );
+        }
 
         return new LoginResponseDto(
             access.Token,
             access.ExpiresAtUtc,
             refreshToken,
-            UserDto.FromUser(user)
+            UserDto.FromUser(user),
+            user.RequirePasswordChange,
+            passwordActionKey
         );
     }
 }

@@ -18,7 +18,9 @@ public static class DependencyInjection
     )
     {
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.Configure<RegistrationOptions>(configuration.GetSection(RegistrationOptions.SectionName));
         services.Configure<OAuth2Options>(configuration.GetSection(OAuth2Options.SectionName));
+        services.Configure<PasswordFlowOptions>(configuration.GetSection(PasswordFlowOptions.SectionName));
         services.Configure<EffectivePermissionCacheOptions>(
             configuration.GetSection(EffectivePermissionCacheOptions.SectionName)
         );
@@ -29,6 +31,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+        services.AddScoped<IUserPasswordActionRepository, UserPasswordActionRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRightRepository, RightRepository>();
         services.AddScoped<IEffectivePermissionResolver, EffectivePermissionResolver>();

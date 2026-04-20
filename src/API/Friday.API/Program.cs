@@ -5,6 +5,7 @@ using Friday.API.Configuration;
 using Friday.API.Middlewares;
 using Friday.API.Modules.Admin;
 using Friday.API.Modules.Auth;
+using Friday.API.Modules.Integration;
 using Friday.API.Modules.Sample;
 using Friday.BuildingBlocks.Application;
 using Friday.BuildingBlocks.Infrastructure;
@@ -13,6 +14,8 @@ using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.Modules.Admin.Application;
 using Friday.Modules.Admin.Application.Configuration;
 using Friday.Modules.Admin.Infrastructure;
+using Friday.Modules.Integration.Application;
+using Friday.Modules.Integration.Infrastructure;
 using Friday.Modules.Sample.Application;
 using Friday.Modules.Sample.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,6 +44,8 @@ try
     builder.Services.AddLinKitCqrs();
     builder.Services.AddAdminApplication();
     builder.Services.AddAdminInfrastructure(builder.Configuration);
+    builder.Services.AddIntegrationApplication();
+    builder.Services.AddIntegrationInfrastructure(builder.Configuration);
     builder.Services.AddSampleApplication();
     builder.Services.AddSampleInfrastructure();
 
@@ -141,6 +146,7 @@ try
     );
     app.MapAuthModule();
     app.MapAdminModule();
+    app.MapIntegrationModule();
     app.MapSampleModule();
 
     app.Run();

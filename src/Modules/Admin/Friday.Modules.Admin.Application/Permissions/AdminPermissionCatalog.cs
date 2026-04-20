@@ -69,5 +69,19 @@ public static class AdminPermissionCatalog
             "Manage catalog sync",
             "Sync the permission catalog from application definitions (bootstrap / ops)."
         ),
+        new(
+            "admin",
+            "notification-templates",
+            PermissionAccessLevel.Read,
+            "View notification templates",
+            "List notification templates used by outbound integrations."
+        ),
+        new(
+            "admin",
+            "notification-templates",
+            PermissionAccessLevel.Manage,
+            "Manage notification templates",
+            "Create, update, and delete notification templates."
+        ),
     ];
 }

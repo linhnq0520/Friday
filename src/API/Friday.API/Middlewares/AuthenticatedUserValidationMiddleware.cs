@@ -111,7 +111,25 @@ public sealed class AuthenticatedUserValidationMiddleware(RequestDelegate next)
             return;
         }
 
+        if (user.RequirePasswordChange && !IsAllowedWhenPasswordChangeRequired(context.Request.Path))
+        {
+            await WriteJsonAsync(
+                context,
+                StatusCodes.Status403Forbidden,
+                ErrorCodes.Admin.PasswordChangeRequired,
+                "Password change is required.",
+                localizer
+            );
+            return;
+        }
+
         await next(context);
+    }
+
+    private static bool IsAllowedWhenPasswordChangeRequired(PathString path)
+    {
+        return path.StartsWithSegments("/api/auth/password/complete", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWithSegments("/api/auth/logout", StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task WriteJsonAsync(

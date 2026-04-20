@@ -11,6 +11,7 @@ public sealed class FridayDbContext(DbContextOptions<FridayDbContext> options) :
     private static readonly string[] ModuleConfigurationAssemblyNames =
     [
         "Friday.Modules.Admin.Infrastructure",
+        "Friday.Modules.Integration.Infrastructure",
         "Friday.Modules.Sample.Infrastructure",
     ];
 

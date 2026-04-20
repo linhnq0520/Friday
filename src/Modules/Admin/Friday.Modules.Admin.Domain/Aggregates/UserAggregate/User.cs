@@ -20,6 +20,7 @@ public sealed class User : AggregateRoot
     public string? Notes { get; private set; }
     public bool IsActive { get; private set; }
     public bool IsLocked { get; private set; }
+    public bool RequirePasswordChange { get; private set; }
 
     public UserPassword? PasswordCredential { get; private set; }
 
@@ -58,6 +59,7 @@ public sealed class User : AggregateRoot
             Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
             IsActive = true,
             IsLocked = false,
+            RequirePasswordChange = false,
         };
 
         user.Raise(new UserCreatedDomainEvent(user.Id, user.Username, user.Email));
@@ -81,6 +83,28 @@ public sealed class User : AggregateRoot
         {
             PasswordCredential.UpdateHash(passwordHash);
         }
+    }
+
+    public void MarkPasswordChangeRequired()
+    {
+        if (RequirePasswordChange)
+        {
+            return;
+        }
+
+        RequirePasswordChange = true;
+        Touch();
+    }
+
+    public void ClearPasswordChangeRequired()
+    {
+        if (!RequirePasswordChange)
+        {
+            return;
+        }
+
+        RequirePasswordChange = false;
+        Touch();
     }
 
     public void UpdateProfile(

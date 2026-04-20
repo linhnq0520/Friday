@@ -32,6 +32,9 @@ public static class ErrorCodes
         public const string OAuth2UserInfoFailed = "ADMIN_OAUTH2_USERINFO_FAILED";
         public const string OAuth2EmailMissing = "ADMIN_OAUTH2_EMAIL_MISSING";
         public const string OAuth2DefaultRoleInvalid = "ADMIN_OAUTH2_DEFAULT_ROLE_INVALID";
+        public const string PasswordChangeRequired = "ADMIN_PASSWORD_CHANGE_REQUIRED";
+        public const string PasswordActionKeyInvalid = "ADMIN_PASSWORD_ACTION_KEY_INVALID";
+        public const string PasswordActionExpired = "ADMIN_PASSWORD_ACTION_EXPIRED";
 
         public const string RoleNotFound = "ADMIN_ROLE_NOT_FOUND";
         public const string RoleCodeExists = "ADMIN_ROLE_CODE_EXISTS";
