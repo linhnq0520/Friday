@@ -137,6 +137,10 @@ public sealed class OAuth2LoginCommandHandler(
         string defaultRoleCode = oauth2Options.Value.DefaultRoleCode;
         if (string.IsNullOrWhiteSpace(defaultRoleCode))
         {
+            defaultRoleCode = registrationOptions.CurrentValue.DefaultUserRoleCode;
+        }
+        if (string.IsNullOrWhiteSpace(defaultRoleCode))
+        {
             throw new FridayException(
                 ErrorCodes.Admin.OAuth2DefaultRoleInvalid,
                 "OAuth2 default role code is not configured.",

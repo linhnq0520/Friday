@@ -25,6 +25,7 @@ internal static class AdminRoleRightDefaultsSeed
         new("ADMIN", "Administrator"),
         new("SUPPORT", "Support"),
         new("VIEWER", "Viewer"),
+        new("USER", "User"),
     ];
 
     internal static readonly IReadOnlyList<RolePermissionsRow> RolePermissions =

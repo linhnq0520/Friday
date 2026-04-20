@@ -9,7 +9,7 @@ namespace Friday.BuildingBlocks.Infrastructure.DataMigrations;
 
 [FridayDataMigration(
     "2026-04-18T11:00:00Z",
-    "Data: admin.roles — default system roles (ADMIN, SUPPORT, VIEWER)."
+    "Data: admin.roles — default system roles (ADMIN, SUPPORT, VIEWER, USER)."
 )]
 public sealed class Data_20260418110000_Admin_DefaultRoles : AutoReversingMigration
 {

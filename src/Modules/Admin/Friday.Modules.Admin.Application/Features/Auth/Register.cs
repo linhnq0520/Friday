@@ -23,6 +23,7 @@ public sealed record RegisterCommand(
 
 public sealed class RegisterCommandHandler(
     IUserRepository users,
+    IRoleRepository roles,
     IPasswordHasher<CredentialUser> passwordHasher,
     IMediator mediator,
     IUnitOfWork unitOfWork,
@@ -79,6 +80,31 @@ public sealed class RegisterCommandHandler(
 
         string hash = passwordHasher.HashPassword(CredentialMarker, request.Password);
         user.SetPasswordCredential(UserPassword.Create(user, hash));
+
+        string defaultRoleCode = registrationOptions.CurrentValue.DefaultUserRoleCode;
+        if (string.IsNullOrWhiteSpace(defaultRoleCode))
+        {
+            throw new FridayException(
+                ErrorCodes.Admin.DefaultUserRoleInvalid,
+                "Default user role code is not configured.",
+                StatusCodes.Status500InternalServerError
+            );
+        }
+
+        Domain.Aggregates.RoleAggregate.Role? defaultRole = await roles.GetByCodeAsync(
+            defaultRoleCode,
+            cancellationToken
+        );
+        if (defaultRole is null || !defaultRole.IsActive)
+        {
+            throw new FridayException(
+                ErrorCodes.Admin.DefaultUserRoleInvalid,
+                $"Default user role '{defaultRoleCode}' is not found or inactive.",
+                StatusCodes.Status500InternalServerError
+            );
+        }
+
+        user.AssignRole(defaultRole.Id);
 
         await users.AddAsync(user, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);

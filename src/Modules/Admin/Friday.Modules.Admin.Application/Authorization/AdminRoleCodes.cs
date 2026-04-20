@@ -6,4 +6,5 @@ public static class AdminRoleCodes
     public const string Administrator = "ADMIN";
     public const string Support = "SUPPORT";
     public const string Viewer = "VIEWER";
+    public const string User = "USER";
 }

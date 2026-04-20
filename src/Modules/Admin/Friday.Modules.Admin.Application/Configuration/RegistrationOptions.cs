@@ -6,4 +6,7 @@ public sealed class RegistrationOptions
 
     /// <summary>When true, <c>POST /api/auth/register</c> is allowed (dev / bootstrap).</summary>
     public bool AllowPublicRegistration { get; set; }
+
+    /// <summary>Default role code assigned to newly-created users (register / first OAuth2 sign-in).</summary>
+    public string DefaultUserRoleCode { get; set; } = "USER";
 }

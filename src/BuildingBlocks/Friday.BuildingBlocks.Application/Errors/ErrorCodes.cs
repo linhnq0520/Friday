@@ -24,6 +24,7 @@ public static class ErrorCodes
         public const string InvalidRefreshToken = "ADMIN_INVALID_REFRESH_TOKEN";
         public const string SessionInvalid = "ADMIN_SESSION_INVALID";
         public const string RegistrationDisabled = "ADMIN_REGISTRATION_DISABLED";
+        public const string DefaultUserRoleInvalid = "ADMIN_DEFAULT_USER_ROLE_INVALID";
         public const string OAuth2ProviderInvalid = "ADMIN_OAUTH2_PROVIDER_INVALID";
         public const string OAuth2ProviderDisabled = "ADMIN_OAUTH2_PROVIDER_DISABLED";
         public const string OAuth2AuthorizationCodeInvalid = "ADMIN_OAUTH2_AUTHORIZATION_CODE_INVALID";
