@@ -41,10 +41,7 @@ public sealed class RefreshTokenCommandHandler(
             );
         }
 
-        User? user = await users.GetByIdAsync(
-            session.UserId,
-            cancellationToken
-        );
+        User? user = await users.GetByIdAsync(session.UserId, cancellationToken);
 
         if (user is null || !user.IsActive || user.IsLocked)
         {
@@ -71,10 +68,6 @@ public sealed class RefreshTokenCommandHandler(
 
         JwtAccessTokenResult access = jwt.CreateAccessToken(user.Id, session.Id, roleCodes);
 
-        return new RefreshTokenResponseDto(
-            access.Token,
-            access.ExpiresAtUtc,
-            newRefresh
-        );
+        return new RefreshTokenResponseDto(access.Token, access.ExpiresAtUtc, newRefresh);
     }
 }

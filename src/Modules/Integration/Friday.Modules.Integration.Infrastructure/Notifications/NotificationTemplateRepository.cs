@@ -48,15 +48,15 @@ public sealed class NotificationTemplateRepository(FridayDbContext dbContext)
         string normalizedCode = templateCode.Trim().ToUpperInvariant();
         string normalizedLanguage = language.Trim().ToLowerInvariant();
 
-        int nextVersion = version
+        int nextVersion =
+            version
             ?? (
                 await dbContext
                     .Set<NotificationTemplate>()
-                    .Where(
-                        x =>
-                            x.Channel == normalizedChannel
-                            && x.TemplateCode == normalizedCode
-                            && x.Language == normalizedLanguage
+                    .Where(x =>
+                        x.Channel == normalizedChannel
+                        && x.TemplateCode == normalizedCode
+                        && x.Language == normalizedLanguage
                     )
                     .Select(x => (int?)x.Version)
                     .MaxAsync(cancellationToken) ?? 0
@@ -95,7 +95,8 @@ public sealed class NotificationTemplateRepository(FridayDbContext dbContext)
         CancellationToken cancellationToken = default
     )
     {
-        NotificationTemplate? entity = await dbContext.Set<NotificationTemplate>()
+        NotificationTemplate? entity = await dbContext
+            .Set<NotificationTemplate>()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (entity is null)
         {
@@ -120,7 +121,8 @@ public sealed class NotificationTemplateRepository(FridayDbContext dbContext)
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        NotificationTemplate? entity = await dbContext.Set<NotificationTemplate>()
+        NotificationTemplate? entity = await dbContext
+            .Set<NotificationTemplate>()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (entity is null)
         {
@@ -142,13 +144,12 @@ public sealed class NotificationTemplateRepository(FridayDbContext dbContext)
     {
         List<NotificationTemplate> existing = await dbContext
             .Set<NotificationTemplate>()
-            .Where(
-                x =>
-                    x.Channel == channel
-                    && x.TemplateCode == templateCode
-                    && x.Language == language
-                    && x.IsActive
-                    && (!keepId.HasValue || x.Id != keepId.Value)
+            .Where(x =>
+                x.Channel == channel
+                && x.TemplateCode == templateCode
+                && x.Language == language
+                && x.IsActive
+                && (!keepId.HasValue || x.Id != keepId.Value)
             )
             .ToListAsync(cancellationToken);
 

@@ -56,15 +56,15 @@ public sealed class CreateNotificationTemplateHandler(INotificationTemplateRepos
 
         Domain.Aggregates.NotificationTemplateAggregate.NotificationTemplate entity =
             await repository.CreateAsync(
-            request.Channel,
-            request.TemplateCode,
-            request.Language,
-            request.SubjectTemplate,
-            request.BodyTemplate,
-            request.IsActive,
-            request.Version,
-            cancellationToken
-        );
+                request.Channel,
+                request.TemplateCode,
+                request.Language,
+                request.SubjectTemplate,
+                request.BodyTemplate,
+                request.IsActive,
+                request.Version,
+                cancellationToken
+            );
         return NotificationTemplateMapping.ToDto(entity);
     }
 }

@@ -8,7 +8,9 @@ namespace Friday.API.Modules.Auth;
 public static class AuthEndpoints
 {
     public sealed record OAuth2LoginRequest(string Code, string RedirectUri);
+
     public sealed record PasswordResetRequest(string Email);
+
     public sealed record CompletePasswordActionRequest(string Key, string NewPassword);
 
     public static IEndpointRouteBuilder MapAuthModule(this IEndpointRouteBuilder endpoints)

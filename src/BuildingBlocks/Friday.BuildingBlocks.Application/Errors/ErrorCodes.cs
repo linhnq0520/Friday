@@ -27,7 +27,8 @@ public static class ErrorCodes
         public const string DefaultUserRoleInvalid = "ADMIN_DEFAULT_USER_ROLE_INVALID";
         public const string OAuth2ProviderInvalid = "ADMIN_OAUTH2_PROVIDER_INVALID";
         public const string OAuth2ProviderDisabled = "ADMIN_OAUTH2_PROVIDER_DISABLED";
-        public const string OAuth2AuthorizationCodeInvalid = "ADMIN_OAUTH2_AUTHORIZATION_CODE_INVALID";
+        public const string OAuth2AuthorizationCodeInvalid =
+            "ADMIN_OAUTH2_AUTHORIZATION_CODE_INVALID";
         public const string OAuth2TokenExchangeFailed = "ADMIN_OAUTH2_TOKEN_EXCHANGE_FAILED";
         public const string OAuth2UserInfoFailed = "ADMIN_OAUTH2_USERINFO_FAILED";
         public const string OAuth2EmailMissing = "ADMIN_OAUTH2_EMAIL_MISSING";

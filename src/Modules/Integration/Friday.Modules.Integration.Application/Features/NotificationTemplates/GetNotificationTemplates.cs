@@ -4,7 +4,8 @@ using LinKit.Core.Cqrs;
 
 namespace Friday.Modules.Integration.Application.Features.NotificationTemplates;
 
-public sealed record GetNotificationTemplatesQuery() : IQuery<IReadOnlyList<NotificationTemplateDto>>;
+public sealed record GetNotificationTemplatesQuery()
+    : IQuery<IReadOnlyList<NotificationTemplateDto>>;
 
 public sealed class GetNotificationTemplatesHandler(INotificationTemplateRepository repository)
     : IQueryHandler<GetNotificationTemplatesQuery, IReadOnlyList<NotificationTemplateDto>>

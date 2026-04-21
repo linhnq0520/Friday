@@ -17,10 +17,8 @@ public sealed class GetNotificationTemplateByIdHandler(INotificationTemplateRepo
         CancellationToken cancellationToken
     )
     {
-        Domain.Aggregates.NotificationTemplateAggregate.NotificationTemplate? item = await repository.GetByIdAsync(
-            request.Id,
-            cancellationToken
-        );
+        Domain.Aggregates.NotificationTemplateAggregate.NotificationTemplate? item =
+            await repository.GetByIdAsync(request.Id, cancellationToken);
         if (item is null)
         {
             throw new FridayException(
