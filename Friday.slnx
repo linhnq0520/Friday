@@ -27,4 +27,7 @@
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Domain/Friday.Modules.Sample.Domain.csproj" />
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Infrastructure/Friday.Modules.Sample.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/UI/">
+    <Project Path="src/UI/Friday.AdminPortal/Friday.AdminPortal.csproj" />
+  </Folder>
 </Solution>

@@ -81,6 +81,13 @@ try
     builder.Services.AddAdminPermissionAuthorization();
 
     builder.Services.AddFridaySwagger();
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(
+            "AdminPortalCors",
+            policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+        );
+    });
 
     WebApplication app = builder.Build();
     ApplicationServiceProviderAccessor.SetRoot(app.Services);
@@ -135,6 +142,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseCors("AdminPortalCors");
 
     app.UseAuthentication();
     app.UseAuthorization();

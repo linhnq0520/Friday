@@ -1,0 +1,216 @@
+﻿@page "/"
+@using Friday.AdminPortal.Models
+@using Friday.AdminPortal.Services
+@inject AdminApiClient Api
+
+<PageTitle>Home</PageTitle>
+
+<h1>Friday Admin Portal</h1>
+
+<div class="mb-4 border rounded p-3">
+    <h5>Auth</h5>
+    <div class="row g-2">
+        <div class="col-md-4">
+            <input class="form-control" placeholder="Login" @bind="login" />
+        </div>
+        <div class="col-md-4">
+            <input class="form-control" type="password" placeholder="Password" @bind="password" />
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+            <button class="btn btn-primary" @onclick="LoginAsync">Login</button>
+            <button class="btn btn-outline-secondary" @onclick="LogoutAsync">Logout</button>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4 border rounded p-3">
+    <h5>Users</h5>
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-sm btn-primary" @onclick="LoadUsersAsync">Reload users</button>
+    </div>
+    <div class="row g-2 mb-3">
+        <div class="col-md-2"><input class="form-control" placeholder="UserCode" @bind="newUser.UserCode" /></div>
+        <div class="col-md-2"><input class="form-control" placeholder="Username" @bind="newUser.Username" /></div>
+        <div class="col-md-2"><input class="form-control" placeholder="Email" @bind="newUser.Email" /></div>
+        <div class="col-md-2"><input class="form-control" placeholder="FullName" @bind="newUser.FullName" /></div>
+        <div class="col-md-2"><input class="form-control" placeholder="RoleIds CSV" @bind="newUserRoleIdsCsv" /></div>
+        <div class="col-md-2"><button class="btn btn-success w-100" @onclick="CreateUserAsync">Create user</button></div>
+    </div>
+    <table class="table table-sm table-striped">
+        <thead><tr><th>Id</th><th>UserCode</th><th>Username</th><th>Email</th><th>Locked</th><th>RoleIds</th><th></th></tr></thead>
+        <tbody>
+        @foreach (UserDto item in users)
+        {
+            <tr>
+                <td>@item.Id</td><td>@item.UserCode</td><td>@item.Username</td><td>@item.Email</td><td>@item.IsLocked</td><td>@string.Join(",", item.RoleIds)</td>
+                <td><button class="btn btn-sm btn-outline-danger" @onclick="() => LockUserAsync(item.Id)">Lock</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<div class="mb-4 border rounded p-3">
+    <h5>Roles</h5>
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-sm btn-primary" @onclick="LoadRolesAsync">Reload roles</button>
+    </div>
+    <div class="row g-2 mb-3">
+        <div class="col-md-4"><input class="form-control" placeholder="Code" @bind="newRoleCode" /></div>
+        <div class="col-md-4"><input class="form-control" placeholder="Name" @bind="newRoleName" /></div>
+        <div class="col-md-4"><button class="btn btn-success w-100" @onclick="CreateRoleAsync">Create role</button></div>
+    </div>
+    <table class="table table-sm table-striped">
+        <thead><tr><th>Id</th><th>Code</th><th>Name</th><th>RightIds</th></tr></thead>
+        <tbody>
+        @foreach (RoleDto item in roles)
+        {
+            <tr><td>@item.Id</td><td>@item.Code</td><td>@item.Name</td><td>@string.Join(",", item.RightIds)</td></tr>
+        }
+        </tbody>
+    </table>
+    <div class="row g-2">
+        <div class="col-md-3"><input class="form-control" placeholder="RoleId" @bind="grantRoleId" /></div>
+        <div class="col-md-6"><input class="form-control" placeholder="RightIds CSV" @bind="grantRightIdsCsv" /></div>
+        <div class="col-md-3"><button class="btn btn-warning w-100" @onclick="GrantRightsAsync">Grant rights</button></div>
+    </div>
+</div>
+
+<div class="mb-4 border rounded p-3">
+    <h5>Rights</h5>
+    <button class="btn btn-sm btn-primary mb-3" @onclick="LoadRightsAsync">Reload rights</button>
+    <table class="table table-sm table-striped">
+        <thead><tr><th>Id</th><th>Key</th><th>Name</th></tr></thead>
+        <tbody>
+        @foreach (RightDto item in rights)
+        {
+            <tr><td>@item.Id</td><td>@item.PermissionKey</td><td>@item.Name</td></tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<div class="mb-4 border rounded p-3">
+    <h5>Sessions</h5>
+    <p>Admin API hiện có endpoint revoke session qua <code>/api/auth/logout</code> với refresh token của session đó.</p>
+    <button class="btn btn-outline-secondary" @onclick="LogoutAsync">Revoke current session</button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(status))
+{
+    <div class="alert alert-info">@status</div>
+}
+
+@code {
+    private string login = "ADMIN001";
+    private string password = "Admin@123456";
+    private string status = string.Empty;
+    private List<UserDto> users = [];
+    private List<RoleDto> roles = [];
+    private List<RightDto> rights = [];
+    private CreateUserForm newUser = new();
+    private string newUserRoleIdsCsv = string.Empty;
+    private string newRoleCode = string.Empty;
+    private string newRoleName = string.Empty;
+    private string grantRoleId = string.Empty;
+    private string grantRightIdsCsv = string.Empty;
+
+    private async Task LoginAsync()
+    {
+        try
+        {
+            await Api.LoginAsync(new LoginRequest(login, password));
+            status = "Login success";
+        }
+        catch (Exception ex)
+        {
+            status = $"Login failed: {ex.Message}";
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        await Api.LogoutAsync();
+        status = "Session revoked";
+    }
+
+    private async Task LoadUsersAsync()
+    {
+        users = (await Api.GetUsersAsync()).ToList();
+    }
+
+    private async Task LoadRolesAsync()
+    {
+        roles = (await Api.GetRolesAsync()).ToList();
+    }
+
+    private async Task LoadRightsAsync()
+    {
+        rights = (await Api.GetRightsAsync()).ToList();
+    }
+
+    private async Task CreateUserAsync()
+    {
+        int[] roleIds = ParseCsvInts(newUserRoleIdsCsv);
+        CreateUserRequest request = new(
+            newUser.UserCode,
+            newUser.Username,
+            newUser.Email,
+            newUser.FullName,
+            newUser.Password,
+            newUser.Phone,
+            newUser.Address,
+            newUser.CompanyName,
+            newUser.JobTitle,
+            newUser.Notes,
+            roleIds
+        );
+        await Api.CreateUserAsync(request);
+        await LoadUsersAsync();
+    }
+
+    private async Task CreateRoleAsync()
+    {
+        await Api.CreateRoleAsync(new CreateRoleRequest(newRoleCode, newRoleName));
+        await LoadRolesAsync();
+    }
+
+    private async Task GrantRightsAsync()
+    {
+        if (!int.TryParse(grantRoleId, out int roleId))
+        {
+            status = "RoleId invalid";
+            return;
+        }
+
+        await Api.GrantRightsToRoleAsync(roleId, ParseCsvInts(grantRightIdsCsv));
+        await LoadRolesAsync();
+    }
+
+    private async Task LockUserAsync(int userId)
+    {
+        await Api.LockUserAsync(userId);
+        await LoadUsersAsync();
+    }
+
+    private static int[] ParseCsvInts(string value) =>
+        value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(x => int.TryParse(x, out int id) ? id : 0)
+            .Where(x => x > 0)
+            .Distinct()
+            .ToArray();
+
+    private sealed class CreateUserForm
+    {
+        public string UserCode { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string? Password { get; set; }
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+        public string? CompanyName { get; set; }
+        public string? JobTitle { get; set; }
+        public string? Notes { get; set; }
+    }
+}
