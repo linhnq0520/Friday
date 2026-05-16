@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\Integration\Friday.Modules.Integration.Application\Friday.Modules.Integration.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FluentValidation" />
     <PackageReference Include="LinKit.Core" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" />

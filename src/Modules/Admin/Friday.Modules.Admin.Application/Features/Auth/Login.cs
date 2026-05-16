@@ -1,3 +1,4 @@
+using FluentValidation;
 using Friday.BuildingBlocks.Application.Errors;
 using Friday.BuildingBlocks.Application.Exceptions;
 using Friday.Modules.Admin.Application.Configuration;
@@ -14,6 +15,15 @@ using Microsoft.Extensions.Options;
 namespace Friday.Modules.Admin.Application.Features.Auth;
 
 public sealed record LoginCommand(string Login, string Password) : ICommand<LoginResponseDto>;
+
+public sealed class LoginCommandValidator : AbstractValidator<LoginCommand>
+{
+    public LoginCommandValidator()
+    {
+        RuleFor(x => x.Login).NotEmpty().WithMessage("Login is required.");
+        RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
+    }
+}
 
 public sealed class LoginCommandHandler(
     IUserRepository users,
@@ -117,7 +127,11 @@ public sealed class LoginCommandHandler(
             );
             passwordActionKey = PasswordActionTokenUtilities.GenerateKey();
             string keyHash = PasswordActionTokenUtilities.Hash(passwordActionKey);
-            int ttlMinutes = Math.Clamp(passwordFlowOptions.Value.ForceChangeTokenMinutes, 5, 24 * 60);
+            int ttlMinutes = Math.Clamp(
+                passwordFlowOptions.Value.ForceChangeTokenMinutes,
+                5,
+                24 * 60
+            );
             await passwordActions.AddAsync(
                 Domain.Aggregates.UserAggregate.UserPasswordAction.Create(
                     user.Id,

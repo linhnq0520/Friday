@@ -9,6 +9,7 @@
     <PackageVersion Include="FluentMigrator.Runner.Oracle" Version="7.1.0" />
     <PackageVersion Include="FluentMigrator.Runner.Postgres" Version="7.1.0" />
     <PackageVersion Include="FluentMigrator.Runner.SqlServer" Version="7.1.0" />
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="LinKit.Core" Version="2.2.3" />
     <PackageVersion Include="linq2db.MySql" Version="6.2.1" />
     <PackageVersion Include="linq2db.PostgreSQL" Version="6.2.1" />
