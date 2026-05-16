@@ -12,7 +12,8 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         string correlationId =
             context.Request.Headers[HeaderName].FirstOrDefault()
             ?? Activity.Current?.TraceId.ToString()
-            ?? context.TraceIdentifier;
+            ?? context.TraceIdentifier
+            ?? Guid.NewGuid().ToString("N");
 
         context.Response.Headers[HeaderName] = correlationId;
 

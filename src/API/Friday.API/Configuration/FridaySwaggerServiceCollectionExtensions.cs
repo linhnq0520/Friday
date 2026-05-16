@@ -23,7 +23,8 @@ public static class FridaySwaggerServiceCollectionExtensions
                 "Bearer",
                 new OpenApiSecurityScheme
                 {
-                    Description = "JWT: nhập token (Swagger sẽ gửi header `Authorization: Bearer {token}`).",
+                    Description =
+                        "JWT: nhập token (Swagger sẽ gửi header `Authorization: Bearer {token}`).",
                     Name = "Authorization",
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
@@ -45,7 +46,7 @@ public static class FridaySwaggerServiceCollectionExtensions
                             },
                         },
                         Array.Empty<string>()
-                    }
+                    },
                 }
             );
         });

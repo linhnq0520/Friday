@@ -111,7 +111,9 @@ public sealed class AuthenticatedUserValidationMiddleware(RequestDelegate next)
             return;
         }
 
-        if (user.RequirePasswordChange && !IsAllowedWhenPasswordChangeRequired(context.Request.Path))
+        if (
+            user.RequirePasswordChange && !IsAllowedWhenPasswordChangeRequired(context.Request.Path)
+        )
         {
             await WriteJsonAsync(
                 context,
@@ -128,8 +130,10 @@ public sealed class AuthenticatedUserValidationMiddleware(RequestDelegate next)
 
     private static bool IsAllowedWhenPasswordChangeRequired(PathString path)
     {
-        return path.StartsWithSegments("/api/auth/password/complete", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWithSegments("/api/auth/logout", StringComparison.OrdinalIgnoreCase);
+        return path.StartsWithSegments(
+                "/api/auth/password/complete",
+                StringComparison.OrdinalIgnoreCase
+            ) || path.StartsWithSegments("/api/auth/logout", StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task WriteJsonAsync(

@@ -13,14 +13,19 @@ public static class FridaySerilogWebApplicationBuilderExtensions
     public static WebApplicationBuilder AddFridaySerilog(this WebApplicationBuilder builder)
     {
         builder.Host.UseSerilog(
-            (HostBuilderContext context, IServiceProvider services, LoggerConfiguration loggerConfiguration) =>
+            (
+                HostBuilderContext context,
+                IServiceProvider services,
+                LoggerConfiguration loggerConfiguration
+            ) =>
             {
                 IHostEnvironment env = context.HostingEnvironment;
                 IConfiguration configuration = context.Configuration;
 
                 OpenTelemetryOptions otel =
-                    configuration.GetSection(OpenTelemetryOptions.SectionName).Get<OpenTelemetryOptions>()
-                    ?? new OpenTelemetryOptions();
+                    configuration
+                        .GetSection(OpenTelemetryOptions.SectionName)
+                        .Get<OpenTelemetryOptions>() ?? new OpenTelemetryOptions();
 
                 loggerConfiguration
                     .ReadFrom.Configuration(configuration.GetSection("Serilog"))
@@ -60,7 +65,10 @@ public static class FridaySerilogWebApplicationBuilderExtensions
         return builder;
     }
 
-    private static void AppendRollingJsonFile(LoggerConfiguration loggerConfiguration, string contentRoot)
+    private static void AppendRollingJsonFile(
+        LoggerConfiguration loggerConfiguration,
+        string contentRoot
+    )
     {
         string logsDir = Path.Combine(contentRoot, "logs");
         Directory.CreateDirectory(logsDir);
@@ -98,7 +106,9 @@ public static class FridaySerilogWebApplicationBuilderExtensions
             return;
         }
 
-        string serviceName = string.IsNullOrWhiteSpace(otel.ServiceName) ? "Friday.API" : otel.ServiceName;
+        string serviceName = string.IsNullOrWhiteSpace(otel.ServiceName)
+            ? "Friday.API"
+            : otel.ServiceName;
 
         loggerConfiguration.WriteTo.GrafanaLoki(
             lokiUri.GetLeftPart(UriPartial.Authority),
