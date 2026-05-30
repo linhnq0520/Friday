@@ -44,7 +44,10 @@ public sealed class UserSessionRepository(FridayDbContext dbContext) : IUserSess
             .FirstOrDefaultAsync(x => x.RefreshTokenHash == refreshTokenHashHex, cancellationToken);
     }
 
-    public async Task RevokeAllForUserAsync(int userId, CancellationToken cancellationToken = default)
+    public async Task RevokeAllForUserAsync(
+        int userId,
+        CancellationToken cancellationToken = default
+    )
     {
         List<UserSession> openSessions = await dbContext
             .Set<UserSession>()

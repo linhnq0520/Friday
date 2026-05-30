@@ -29,6 +29,13 @@ public sealed class RightConfiguration : IEntityTypeConfiguration<Right>
         builder.Ignore(x => x.DomainEvents);
         builder.Ignore(x => x.PermissionKey);
 
-        builder.HasIndex(x => new { x.Module, x.Resource, x.AccessLevel }).IsUnique();
+        builder
+            .HasIndex(x => new
+            {
+                x.Module,
+                x.Resource,
+                x.AccessLevel,
+            })
+            .IsUnique();
     }
 }

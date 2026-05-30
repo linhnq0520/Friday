@@ -24,8 +24,12 @@ public sealed class LinqToDbConnectionFactory : ILinqToDbConnectionFactory
 
         DataOptions options = _provider switch
         {
-            RelationalDatabaseProvider.SqlServer => new DataOptions().UseSqlServer(_connectionString),
-            RelationalDatabaseProvider.PostgreSql => new DataOptions().UsePostgreSQL(_connectionString),
+            RelationalDatabaseProvider.SqlServer => new DataOptions().UseSqlServer(
+                _connectionString
+            ),
+            RelationalDatabaseProvider.PostgreSql => new DataOptions().UsePostgreSQL(
+                _connectionString
+            ),
             RelationalDatabaseProvider.MySql => new DataOptions().UseMySql(_connectionString),
             RelationalDatabaseProvider.Oracle => new DataOptions().UseOracle(_connectionString),
             _ => throw new ArgumentOutOfRangeException(nameof(_provider), _provider, null),

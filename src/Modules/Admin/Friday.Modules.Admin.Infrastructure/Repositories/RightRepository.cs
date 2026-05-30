@@ -26,7 +26,12 @@ public sealed class RightRepository(FridayDbContext dbContext) : IRightRepositor
     {
         string m = module.Trim().ToLowerInvariant();
         string r = resource.Trim().ToLowerInvariant();
-        return dbContext.Set<Right>().AnyAsync(x => x.Module == m && x.Resource == r && x.AccessLevel == accessLevel, cancellationToken);
+        return dbContext
+            .Set<Right>()
+            .AnyAsync(
+                x => x.Module == m && x.Resource == r && x.AccessLevel == accessLevel,
+                cancellationToken
+            );
     }
 
     public async Task<IReadOnlyList<Right>> ListAsync(CancellationToken cancellationToken = default)

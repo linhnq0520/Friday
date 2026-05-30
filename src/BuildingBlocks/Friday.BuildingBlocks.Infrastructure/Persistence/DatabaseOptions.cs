@@ -7,7 +7,8 @@ public sealed class DatabaseOptions
     /// <summary>
     /// EF Core and FluentMigrator target database. EF migrations in this repo are generated for PostgreSQL (Npgsql).
     /// </summary>
-    public RelationalDatabaseProvider Provider { get; set; } = RelationalDatabaseProvider.PostgreSql;
+    public RelationalDatabaseProvider Provider { get; set; } =
+        RelationalDatabaseProvider.PostgreSql;
 
     /// <summary>
     /// When true, runs <see cref="Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.MigrateAsync"/> on the shared

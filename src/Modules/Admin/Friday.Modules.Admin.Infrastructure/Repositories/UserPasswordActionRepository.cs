@@ -8,7 +8,10 @@ namespace Friday.Modules.Admin.Infrastructure.Repositories;
 public sealed class UserPasswordActionRepository(FridayDbContext dbContext)
     : IUserPasswordActionRepository
 {
-    public async Task AddAsync(UserPasswordAction action, CancellationToken cancellationToken = default)
+    public async Task AddAsync(
+        UserPasswordAction action,
+        CancellationToken cancellationToken = default
+    )
     {
         await dbContext.Set<UserPasswordAction>().AddAsync(action, cancellationToken);
     }
@@ -19,10 +22,12 @@ public sealed class UserPasswordActionRepository(FridayDbContext dbContext)
     )
     {
         DateTime now = DateTime.UtcNow;
-        return dbContext.Set<UserPasswordAction>().FirstOrDefaultAsync(
-            x => x.TokenHash == tokenHash && x.ConsumedAtUtc == null && x.ExpiresAtUtc > now,
-            cancellationToken
-        );
+        return dbContext
+            .Set<UserPasswordAction>()
+            .FirstOrDefaultAsync(
+                x => x.TokenHash == tokenHash && x.ConsumedAtUtc == null && x.ExpiresAtUtc > now,
+                cancellationToken
+            );
     }
 
     public async Task InvalidateActiveForUserAsync(
@@ -35,12 +40,11 @@ public sealed class UserPasswordActionRepository(FridayDbContext dbContext)
         string normalizedType = actionType.Trim().ToLowerInvariant();
         List<UserPasswordAction> active = await dbContext
             .Set<UserPasswordAction>()
-            .Where(
-                x =>
-                    x.UserId == userId
-                    && x.ActionType == normalizedType
-                    && x.ConsumedAtUtc == null
-                    && x.ExpiresAtUtc > now
+            .Where(x =>
+                x.UserId == userId
+                && x.ActionType == normalizedType
+                && x.ConsumedAtUtc == null
+                && x.ExpiresAtUtc > now
             )
             .ToListAsync(cancellationToken);
 

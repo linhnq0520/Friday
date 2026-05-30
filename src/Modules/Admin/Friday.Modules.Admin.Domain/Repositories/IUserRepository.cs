@@ -17,6 +17,9 @@ public interface IUserRepository
         CancellationToken cancellationToken = default
     );
     Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
-    Task<bool> ExistsByUserCodeAsync(string userCode, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByUserCodeAsync(
+        string userCode,
+        CancellationToken cancellationToken = default
+    );
     Task<IReadOnlyList<User>> ListAsync(CancellationToken cancellationToken = default);
 }
