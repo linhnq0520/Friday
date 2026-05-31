@@ -13,6 +13,7 @@ public sealed class FridayDbContext(DbContextOptions<FridayDbContext> options) :
         "Friday.Modules.Admin.Infrastructure",
         "Friday.Modules.Integration.Infrastructure",
         "Friday.Modules.Sample.Infrastructure",
+        "Friday.Modules.Salon.Infrastructure",
     ];
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

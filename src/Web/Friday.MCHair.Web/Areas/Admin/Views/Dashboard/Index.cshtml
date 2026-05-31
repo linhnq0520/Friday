@@ -1,0 +1,43 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.AppointmentDto>
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <span>Lịch hôm nay</span>
+        <strong>@ViewBag.TodayCount</strong>
+    </div>
+    <div class="stat-card">
+        <span>Chờ xác nhận</span>
+        <strong>@ViewBag.PendingCount</strong>
+    </div>
+</div>
+
+<h2>Lịch hẹn hôm nay</h2>
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Giờ</th>
+            <th>Khách</th>
+            <th>SĐT</th>
+            <th>Dịch vụ</th>
+            <th>Thợ</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ScheduledAt.ToString("HH:mm")</td>
+                <td>@item.CustomerName</td>
+                <td>@item.Phone</td>
+                <td>@item.ServiceName</td>
+                <td>@(item.StylistName ?? "—")</td>
+                <td>@item.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

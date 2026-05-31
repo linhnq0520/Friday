@@ -43,7 +43,7 @@ public static class DependencyInjection
             RelationalDbContextConfigurer.Configure(options, connectionString, dbSettings.Provider)
         );
 
-        if (!string.IsNullOrWhiteSpace(connectionString))
+        if (!string.IsNullOrWhiteSpace(connectionString) && dbSettings.Provider != RelationalDatabaseProvider.Sqlite)
         {
             services
                 .AddFluentMigratorCore()

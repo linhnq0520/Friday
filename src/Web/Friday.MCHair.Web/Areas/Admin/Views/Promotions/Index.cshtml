@@ -1,0 +1,27 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.Promotion>
+@{
+    ViewData["Title"] = "Khuyến mãi";
+}
+
+<a class="btn btn-primary" asp-action="Edit">Thêm khuyến mãi</a>
+<table class="admin-table">
+    <thead><tr><th>Tiêu đề</th><th>Ngày</th><th>Hiển thị</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy"))</td>
+                <td>@(item.IsPublished ? "Có" : "Ẩn")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                    <form asp-action="Delete" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

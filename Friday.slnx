@@ -27,4 +27,12 @@
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Domain/Friday.Modules.Sample.Domain.csproj" />
     <Project Path="src/Modules/Sample/Friday.Modules.Sample.Infrastructure/Friday.Modules.Sample.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Salon/">
+    <Project Path="src/Modules/Salon/Friday.Modules.Salon.Application/Friday.Modules.Salon.Application.csproj" />
+    <Project Path="src/Modules/Salon/Friday.Modules.Salon.Domain/Friday.Modules.Salon.Domain.csproj" />
+    <Project Path="src/Modules/Salon/Friday.Modules.Salon.Infrastructure/Friday.Modules.Salon.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Web/">
+    <Project Path="src/Web/Friday.MCHair.Web/Friday.MCHair.Web.csproj" />
+  </Folder>
 </Solution>

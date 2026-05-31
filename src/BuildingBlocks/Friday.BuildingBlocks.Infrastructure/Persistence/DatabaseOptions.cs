@@ -5,7 +5,7 @@ public sealed class DatabaseOptions
     public const string SectionName = "Database";
 
     /// <summary>
-    /// EF Core and FluentMigrator target database. EF migrations in this repo are generated for PostgreSQL (Npgsql).
+    /// EF Core and FluentMigrator target database. MCHair deploy uses SQLite; Friday.API default is PostgreSQL.
     /// </summary>
     public RelationalDatabaseProvider Provider { get; set; } =
         RelationalDatabaseProvider.PostgreSql;

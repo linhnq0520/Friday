@@ -1,0 +1,20 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.SiteSection>
+@{
+    ViewData["Title"] = "Nội dung trang chủ";
+}
+
+<a class="btn btn-primary" asp-action="Edit">Thêm section</a>
+<table class="admin-table">
+    <thead><tr><th>Key</th><th>Tiêu đề</th><th>Hiển thị</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.SectionKey</td>
+                <td>@item.Title</td>
+                <td>@(item.IsVisible ? "Có" : "Ẩn")</td>
+                <td><a asp-action="Edit" asp-route-id="@item.Id">Sửa</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

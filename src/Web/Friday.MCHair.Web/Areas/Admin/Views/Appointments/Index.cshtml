@@ -1,0 +1,58 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.AppointmentDto>
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Lịch hẹn";
+}
+
+<form method="get" class="filter-form">
+    <input type="date" name="from" value="@ViewBag.From" />
+    <input type="date" name="to" value="@ViewBag.To" />
+    <select name="status">
+        <option value="">Tất cả trạng thái</option>
+        @foreach (AppointmentStatus st in Enum.GetValues<AppointmentStatus>())
+        {
+            <option value="@((int)st)" selected="@(ViewBag.Status?.Equals(st) == true)">@st</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-sm">Lọc</button>
+</form>
+
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>Thời gian</th>
+            <th>Khách</th>
+            <th>SĐT</th>
+            <th>Dịch vụ</th>
+            <th>Thợ</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ScheduledAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.CustomerName</td>
+                <td>@item.Phone</td>
+                <td>@item.ServiceName</td>
+                <td>@(item.StylistName ?? "—")</td>
+                <td>@item.Status</td>
+                <td>
+                    <form asp-action="UpdateStatus" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <select name="status">
+                            @foreach (AppointmentStatus st in Enum.GetValues<AppointmentStatus>())
+                            {
+                                <option value="@((int)st)" selected="@(item.Status == st)">@st</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm">Lưu</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

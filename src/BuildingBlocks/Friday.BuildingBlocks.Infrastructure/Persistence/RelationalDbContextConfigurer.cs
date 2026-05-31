@@ -5,7 +5,7 @@ using Oracle.EntityFrameworkCore;
 
 namespace Friday.BuildingBlocks.Infrastructure.Persistence;
 
-internal static class RelationalDbContextConfigurer
+public static class RelationalDbContextConfigurer
 {
     public static void Configure(
         DbContextOptionsBuilder options,
@@ -32,6 +32,9 @@ internal static class RelationalDbContextConfigurer
                 break;
             case RelationalDatabaseProvider.Oracle:
                 options.UseOracle(connectionString);
+                break;
+            case RelationalDatabaseProvider.Sqlite:
+                options.UseSqlite(connectionString);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(provider), provider, "Unknown database provider.");

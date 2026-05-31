@@ -1,0 +1,27 @@
+@model ServicesIndexViewModel
+@{
+    ViewData["Title"] ??= "Dịch vụ & bảng giá | MCHair";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Dịch vụ &amp; bảng giá</h1>
+        <p>Bảng giá minh bạch — đặt lịch online tiện lợi tại @Model.Settings.GetValueOrDefault("site_name", "MCHair").</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="card-grid three">
+            @foreach (var service in Model.Services)
+            {
+                <article class="card service-card">
+                    <h2>@service.Name</h2>
+                    <p>@service.Description</p>
+                    <p class="price-lg">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
+                    <a class="btn btn-primary" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>

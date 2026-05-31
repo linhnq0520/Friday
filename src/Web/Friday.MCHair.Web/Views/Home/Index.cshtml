@@ -1,0 +1,153 @@
+﻿@model HomeIndexViewModel
+@{
+    var hero = Model.GetSection("hero");
+    var about = Model.GetSection("about");
+    var galleryIntro = Model.GetSection("gallery_intro");
+    var servicesIntro = Model.GetSection("services_intro");
+}
+
+<section class="hero">
+    <div class="container hero-content">
+        <p class="eyebrow">@Model.GetSetting("tagline", "Salon làm tóc chuyên nghiệp")</p>
+        <h1>@(hero?.Title ?? "MCHair Salon")</h1>
+        <p class="hero-text">@(hero?.Body ?? "Trải nghiệm làm đẹp tinh tế cùng đội ngũ stylist tận tâm.")</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
+            <a class="btn btn-outline" asp-controller="Services" asp-action="Index">Xem bảng giá</a>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="about">
+    <div class="container">
+        <div class="section-head">
+            <h2>@(about?.Title ?? "Về MCHair")</h2>
+            <p>@(about?.Body)</p>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt" id="gallery">
+    <div class="container">
+        <div class="section-head center">
+            <h2>@(galleryIntro?.Title ?? "Mẫu tóc hot")</h2>
+            <p>@(galleryIntro?.Subtitle)</p>
+        </div>
+        <div class="card-grid four">
+            @foreach (var item in Model.Page.HotGallery)
+            {
+                <article class="card gallery-card">
+                    <div class="card-image placeholder-image" style="background-image:url('@item.ImageUrl')"></div>
+                    <h3>@item.Title</h3>
+                    <p>@GalleryCategoryLabels.GetLabel(item.Category)</p>
+                    <a asp-controller="Gallery" asp-action="Index" asp-route-category="@((int)item.Category)">Xem thêm</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section" id="services">
+    <div class="container">
+        <div class="section-head center">
+            <h2>@(servicesIntro?.Title ?? "Dịch vụ tóc")</h2>
+            <p>@(servicesIntro?.Body)</p>
+            <a class="link-more" asp-controller="Services" asp-action="Index">Xem tất cả</a>
+        </div>
+        <div class="card-grid four">
+            @foreach (var service in Model.Page.Services)
+            {
+                <article class="card service-card">
+                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/images/placeholders/service.jpg")')"></div>
+                    <h3>@service.Name</h3>
+                    <p>@service.Description</p>
+                    <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
+                    <div class="rating">@service.RatingDisplay ★ đánh giá</div>
+                    <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch ngay</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt" id="promotions">
+    <div class="container">
+        <div class="section-head center">
+            <h2>Chương trình khuyến mãi</h2>
+        </div>
+        <div class="promo-list">
+            @foreach (var promo in Model.Page.Promotions)
+            {
+                <article class="promo-item">
+                    <h3>@promo.Title</h3>
+                    <p>@promo.Summary</p>
+                    <a asp-controller="News" asp-action="Index">Xem chi tiết</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section" id="feedback">
+    <div class="container">
+        <div class="section-head center">
+            <h2>Feedback khách hàng</h2>
+        </div>
+        <div class="card-grid three">
+            @foreach (var item in Model.Page.Testimonials)
+            {
+                <blockquote class="testimonial">
+                    <p>"@item.Content"</p>
+                    <footer>@item.CustomerName — @item.Rating/5 ★</footer>
+                </blockquote>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt" id="before-after">
+    <div class="container">
+        <div class="section-head center">
+            <h2>Before &amp; After</h2>
+        </div>
+        <div class="card-grid three">
+            @foreach (var item in Model.Page.BeforeAfter)
+            {
+                <article class="ba-card">
+                    <div class="ba-images">
+                        <div class="placeholder-image" style="background-image:url('@item.BeforeImageUrl')" title="Trước"></div>
+                        <div class="placeholder-image" style="background-image:url('@item.AfterImageUrl')" title="Sau"></div>
+                    </div>
+                    <h3>@item.Title</h3>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section" id="stylists">
+    <div class="container">
+        <div class="section-head center">
+            <h2>MCHair Stylist</h2>
+            <p>Đội ngũ nghệ sĩ tóc giàu kinh nghiệm, sáng tạo và tận tâm.</p>
+        </div>
+        <div class="card-grid three">
+            @foreach (var stylist in Model.Page.Stylists)
+            {
+                <article class="card stylist-card">
+                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/images/placeholders/stylist.jpg")')"></div>
+                    <h3>@stylist.Name</h3>
+                    <p class="muted">@stylist.Title</p>
+                    <p>@stylist.Bio</p>
+                    <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-stylistId="@stylist.Id">Đặt lịch ngay</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+@section Head {
+    <script>
+        document.getElementById('site-hotline').textContent = '@Model.GetSetting("hotline", "0900 123 456")';
+    </script>
+}

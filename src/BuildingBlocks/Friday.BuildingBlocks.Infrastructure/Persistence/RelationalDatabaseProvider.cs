@@ -7,4 +7,5 @@ public enum RelationalDatabaseProvider
     PostgreSql,
     MySql,
     Oracle,
+    Sqlite,
 }

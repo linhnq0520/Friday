@@ -1,0 +1,17 @@
+@model Friday.Modules.Salon.Domain.Entities.HairService
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm dịch vụ" : "Sửa dịch vụ";
+}
+
+<form asp-action="Edit" method="post" class="admin-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group"><label>Tên</label><input asp-for="Name" required /></div>
+    <div class="form-group"><label>Mô tả</label><textarea asp-for="Description"></textarea></div>
+    <div class="form-group"><label>Giá từ (vnđ)</label><input asp-for="PriceFrom" type="number" step="1000" /></div>
+    <div class="form-group"><label>Ảnh (URL)</label><input asp-for="ImageUrl" /></div>
+    <div class="form-group"><label>Thứ tự</label><input asp-for="SortOrder" type="number" /></div>
+    <div class="form-group"><label>Đánh giá hiển thị</label><input asp-for="RatingDisplay" type="number" min="1" max="5" /></div>
+    <label><input asp-for="IsActive" type="checkbox" /> Hiển thị</label>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>

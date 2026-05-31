@@ -62,3 +62,8 @@ nunit-*.xml
 .env.test.local/
 .env.production.local/
 
+# MCHair local SQLite database
+**/Data/*.db
+**/Data/*.db-*
+mchair.dev.db
+

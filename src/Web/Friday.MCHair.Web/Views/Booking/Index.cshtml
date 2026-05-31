@@ -1,0 +1,81 @@
+@model BookingViewModel
+@{
+    ViewData["Title"] = "Đặt lịch | MCHair Salon";
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Đặt lịch</h1>
+        <p>Chọn dịch vụ, thợ (tuỳ chọn) và thời gian phù hợp.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow">
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert success">@Model.SuccessMessage</div>
+        }
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert error">@Model.ErrorMessage</div>
+        }
+
+        @if (string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <form asp-action="Index" method="post" class="booking-form">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label>Họ tên *</label>
+                    <input name="CustomerName" required maxlength="200" />
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại *</label>
+                    <input name="Phone" required maxlength="30" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input name="Email" type="email" maxlength="200" />
+                </div>
+                <div class="form-group">
+                    <label>Dịch vụ *</label>
+                    <select name="HairServiceId" required>
+                        @foreach (var s in Model.Form.Services)
+                        {
+                            <option value="@s.Id" selected="@(Model.PreselectedServiceId == s.Id)">@s.Name — @s.PriceFrom.ToString("N0") vnđ</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Chọn thợ (tuỳ chọn)</label>
+                    <select name="StylistId">
+                        <option value="">Salon sắp xếp</option>
+                        @foreach (var st in Model.Form.Stylists)
+                        {
+                            <option value="@st.Id" selected="@(Model.PreselectedStylistId == st.Id)">@st.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ngày *</label>
+                        <input name="ScheduledDate" type="date" required value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group">
+                        <label>Giờ *</label>
+                        <input name="ScheduledTime" type="time" required value="10:00" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú</label>
+                    <textarea name="Notes" rows="3" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi đặt lịch</button>
+            </form>
+        }
+        else
+        {
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Về trang chủ</a>
+        }
+    </div>
+</section>

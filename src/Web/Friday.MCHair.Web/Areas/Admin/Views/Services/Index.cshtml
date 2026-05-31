@@ -1,0 +1,29 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.HairService>
+@{
+    ViewData["Title"] = "Dịch vụ";
+}
+
+<a class="btn btn-primary" asp-action="Edit">Thêm dịch vụ</a>
+<table class="admin-table">
+    <thead>
+        <tr><th>Tên</th><th>Giá từ</th><th>Hiển thị</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.PriceFrom.ToString("N0")</td>
+                <td>@(item.IsActive ? "Có" : "Ẩn")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                    <form asp-action="Delete" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" onclick="return confirm('Xóa dịch vụ?')">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

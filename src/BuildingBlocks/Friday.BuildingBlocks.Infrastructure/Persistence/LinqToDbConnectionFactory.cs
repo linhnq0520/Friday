@@ -32,6 +32,7 @@ public sealed class LinqToDbConnectionFactory : ILinqToDbConnectionFactory
             ),
             RelationalDatabaseProvider.MySql => new DataOptions().UseMySql(_connectionString),
             RelationalDatabaseProvider.Oracle => new DataOptions().UseOracle(_connectionString),
+            RelationalDatabaseProvider.Sqlite => new DataOptions().UseSQLite(_connectionString),
             _ => throw new ArgumentOutOfRangeException(nameof(_provider), _provider, null),
         };
         _connection = new DataConnection(options);

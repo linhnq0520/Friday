@@ -1,0 +1,17 @@
+@model Friday.Modules.Salon.Domain.Entities.SiteSection
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm section" : "Sửa section";
+}
+
+<form asp-action="Edit" method="post" class="admin-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group"><label>Key (hero, about, gallery_intro...)</label><input asp-for="SectionKey" required /></div>
+    <div class="form-group"><label>Tiêu đề</label><input asp-for="Title" /></div>
+    <div class="form-group"><label>Phụ đề</label><input asp-for="Subtitle" /></div>
+    <div class="form-group"><label>Nội dung</label><textarea asp-for="Body" rows="5"></textarea></div>
+    <div class="form-group"><label>Ảnh (URL)</label><input asp-for="ImageUrl" /></div>
+    <div class="form-group"><label>Thứ tự</label><input asp-for="SortOrder" type="number" /></div>
+    <label><input asp-for="IsVisible" type="checkbox" /> Hiển thị</label>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>

@@ -1,0 +1,33 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.GalleryItemDto>
+@using Friday.MCHair.Web.Models
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Bộ sưu tập | MCHair";
+    var category = ViewBag.Category as GalleryCategory?;
+}
+
+<section class="page-hero">
+    <div class="container">
+        <h1>Bộ sưu tập</h1>
+        <div class="filter-tabs">
+            <a asp-action="Index" class="@(category is null ? "active" : "")">Tất cả</a>
+            @foreach (GalleryCategory cat in Enum.GetValues<GalleryCategory>())
+            {
+                <a asp-action="Index" asp-route-category="@((int)cat)" class="@(category == cat ? "active" : "")">@GalleryCategoryLabels.GetLabel(cat)</a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container card-grid four">
+        @foreach (var item in Model)
+        {
+            <article class="card gallery-card">
+                <div class="card-image placeholder-image" style="background-image:url('@item.ImageUrl')"></div>
+                <h3>@item.Title</h3>
+                <p>@GalleryCategoryLabels.GetLabel(item.Category)</p>
+            </article>
+        }
+    </div>
+</section>

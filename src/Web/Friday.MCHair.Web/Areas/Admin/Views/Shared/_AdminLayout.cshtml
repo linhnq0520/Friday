@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MCHair Admin</title>
+    <link rel="stylesheet" href="~/css/mchair.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <div class="admin-brand">MCHair Admin</div>
+        <nav>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index">Lịch hẹn</a>
+            <a asp-area="Admin" asp-controller="Services" asp-action="Index">Dịch vụ</a>
+            <a asp-area="Admin" asp-controller="Stylists" asp-action="Index">Thợ</a>
+            <a asp-area="Admin" asp-controller="Sections" asp-action="Index">Nội dung trang chủ</a>
+            <a asp-area="Admin" asp-controller="Promotions" asp-action="Index">Khuyến mãi</a>
+            <a asp-area="Admin" asp-controller="Settings" asp-action="Index">Cài đặt &amp; SEO</a>
+            <a href="/" target="_blank">Xem website</a>
+        </nav>
+        <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+            @Html.AntiForgeryToken()
+            <button type="submit">Đăng xuất</button>
+        </form>
+    </aside>
+    <div class="admin-main">
+        <header class="admin-top">
+            <h1>@ViewData["Title"]</h1>
+        </header>
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert success">@success</div>
+        }
+        <div class="admin-content">
+            @RenderBody()
+        </div>
+    </div>
+</body>
+</html>
