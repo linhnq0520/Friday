@@ -21,8 +21,31 @@ public sealed class PromotionsController(ISalonRepository repository) : AdminCon
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Promotion model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(
+        Promotion model,
+        IFormFile? imageFile,
+        CancellationToken cancellationToken
+    )
     {
+        Promotion? existing =
+            model.Id > 0 ? await repository.GetPromotionByIdAsync(model.Id, cancellationToken) : null;
+
+        try
+        {
+            model.ImageUrl = await this.ResolveImageUrlAsync(
+                imageFile,
+                "promotions",
+                existing?.ImageUrl,
+                model.ImageUrl,
+                cancellationToken
+            );
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+
         await repository.AddPromotionAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
         TempData["Success"] = "Đã lưu khuyến mãi.";

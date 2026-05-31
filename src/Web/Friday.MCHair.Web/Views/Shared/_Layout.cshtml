@@ -79,6 +79,10 @@
     </footer>
 
     <a class="float-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
+    @if (ViewData["ShowBackToTop"] as bool? == true)
+    {
+        <button type="button" class="back-to-top" aria-label="Về đầu trang" title="Về đầu trang">↑</button>
+    }
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

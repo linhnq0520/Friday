@@ -23,8 +23,31 @@ public sealed class SectionsController(ISalonRepository repository) : AdminContr
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(SiteSection model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(
+        SiteSection model,
+        IFormFile? imageFile,
+        CancellationToken cancellationToken
+    )
     {
+        SiteSection? existing =
+            model.Id > 0 ? await repository.GetSectionByIdAsync(model.Id, cancellationToken) : null;
+
+        try
+        {
+            model.ImageUrl = await this.ResolveImageUrlAsync(
+                imageFile,
+                "sections",
+                existing?.ImageUrl,
+                model.ImageUrl,
+                cancellationToken
+            );
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+
         await repository.AddSectionAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
         TempData["Success"] = "Đã lưu nội dung section.";

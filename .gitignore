@@ -66,4 +66,5 @@ nunit-*.xml
 **/Data/*.db
 **/Data/*.db-*
 mchair.dev.db
+src/Web/Friday.MCHair.Web/wwwroot/uploads/
 

@@ -1,5 +1,6 @@
 using Friday.BuildingBlocks.Application;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
+using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Application;
 using Friday.Modules.Salon.Infrastructure;
 using Friday.Modules.Salon.Infrastructure.Data;
@@ -10,7 +11,20 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+string contentRoot = AppContext.BaseDirectory;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(
+    new WebApplicationOptions
+    {
+        Args = args,
+        ContentRootPath = contentRoot,
+        WebRootPath = Path.Combine(contentRoot, "wwwroot"),
+    }
+);
+
+string dbFile = Path.Combine(contentRoot, "Data", "mchair.db");
+Directory.CreateDirectory(Path.GetDirectoryName(dbFile)!);
+builder.Configuration["ConnectionStrings:FridayDb"] = $"Data Source={dbFile}";
 
 builder.Services.AddBuildingBlocksApplication();
 builder.Services.AddSalonApplication();
@@ -18,6 +32,7 @@ builder.Services.AddSalonInfrastructure(builder.Configuration);
 builder.Services.AddLinKitCqrs();
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 builder.Services.AddControllersWithViews();
 
 builder
@@ -49,6 +64,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapStaticAssets();
 app.MapControllerRoute(name: "areas", pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 

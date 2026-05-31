@@ -3,13 +3,14 @@
     ViewData["Title"] = Model.Id == 0 ? "Thêm khuyến mãi" : "Sửa khuyến mãi";
 }
 
-<form asp-action="Edit" method="post" class="admin-form">
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form">
     @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert error"></div>
     <input type="hidden" asp-for="Id" />
     <div class="form-group"><label>Tiêu đề</label><input asp-for="Title" required /></div>
     <div class="form-group"><label>Tóm tắt</label><textarea asp-for="Summary"></textarea></div>
     <div class="form-group"><label>Nội dung</label><textarea asp-for="Content" rows="5"></textarea></div>
-    <div class="form-group"><label>Ảnh (URL)</label><input asp-for="ImageUrl" /></div>
+    @await Html.PartialAsync("_ImageUploadField", Model.ImageUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Ảnh khuyến mãi" } })
     <div class="form-group"><label>Ngày đăng (UTC)</label><input asp-for="PublishedAt" type="datetime-local" value="@(Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm"))" /></div>
     <label><input asp-for="IsPublished" type="checkbox" /> Hiển thị</label>
     <button type="submit" class="btn btn-primary">Lưu</button>

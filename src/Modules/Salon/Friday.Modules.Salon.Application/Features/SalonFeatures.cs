@@ -19,12 +19,16 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
         IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync(
             cancellationToken
         );
-        IReadOnlyList<SiteSection> sections = await repository.GetVisibleSectionsAsync(cancellationToken);
+        IReadOnlyList<SiteSection> sections = await repository.GetVisibleSectionsAsync(
+            cancellationToken
+        );
         IReadOnlyList<GalleryItem> gallery = await repository.GetPublishedGalleryAsync(
             null,
             cancellationToken
         );
-        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(cancellationToken);
+        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(
+            cancellationToken
+        );
         IReadOnlyList<Promotion> promotions = await repository.GetPublishedPromotionsAsync(
             cancellationToken
         );
@@ -34,7 +38,9 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
         IReadOnlyList<BeforeAfterItem> beforeAfter = await repository.GetPublishedBeforeAfterAsync(
             cancellationToken
         );
-        IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(cancellationToken);
+        IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(
+            cancellationToken
+        );
 
         return new HomePageDto(
             settings,
@@ -95,12 +101,15 @@ public sealed class GetServicesPageHandler(ISalonRepository repository)
         CancellationToken cancellationToken
     )
     {
-        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(cancellationToken);
+        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(
+            cancellationToken
+        );
         return services.Select(GetHomePageHandler.MapService).ToList();
     }
 }
 
-public sealed record GetGalleryPageQuery(GalleryCategory? Category) : IQuery<IReadOnlyList<GalleryItemDto>>;
+public sealed record GetGalleryPageQuery(GalleryCategory? Category)
+    : IQuery<IReadOnlyList<GalleryItemDto>>;
 
 public sealed class GetGalleryPageHandler(ISalonRepository repository)
     : IQueryHandler<GetGalleryPageQuery, IReadOnlyList<GalleryItemDto>>
@@ -128,7 +137,9 @@ public sealed class GetPromotionsPageHandler(ISalonRepository repository)
         CancellationToken cancellationToken
     )
     {
-        IReadOnlyList<Promotion> items = await repository.GetPublishedPromotionsAsync(cancellationToken);
+        IReadOnlyList<Promotion> items = await repository.GetPublishedPromotionsAsync(
+            cancellationToken
+        );
         return items.Select(GetHomePageHandler.MapPromotion).ToList();
     }
 }
@@ -148,8 +159,12 @@ public sealed class GetBookingFormHandler(ISalonRepository repository)
         CancellationToken cancellationToken
     )
     {
-        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(cancellationToken);
-        IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(cancellationToken);
+        IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(
+            cancellationToken
+        );
+        IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(
+            cancellationToken
+        );
         return new BookingFormDto(
             services.Select(GetHomePageHandler.MapService).ToList(),
             stylists.Select(GetHomePageHandler.MapStylist).ToList()
@@ -208,7 +223,11 @@ public sealed class CreateAppointmentHandler(ISalonRepository repository)
 
         if (request.ScheduledAt <= DateTime.Now)
         {
-            return new CreateAppointmentResult(false, null, "Vui lòng chọn thời gian trong tương lai.");
+            return new CreateAppointmentResult(
+                false,
+                null,
+                "Vui lòng chọn thời gian trong tương lai."
+            );
         }
 
         Appointment appointment = new()
@@ -240,7 +259,10 @@ public sealed class AdminLoginHandler(
         CancellationToken cancellationToken
     )
     {
-        AdminUser? user = await repository.GetAdminByUsernameAsync(request.Username, cancellationToken);
+        AdminUser? user = await repository.GetAdminByUsernameAsync(
+            request.Username,
+            cancellationToken
+        );
         if (user is null || !passwordService.VerifyPassword(request.Password, user.PasswordHash))
         {
             return new AdminLoginResult(false, null, "Tên đăng nhập hoặc mật khẩu không đúng.");
@@ -285,7 +307,10 @@ public sealed class UpdateAppointmentStatusHandler(ISalonRepository repository)
         CancellationToken cancellationToken
     )
     {
-        Appointment? appointment = await repository.GetAppointmentByIdAsync(request.Id, cancellationToken);
+        Appointment? appointment = await repository.GetAppointmentByIdAsync(
+            request.Id,
+            cancellationToken
+        );
         if (appointment is null)
         {
             return new CreateAppointmentResult(false, null, "Không tìm thấy lịch hẹn.");

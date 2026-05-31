@@ -13,7 +13,12 @@ public sealed record HairServiceDto(
 
 public sealed record StylistDto(int Id, string Name, string? Title, string? Bio, string? ImageUrl);
 
-public sealed record GalleryItemDto(int Id, string Title, GalleryCategory Category, string ImageUrl);
+public sealed record GalleryItemDto(
+    int Id,
+    string Title,
+    GalleryCategory Category,
+    string ImageUrl
+);
 
 public sealed record PromotionDto(
     int Id,
@@ -75,4 +80,8 @@ public sealed record HomePageDto(
 
 public sealed record AdminLoginResult(bool Success, string? DisplayName, string? ErrorMessage);
 
-public sealed record CreateAppointmentResult(bool Success, int? AppointmentId, string? ErrorMessage);
+public sealed record CreateAppointmentResult(
+    bool Success,
+    int? AppointmentId,
+    string? ErrorMessage
+);

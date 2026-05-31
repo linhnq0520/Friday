@@ -19,6 +19,9 @@
 .hint { color: #666; font-size: .85rem; }
 .logout-form { margin-top: auto; }
 .logout-form button { width: 100%; padding: .55rem; border-radius: 8px; border: 1px solid #444; background: #222; color: #eee; cursor: pointer; }
+.image-upload-field .image-preview { display: block; max-width: 220px; max-height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: .6rem; border: 1px solid #e5e5ea; }
+.image-upload-field .file-label { display: block; margin-bottom: .35rem; font-weight: 600; }
+.image-upload-field .hint { margin: .5rem 0 .25rem; color: #666; font-size: .85rem; }
 
 @media (max-width: 900px) {
     .admin-body { grid-template-columns: 1fr; }

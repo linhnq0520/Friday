@@ -5,6 +5,11 @@
     <ProjectReference Include="..\..\Modules\Salon\Friday.Modules.Salon.Infrastructure\Friday.Modules.Salon.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Update="wwwroot\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="LinKit.Core" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

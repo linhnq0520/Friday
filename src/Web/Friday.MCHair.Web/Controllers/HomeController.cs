@@ -12,7 +12,11 @@ public sealed class HomeController(IMediator mediator) : Controller
     {
         HomePageDto page = await mediator.QueryAsync(new GetHomePageQuery(), cancellationToken);
         ViewData["Title"] = page.Settings.GetValueOrDefault("seo_title", SeoDefaults.SiteName);
-        ViewData["MetaDescription"] = page.Settings.GetValueOrDefault("seo_description", string.Empty);
+        ViewData["MetaDescription"] = page.Settings.GetValueOrDefault(
+            "seo_description",
+            string.Empty
+        );
+        ViewData["ShowBackToTop"] = true;
         return View(new HomeIndexViewModel { Page = page });
     }
 

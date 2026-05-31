@@ -23,8 +23,33 @@ public sealed class StylistsController(ISalonRepository repository) : AdminContr
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Stylist model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(
+        Stylist model,
+        IFormFile? imageFile,
+        CancellationToken cancellationToken
+    )
     {
+        Stylist? existing =
+            model.Id > 0
+                ? await repository.GetStylistByIdAsync(model.Id, cancellationToken)
+                : null;
+
+        try
+        {
+            model.ImageUrl = await this.ResolveImageUrlAsync(
+                imageFile,
+                "stylists",
+                existing?.ImageUrl,
+                model.ImageUrl,
+                cancellationToken
+            );
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+
         await repository.AddStylistAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
         TempData["Success"] = "Đã lưu thợ.";

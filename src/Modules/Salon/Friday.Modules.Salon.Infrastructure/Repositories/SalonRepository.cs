@@ -1,3 +1,4 @@
+using Friday.BuildingBlocks.Domain.Entities;
 using Friday.Modules.Salon.Domain.Entities;
 using Friday.Modules.Salon.Domain.Enums;
 using Friday.Modules.Salon.Domain.Repositories;
@@ -30,23 +31,24 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<HairService?> GetServiceByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<HairService>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddServiceAsync(HairService service, CancellationToken cancellationToken = default)
-    {
-        if (service.Id == 0)
-        {
-            await dbContext.Set<HairService>().AddAsync(service, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<HairService>().Update(service);
-        }
-    }
+    public Task AddServiceAsync(HairService service, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            service,
+            static (source, target) =>
+            {
+                target.Name = source.Name;
+                target.Description = source.Description;
+                target.PriceFrom = source.PriceFrom;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsActive = source.IsActive;
+                target.RatingDisplay = source.RatingDisplay;
+            },
+            cancellationToken
+        );
 
-    public Task DeleteServiceAsync(HairService service, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<HairService>().Remove(service);
-        return Task.CompletedTask;
-    }
+    public Task DeleteServiceAsync(HairService service, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<HairService>(service.Id, cancellationToken);
 
     public async Task<IReadOnlyList<Stylist>> GetActiveStylistsAsync(
         CancellationToken cancellationToken = default
@@ -64,23 +66,23 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<Stylist?> GetStylistByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<Stylist>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddStylistAsync(Stylist stylist, CancellationToken cancellationToken = default)
-    {
-        if (stylist.Id == 0)
-        {
-            await dbContext.Set<Stylist>().AddAsync(stylist, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<Stylist>().Update(stylist);
-        }
-    }
+    public Task AddStylistAsync(Stylist stylist, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            stylist,
+            static (source, target) =>
+            {
+                target.Name = source.Name;
+                target.Title = source.Title;
+                target.Bio = source.Bio;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsActive = source.IsActive;
+            },
+            cancellationToken
+        );
 
-    public Task DeleteStylistAsync(Stylist stylist, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<Stylist>().Remove(stylist);
-        return Task.CompletedTask;
-    }
+    public Task DeleteStylistAsync(Stylist stylist, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<Stylist>(stylist.Id, cancellationToken);
 
     public async Task<IReadOnlyList<GalleryItem>> GetPublishedGalleryAsync(
         GalleryCategory? category,
@@ -107,23 +109,22 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<GalleryItem?> GetGalleryByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<GalleryItem>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddGalleryItemAsync(GalleryItem item, CancellationToken cancellationToken = default)
-    {
-        if (item.Id == 0)
-        {
-            await dbContext.Set<GalleryItem>().AddAsync(item, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<GalleryItem>().Update(item);
-        }
-    }
+    public Task AddGalleryItemAsync(GalleryItem item, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            item,
+            static (source, target) =>
+            {
+                target.Title = source.Title;
+                target.Category = source.Category;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsPublished = source.IsPublished;
+            },
+            cancellationToken
+        );
 
-    public Task DeleteGalleryItemAsync(GalleryItem item, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<GalleryItem>().Remove(item);
-        return Task.CompletedTask;
-    }
+    public Task DeleteGalleryItemAsync(GalleryItem item, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<GalleryItem>(item.Id, cancellationToken);
 
     public async Task<IReadOnlyList<Promotion>> GetPublishedPromotionsAsync(
         CancellationToken cancellationToken = default
@@ -146,23 +147,23 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<Promotion?> GetPromotionByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<Promotion>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddPromotionAsync(Promotion promotion, CancellationToken cancellationToken = default)
-    {
-        if (promotion.Id == 0)
-        {
-            await dbContext.Set<Promotion>().AddAsync(promotion, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<Promotion>().Update(promotion);
-        }
-    }
+    public Task AddPromotionAsync(Promotion promotion, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            promotion,
+            static (source, target) =>
+            {
+                target.Title = source.Title;
+                target.Summary = source.Summary;
+                target.Content = source.Content;
+                target.ImageUrl = source.ImageUrl;
+                target.PublishedAt = source.PublishedAt;
+                target.IsPublished = source.IsPublished;
+            },
+            cancellationToken
+        );
 
-    public Task DeletePromotionAsync(Promotion promotion, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<Promotion>().Remove(promotion);
-        return Task.CompletedTask;
-    }
+    public Task DeletePromotionAsync(Promotion promotion, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<Promotion>(promotion.Id, cancellationToken);
 
     public async Task<IReadOnlyList<Testimonial>> GetPublishedTestimonialsAsync(
         CancellationToken cancellationToken = default
@@ -180,23 +181,23 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<Testimonial?> GetTestimonialByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<Testimonial>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddTestimonialAsync(Testimonial testimonial, CancellationToken cancellationToken = default)
-    {
-        if (testimonial.Id == 0)
-        {
-            await dbContext.Set<Testimonial>().AddAsync(testimonial, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<Testimonial>().Update(testimonial);
-        }
-    }
+    public Task AddTestimonialAsync(Testimonial testimonial, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            testimonial,
+            static (source, target) =>
+            {
+                target.CustomerName = source.CustomerName;
+                target.Content = source.Content;
+                target.Rating = source.Rating;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsPublished = source.IsPublished;
+            },
+            cancellationToken
+        );
 
-    public Task DeleteTestimonialAsync(Testimonial testimonial, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<Testimonial>().Remove(testimonial);
-        return Task.CompletedTask;
-    }
+    public Task DeleteTestimonialAsync(Testimonial testimonial, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<Testimonial>(testimonial.Id, cancellationToken);
 
     public async Task<IReadOnlyList<SiteSection>> GetVisibleSectionsAsync(
         CancellationToken cancellationToken = default
@@ -217,17 +218,21 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<SiteSection?> GetSectionByKeyAsync(string key, CancellationToken cancellationToken = default) =>
         dbContext.Set<SiteSection>().FirstOrDefaultAsync(x => x.SectionKey == key, cancellationToken);
 
-    public async Task AddSectionAsync(SiteSection section, CancellationToken cancellationToken = default)
-    {
-        if (section.Id == 0)
-        {
-            await dbContext.Set<SiteSection>().AddAsync(section, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<SiteSection>().Update(section);
-        }
-    }
+    public Task AddSectionAsync(SiteSection section, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            section,
+            static (source, target) =>
+            {
+                target.SectionKey = source.SectionKey;
+                target.Title = source.Title;
+                target.Subtitle = source.Subtitle;
+                target.Body = source.Body;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsVisible = source.IsVisible;
+            },
+            cancellationToken
+        );
 
     public async Task<IReadOnlyList<BeforeAfterItem>> GetPublishedBeforeAfterAsync(
         CancellationToken cancellationToken = default
@@ -245,23 +250,22 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<BeforeAfterItem?> GetBeforeAfterByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<BeforeAfterItem>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task AddBeforeAfterAsync(BeforeAfterItem item, CancellationToken cancellationToken = default)
-    {
-        if (item.Id == 0)
-        {
-            await dbContext.Set<BeforeAfterItem>().AddAsync(item, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<BeforeAfterItem>().Update(item);
-        }
-    }
+    public Task AddBeforeAfterAsync(BeforeAfterItem item, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            item,
+            static (source, target) =>
+            {
+                target.Title = source.Title;
+                target.BeforeImageUrl = source.BeforeImageUrl;
+                target.AfterImageUrl = source.AfterImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsPublished = source.IsPublished;
+            },
+            cancellationToken
+        );
 
-    public Task DeleteBeforeAfterAsync(BeforeAfterItem item, CancellationToken cancellationToken = default)
-    {
-        dbContext.Set<BeforeAfterItem>().Remove(item);
-        return Task.CompletedTask;
-    }
+    public Task DeleteBeforeAfterAsync(BeforeAfterItem item, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<BeforeAfterItem>(item.Id, cancellationToken);
 
     public async Task<IReadOnlyDictionary<string, string>> GetSettingsAsync(
         CancellationToken cancellationToken = default
@@ -286,21 +290,26 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         else
         {
             existing.Value = value;
-            dbContext.Set<SiteSetting>().Update(existing);
+            existing.Touch();
         }
     }
 
-    public async Task AddAppointmentAsync(Appointment appointment, CancellationToken cancellationToken = default)
-    {
-        if (appointment.Id == 0)
-        {
-            await dbContext.Set<Appointment>().AddAsync(appointment, cancellationToken);
-        }
-        else
-        {
-            dbContext.Set<Appointment>().Update(appointment);
-        }
-    }
+    public Task AddAppointmentAsync(Appointment appointment, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            appointment,
+            static (source, target) =>
+            {
+                target.CustomerName = source.CustomerName;
+                target.Phone = source.Phone;
+                target.Email = source.Email;
+                target.HairServiceId = source.HairServiceId;
+                target.StylistId = source.StylistId;
+                target.ScheduledAt = source.ScheduledAt;
+                target.Notes = source.Notes;
+                target.Status = source.Status;
+            },
+            cancellationToken
+        );
 
     public Task<Appointment?> GetAppointmentByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext
@@ -354,15 +363,55 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<bool> AnyAdminUsersAsync(CancellationToken cancellationToken = default) =>
         dbContext.Set<AdminUser>().AnyAsync(cancellationToken);
 
-    public async Task AddAdminUserAsync(AdminUser user, CancellationToken cancellationToken = default)
+    public Task AddAdminUserAsync(AdminUser user, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            user,
+            static (source, target) =>
+            {
+                target.Username = source.Username;
+                target.PasswordHash = source.PasswordHash;
+                target.DisplayName = source.DisplayName;
+                target.IsActive = source.IsActive;
+            },
+            cancellationToken
+        );
+
+    private async Task UpsertAsync<TEntity>(
+        TEntity incoming,
+        Action<TEntity, TEntity> applyValues,
+        CancellationToken cancellationToken
+    )
+        where TEntity : Entity
     {
-        if (user.Id == 0)
+        if (incoming.Id == 0)
         {
-            await dbContext.Set<AdminUser>().AddAsync(user, cancellationToken);
+            await dbContext.Set<TEntity>().AddAsync(incoming, cancellationToken);
+            return;
         }
-        else
+
+        TEntity? tracked = await dbContext.Set<TEntity>().FindAsync([incoming.Id], cancellationToken);
+        if (tracked is null)
         {
-            dbContext.Set<AdminUser>().Update(user);
+            await dbContext.Set<TEntity>().AddAsync(incoming, cancellationToken);
+            return;
+        }
+
+        applyValues(incoming, tracked);
+        tracked.Touch();
+    }
+
+    private async Task DeleteByIdAsync<TEntity>(int id, CancellationToken cancellationToken)
+        where TEntity : Entity
+    {
+        if (id == 0)
+        {
+            return;
+        }
+
+        TEntity? tracked = await dbContext.Set<TEntity>().FindAsync([id], cancellationToken);
+        if (tracked is not null)
+        {
+            dbContext.Set<TEntity>().Remove(tracked);
         }
     }
 }

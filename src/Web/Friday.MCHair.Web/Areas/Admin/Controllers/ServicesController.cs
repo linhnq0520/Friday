@@ -25,8 +25,31 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(HairService model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(
+        HairService model,
+        IFormFile? imageFile,
+        CancellationToken cancellationToken
+    )
     {
+        HairService? existing =
+            model.Id > 0 ? await repository.GetServiceByIdAsync(model.Id, cancellationToken) : null;
+
+        try
+        {
+            model.ImageUrl = await this.ResolveImageUrlAsync(
+                imageFile,
+                "services",
+                existing?.ImageUrl,
+                model.ImageUrl,
+                cancellationToken
+            );
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+
         await repository.AddServiceAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
         TempData["Success"] = "Đã lưu dịch vụ.";
