@@ -21,6 +21,7 @@ public sealed class ServicesIndexViewModel
 {
     public required IReadOnlyList<HairServiceDto> Services { get; init; }
     public required IReadOnlyDictionary<string, string> Settings { get; init; }
+    public required PriceListData PriceList { get; init; }
 }
 
 public sealed class BookingViewModel
@@ -60,5 +61,5 @@ public static class GalleryCategoryLabels
 
 public static class SeoDefaults
 {
-    public const string SiteName = "MCHair Salon";
+    public const string SiteName = "MC Hair Salon";
 }

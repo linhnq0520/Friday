@@ -2,46 +2,60 @@
 @{
     var hero = Model.GetSection("hero");
     var about = Model.GetSection("about");
-    var galleryIntro = Model.GetSection("gallery_intro");
     var servicesIntro = Model.GetSection("services_intro");
+    var missionPreview = SiteContent.MissionBody
+        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .FirstOrDefault() ?? string.Empty;
 }
 
-<section class="hero">
+<section class="hero-slider" aria-label="Không gian MC Hair">
+    <div class="hero-slides">
+        @for (var i = 0; i < SiteContent.HeroSlides.Length; i++)
+        {
+            <div class="hero-slide @(i == 0 ? "is-active" : string.Empty)" style="background-image:url('@SiteContent.HeroSlides[i]')"></div>
+        }
+    </div>
+    <div class="hero-overlay"></div>
     <div class="container hero-content">
         <p class="eyebrow">@Model.GetSetting("tagline", "Salon làm tóc chuyên nghiệp")</p>
-        <h1>@(hero?.Title ?? "MCHair Salon")</h1>
-        <p class="hero-text">@(hero?.Body ?? "Trải nghiệm làm đẹp tinh tế cùng đội ngũ stylist tận tâm.")</p>
+        <h1>@(hero?.Title ?? "MC Hair Salon")</h1>
+        <p class="hero-text">@(hero?.Body ?? "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá cho từng khách hàng.")</p>
         <div class="hero-actions">
             <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
             <a class="btn btn-outline" asp-controller="Services" asp-action="Index">Xem bảng giá</a>
         </div>
     </div>
-</section>
-
-<section class="section" id="about">
-    <div class="container">
-        <div class="section-head">
-            <h2>@(about?.Title ?? "Về MCHair")</h2>
-            <p>@(about?.Body)</p>
-        </div>
+    <div class="hero-dots" role="tablist" aria-label="Chọn ảnh">
+        @for (var i = 0; i < SiteContent.HeroSlides.Length; i++)
+        {
+            <button type="button" class="hero-dot @(i == 0 ? "is-active" : string.Empty)" aria-label="Ảnh @(i + 1)" data-slide="@i"></button>
+        }
     </div>
 </section>
 
-<section class="section section-alt" id="gallery">
+<section class="section" id="about">
+    <div class="container about-teaser">
+        <div class="about-teaser-copy">
+            <h2>@(about?.Title ?? "Về MC Hair")</h2>
+            <p>@(about?.Body ?? missionPreview)</p>
+            <a class="link-more" asp-controller="About" asp-action="Index">Tìm hiểu sứ mệnh &amp; tầm nhìn →</a>
+        </div>
+        <div class="about-teaser-image" style="background-image:url('@SiteContent.LogoPath')"></div>
+    </div>
+</section>
+
+<section class="section section-alt" id="space">
     <div class="container">
         <div class="section-head center">
-            <h2>@(galleryIntro?.Title ?? "Mẫu tóc hot")</h2>
-            <p>@(galleryIntro?.Subtitle)</p>
+            <h2>Không gian MC Hair</h2>
+            <p>Thiết kế hiện đại, ấm cúng – nơi bạn tìm thấy sự tự tin và phong cách riêng.</p>
         </div>
-        <div class="card-grid four">
-            @foreach (var item in Model.Page.HotGallery)
+        <div class="space-scroll" tabindex="0" aria-label="Ảnh không gian salon">
+            @foreach (var image in SiteContent.SpaceShowcase)
             {
-                <article class="card gallery-card">
-                    <div class="card-image placeholder-image" style="background-image:url('@item.ImageUrl')"></div>
-                    <h3>@item.Title</h3>
-                    <p>@GalleryCategoryLabels.GetLabel(item.Category)</p>
-                    <a asp-controller="Gallery" asp-action="Index" asp-route-category="@((int)item.Category)">Xem thêm</a>
-                </article>
+                <figure class="space-card">
+                    <img src="@image" alt="Không gian MC Hair Salon" loading="lazy" />
+                </figure>
             }
         </div>
     </div>
@@ -58,7 +72,7 @@
             @foreach (var service in Model.Page.Services)
             {
                 <article class="card service-card">
-                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/images/placeholders/service.jpg")')"></div>
+                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/resources/khong-gian10.jpg")')"></div>
                     <h3>@service.Name</h3>
                     <p>@service.Description</p>
                     <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
@@ -115,8 +129,8 @@
             {
                 <article class="ba-card">
                     <div class="ba-images">
-                        <div class="placeholder-image" style="background-image:url('@item.BeforeImageUrl')" title="Trước"></div>
-                        <div class="placeholder-image" style="background-image:url('@item.AfterImageUrl')" title="Sau"></div>
+                        <div class="placeholder-image" style="background-image:url('@(item.BeforeImageUrl ?? "/resources/khong-gian23.jpg")')" title="Trước"></div>
+                        <div class="placeholder-image" style="background-image:url('@(item.AfterImageUrl ?? "/resources/khong-gian24.jpg")')" title="Sau"></div>
                     </div>
                     <h3>@item.Title</h3>
                 </article>
@@ -128,14 +142,14 @@
 <section class="section" id="stylists">
     <div class="container">
         <div class="section-head center">
-            <h2>MCHair Stylist</h2>
+            <h2>MC Hair Stylist</h2>
             <p>Đội ngũ nghệ sĩ tóc giàu kinh nghiệm, sáng tạo và tận tâm.</p>
         </div>
         <div class="card-grid three">
             @foreach (var stylist in Model.Page.Stylists)
             {
                 <article class="card stylist-card">
-                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/images/placeholders/stylist.jpg")')"></div>
+                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/resources/khong-gian9.jpg")')"></div>
                     <h3>@stylist.Name</h3>
                     <p class="muted">@stylist.Title</p>
                     <p>@stylist.Bio</p>
@@ -148,6 +162,10 @@
 
 @section Head {
     <script>
-        document.getElementById('site-hotline').textContent = '@Model.GetSetting("hotline", "0900 123 456")';
+        document.getElementById('site-hotline').textContent = '@Model.GetSetting("hotline", SiteContent.DefaultHotline)';
     </script>
+}
+
+@section Scripts {
+    <script src="~/js/hero-slider.js" asp-append-version="true"></script>
 }

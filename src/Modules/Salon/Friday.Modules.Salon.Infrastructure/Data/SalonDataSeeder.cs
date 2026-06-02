@@ -53,13 +53,21 @@ public static class SalonDataSeeder
     {
         (string key, string value)[] settings =
         [
-            ("site_name", "MCHair Salon"),
-            ("tagline", "Salon làm tóc chuyên nghiệp"),
-            ("hotline", "0900 123 456"),
+            ("site_name", "MC Hair Salon"),
+            ("tagline", "Salon làm tóc hiện đại tại TP.HCM"),
+            ("hotline", "0988305371"),
             ("email", "hello@mchair.vn"),
-            ("address", "123 Nguyễn Huệ, Quận 1, TP.HCM"),
-            ("opening_hours", "9:00 - 20:00 (Thứ 2 - Chủ nhật)"),
-            ("facebook", "https://facebook.com/mchair"),
+            ("address", "14D Cống Quỳnh, Phường Cầu Ông Lãnh, TP. Hồ Chí Minh, Việt Nam"),
+            (
+                "address_short",
+                "14D Cống Quỳnh, P. Cầu Ông Lãnh, TP.HCM"
+            ),
+            (
+                "maps_url",
+                "https://www.google.com/maps/search/?api=1&query=14D+C%E1%BB%91ng+Qu%E1%BB%B3nh,+Ph%C6%B0%E1%BB%9Dng+C%E1%BA%A7u+%C3%94ng+L%C3%A3nh,+TP.+H%E1%BB%93+Ch%C3%AD+Minh"
+            ),
+            ("opening_hours", "08:30 – 20:00 (Thứ 2 – Chủ nhật)"),
+            ("facebook", "https://www.facebook.com/profile.php?id=61551835762411"),
             ("zalo", "0900123456"),
             ("instagram", "https://instagram.com/mchair"),
             ("seo_title", "MCHair - Salon cắt tóc, nhuộm, uốn tại TP.HCM"),
@@ -82,18 +90,18 @@ public static class SalonDataSeeder
             new()
             {
                 SectionKey = "hero",
-                Title = "MCHair Salon",
-                Subtitle = "Nơi tôn vinh vẻ đẹp mái tóc của bạn",
+                Title = "MC Hair Salon",
+                Subtitle = "Tuyên ngôn cá tính qua mái tóc",
                 Body =
-                    "Chào mừng bạn đến với MCHair — salon làm tóc hiện đại với dịch vụ cắt, nhuộm, uốn và phục hồi chuyên sâu.",
+                    "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá — nơi bạn tìm thấy sự tự tin và phong cách riêng.",
                 SortOrder = 1,
             },
             new()
             {
                 SectionKey = "about",
-                Title = "Về MCHair",
+                Title = "Về MC Hair",
                 Body =
-                    "MCHair tự hào mang đến trải nghiệm làm đẹp tinh tế với đội ngũ stylist tận tâm và sản phẩm chăm sóc tóc cao cấp.",
+                    "MC Hair ra đời với sứ mệnh không chỉ tạo nên những kiểu tóc đẹp, mà còn đánh thức sự tự tin và thần thái riêng trong mỗi khách hàng.",
                 SortOrder = 2,
             },
             new()
@@ -127,30 +135,51 @@ public static class SalonDataSeeder
             new()
             {
                 Name = "Cắt tóc",
-                Description = "Cắt & tạo kiểu theo khuôn mặt",
-                PriceFrom = 200_000,
+                Description = "Master / Hair artist — tư vấn kiểu phù hợp khuôn mặt",
+                PriceFrom = 250_000,
                 SortOrder = 1,
             },
             new()
             {
-                Name = "Uốn / Duỗi / Nhuộm",
-                Description = "Hóa chất an toàn, màu bền đẹp",
-                PriceFrom = 350_000,
+                Name = "Uốn / Duỗi",
+                Description = "Uốn, duỗi, thuần chay — báo giá theo size tóc",
+                PriceFrom = 1_000_000,
                 SortOrder = 2,
             },
             new()
             {
-                Name = "Phục hồi",
-                Description = "Hấp collagen, phục hồi hư tổn",
-                PriceFrom = 300_000,
+                Name = "Nhuộm / Tẩy",
+                Description = "Nhuộm, tẩy, nâng sáng — sản phẩm chuyên nghiệp",
+                PriceFrom = 800_000,
                 SortOrder = 3,
             },
             new()
             {
-                Name = "Nối tóc",
-                Description = "Nối tóc tự nhiên, tăng volume",
-                PriceFrom = 1_500_000,
+                Name = "Nhuộm thiết kế",
+                Description = "Balayage, Ombre, Highlight, Hidden",
+                PriceFrom = 1_000_000,
                 SortOrder = 4,
+            },
+            new()
+            {
+                Name = "Nối tóc",
+                Description = "Nối tóc tự nhiên — báo giá theo sợi / bó",
+                PriceFrom = 25_000,
+                SortOrder = 5,
+            },
+            new()
+            {
+                Name = "Phục hồi / Olaplex",
+                Description = "Olaplex, ATS, Keratin, Kerathphy",
+                PriceFrom = 600_000,
+                SortOrder = 6,
+            },
+            new()
+            {
+                Name = "Gội / Tạo kiểu",
+                Description = "Gội đầu, gội tóc nối, tạo kiểu",
+                PriceFrom = 100_000,
+                SortOrder = 7,
             },
         ];
 

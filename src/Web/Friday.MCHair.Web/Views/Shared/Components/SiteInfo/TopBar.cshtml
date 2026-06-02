@@ -1,0 +1,17 @@
+@model SiteInfoViewModel
+
+<div class="top-bar">
+    <div class="container top-bar-inner">
+        <div class="top-bar-start">
+            <span class="hotline">Hotline: <strong id="site-hotline">@Model.Hotline</strong></span>
+            <span class="top-bar-separator" aria-hidden="true">·</span>
+            <a class="top-bar-address" href="@Model.MapsUrl" target="_blank" rel="noopener noreferrer" title="@Model.Address">
+                <span class="top-bar-address-icon" aria-hidden="true">📍</span>
+                <span class="top-bar-address-text">@Model.AddressShort</span>
+            </a>
+        </div>
+        <div class="top-links">
+            <a href="@Model.FacebookUrl" target="_blank" rel="noopener noreferrer" aria-label="Facebook MC Hair">Facebook</a>
+        </div>
+    </div>
+</div>

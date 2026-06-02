@@ -1,0 +1,8 @@
+@model SiteInfoViewModel
+
+<h4>Liên hệ</h4>
+<p>
+    <a href="@Model.MapsUrl" target="_blank" rel="noopener noreferrer">@Model.Address</a>
+</p>
+<p>Hotline: <a href="tel:@Model.Hotline.Replace(" ", string.Empty)">@Model.Hotline</a></p>
+<p>Giờ mở cửa: @Model.OpeningHours</p>

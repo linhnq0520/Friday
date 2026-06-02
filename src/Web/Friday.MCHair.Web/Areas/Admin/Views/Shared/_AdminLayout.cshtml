@@ -3,22 +3,29 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MCHair Admin</title>
+    <title>@ViewData["Title"] - MC Hair Admin</title>
     <link rel="stylesheet" href="~/css/mchair.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
 <body class="admin-body">
     <aside class="admin-sidebar">
-        <div class="admin-brand">MCHair Admin</div>
+        <div class="admin-brand">
+            <span class="logo-wordmark">
+                <span class="logo-mc">MC</span>
+                <span class="logo-tagline">Hair salon</span>
+            </span>
+            <span class="admin-brand-label">Quản trị</span>
+        </div>
         <nav>
             <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
             <a asp-area="Admin" asp-controller="Appointments" asp-action="Index">Lịch hẹn</a>
-            <a asp-area="Admin" asp-controller="Services" asp-action="Index">Dịch vụ</a>
+            <a asp-area="Admin" asp-controller="Services" asp-action="Index">Dịch vụ đặt lịch</a>
+            <a asp-area="Admin" asp-controller="PriceList" asp-action="Index">Bảng giá</a>
             <a asp-area="Admin" asp-controller="Stylists" asp-action="Index">Thợ</a>
             <a asp-area="Admin" asp-controller="Sections" asp-action="Index">Nội dung trang chủ</a>
             <a asp-area="Admin" asp-controller="Promotions" asp-action="Index">Khuyến mãi</a>
             <a asp-area="Admin" asp-controller="Settings" asp-action="Index">Cài đặt &amp; SEO</a>
-            <a href="/" target="_blank">Xem website</a>
+            <a class="admin-nav-external" href="/" target="_blank" rel="noopener">↗ Xem website</a>
         </nav>
         <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
             @Html.AntiForgeryToken()

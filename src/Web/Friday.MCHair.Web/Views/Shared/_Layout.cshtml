@@ -11,40 +11,36 @@
     {
       "@@context": "https://schema.org",
       "@@type": "HairSalon",
-      "name": "MCHair Salon",
+      "name": "MC Hair Salon",
       "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}")",
-      "telephone": "0900123456",
+      "telephone": "0988305371",
       "address": {
         "@@type": "PostalAddress",
-        "addressLocality": "TP.HCM",
+        "streetAddress": "14D Cống Quỳnh",
+        "addressLocality": "Phường Cầu Ông Lãnh, TP. Hồ Chí Minh",
         "addressCountry": "VN"
       }
     }
     </script>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="container top-bar-inner">
-            <span class="hotline">Hotline: <strong id="site-hotline">0900 123 456</strong></span>
-            <div class="top-links">
-                <a href="#" aria-label="Facebook">Facebook</a>
-                <a href="#" aria-label="Zalo">Zalo</a>
-            </div>
-        </div>
-    </div>
+    @await Component.InvokeAsync("SiteInfo", new { template = "TopBar" })
 
     <header class="site-header">
         <div class="container header-inner">
-            <a class="logo" asp-controller="Home" asp-action="Index">
-                <span class="logo-mark">MC</span>
-                <span class="logo-text">MCHair</span>
+            <a class="logo" asp-controller="Home" asp-action="Index" aria-label="MC Hair Salon">
+                <span class="logo-wordmark">
+                    <span class="logo-mc">MC</span>
+                    <span class="logo-tagline">Hair salon</span>
+                </span>
             </a>
             <button class="nav-toggle" type="button" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
             <nav class="main-nav">
                 <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <a asp-controller="About" asp-action="Index">Giới thiệu</a>
                 <a asp-controller="Services" asp-action="Index">Dịch vụ</a>
-                <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
                 <a asp-controller="News" asp-action="Index">Tin tức</a>
+                <a asp-controller="Warranty" asp-action="Index">Bảo hành</a>
                 <a class="btn-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
             </nav>
         </div>
@@ -57,24 +53,29 @@
     <footer class="site-footer">
         <div class="container footer-grid">
             <div>
-                <h3>MCHair Salon</h3>
-                <p>Salon làm tóc chuyên nghiệp — cắt, nhuộm, uốn, phục hồi.</p>
+                <a class="logo logo-footer" asp-controller="Home" asp-action="Index" aria-label="MC Hair Salon">
+                    <span class="logo-wordmark">
+                        <span class="logo-mc">MC</span>
+                        <span class="logo-tagline">Hair salon</span>
+                    </span>
+                </a>
+                <p>Salon làm tóc hiện đại — cắt, nhuộm, uốn, phục hồi tại TP.HCM.</p>
             </div>
             <div>
-                <h4>Liên hệ</h4>
-                <p>123 Nguyễn Huệ, Q.1, TP.HCM</p>
-                <p>Hotline: 0900 123 456</p>
-                <p>Giờ mở cửa: 9:00 - 20:00</p>
+                @await Component.InvokeAsync("SiteInfo", new { template = "FooterContact" })
             </div>
             <div>
                 <h4>Liên kết</h4>
+                <a asp-controller="About" asp-action="Index">Giới thiệu</a>
                 <a asp-controller="Services" asp-action="Index">Bảng giá</a>
+                <a asp-controller="Warranty" asp-action="Index">Chế độ bảo hành</a>
                 <a asp-controller="Booking" asp-action="Index">Đặt lịch online</a>
+                <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Fanpage Facebook</a>
                 <a href="/sitemap.xml">Sitemap</a>
             </div>
         </div>
         <div class="container footer-bottom">
-            <p>&copy; @DateTime.Now.Year MCHair Salon. All rights reserved.</p>
+            <p>&copy; @DateTime.Now.Year MC Hair Salon. All rights reserved.</p>
         </div>
     </footer>
 

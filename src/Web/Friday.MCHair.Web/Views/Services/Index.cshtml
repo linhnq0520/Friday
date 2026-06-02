@@ -1,27 +1,95 @@
 @model ServicesIndexViewModel
 @{
-    ViewData["Title"] ??= "Dịch vụ & bảng giá | MCHair";
+    ViewData["Title"] ??= "Dịch vụ & bảng giá | MC Hair";
+    var openingHours = Model.Settings.GetValueOrDefault("opening_hours", "08:30 – 20:00");
+    var hotline = Model.Settings.GetValueOrDefault("hotline", "0988305371");
 }
 
-<section class="page-hero">
+<section class="page-hero price-hero">
     <div class="container">
+        <p class="eyebrow eyebrow-dark">MC Hair Salon</p>
         <h1>Dịch vụ &amp; bảng giá</h1>
-        <p>Bảng giá minh bạch — đặt lịch online tiện lợi tại @Model.Settings.GetValueOrDefault("site_name", "MCHair").</p>
+        <p class="lead">Bảng giá minh bạch — tư vấn và thiết kế phù hợp từng khách hàng.</p>
+        <div class="price-meta">
+            <span>Giờ mở cửa: <strong>@openingHours</strong></span>
+            <span>Hotline: <strong>@hotline</strong></span>
+            <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
+        </div>
     </div>
 </section>
 
 <section class="section">
     <div class="container">
-        <div class="card-grid three">
-            @foreach (var service in Model.Services)
+        <p class="price-note">@Model.PriceList.PriceUnitNote</p>
+
+        <div class="price-columns">
+            @foreach (var column in Model.PriceList.ToColumns())
             {
-                <article class="card service-card">
-                    <h2>@service.Name</h2>
-                    <p>@service.Description</p>
-                    <p class="price-lg">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
-                    <a class="btn btn-primary" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch</a>
-                </article>
+                <div class="price-column">
+                    @foreach (var group in column.Groups)
+                    {
+                        <article class="price-group">
+                            <h2>@group.Title</h2>
+                            <table class="price-table">
+                                <tbody>
+                                    @foreach (var item in group.Items)
+                                    {
+                                        <tr>
+                                            <th scope="row">@item.Name</th>
+                                            <td>@item.Price</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </article>
+                    }
+                </div>
             }
         </div>
+
+        <article class="price-group price-length-guide">
+            <h2>Size tóc</h2>
+            <p class="muted">Giá nhiều dịch vụ phụ thuộc độ dài tóc. Tham khảo bảng size dưới đây:</p>
+            <div class="length-grid">
+                @foreach (var size in Model.PriceList.LengthGuide)
+                {
+                    <div class="length-item">
+                        <span class="length-badge">@size.Size</span>
+                        <span>@size.Description</span>
+                    </div>
+                }
+            </div>
+        </article>
+    </div>
+</section>
+
+@if (Model.Services.Count > 0)
+{
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-head center">
+                <h2>Đặt lịch nhanh</h2>
+                <p>Chọn nhóm dịch vụ chính để đặt lịch online.</p>
+            </div>
+            <div class="card-grid four">
+                @foreach (var service in Model.Services)
+                {
+                    <article class="card service-card">
+                        <h3>@service.Name</h3>
+                        <p>@service.Description</p>
+                        <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> đ</p>
+                        <a class="btn btn-primary" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch</a>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="section section-cta">
+    <div class="container center">
+        <h2>Cần tư vấn thêm?</h2>
+        <p>Liên hệ MC Hair để được stylist tư vấn dịch vụ và báo giá chi tiết.</p>
+        <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
     </div>
 </section>

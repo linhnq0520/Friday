@@ -1,6 +1,9 @@
 using Friday.BuildingBlocks.Application;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
+using Friday.BuildingBlocks.Application.Abstractions;
+using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
+using Friday.Modules.Salon.Domain.Repositories;
 using Friday.Modules.Salon.Application;
 using Friday.Modules.Salon.Infrastructure;
 using Friday.Modules.Salon.Infrastructure.Data;
@@ -33,6 +36,7 @@ builder.Services.AddLinKitCqrs();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
+builder.Services.AddScoped<IPriceListStore, PriceListStore>();
 builder.Services.AddControllersWithViews();
 
 builder
@@ -51,6 +55,8 @@ WebApplication app = builder.Build();
 
 await SalonDbMigrationStartup.ApplyMigrationsAsync(app.Services, app.Configuration);
 await SalonDataSeeder.SeedAsync(app.Services);
+await EnsurePriceListSeededAsync(app.Services);
+await EnsureSiteContactSettingsAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -69,6 +75,58 @@ app.MapControllerRoute(name: "areas", pattern: "{area:exists}/{controller=Home}/
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+static async Task EnsurePriceListSeededAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync();
+    if (settings.ContainsKey(PriceListStore.SettingKey))
+    {
+        return;
+    }
+
+    IPriceListStore store = scope.ServiceProvider.GetRequiredService<IPriceListStore>();
+    await store.SaveAsync(PriceListDefaults.Create());
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    await unitOfWork.CommitAsync();
+}
+
+static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    bool changed = false;
+
+    if (
+        !settings.TryGetValue("address", out string? address)
+        || string.IsNullOrWhiteSpace(address)
+        || address.Contains("Nguyễn Huệ", StringComparison.OrdinalIgnoreCase)
+    )
+    {
+        await repository.UpsertSettingAsync("address", SiteContent.DefaultAddress);
+        changed = true;
+    }
+
+    if (!settings.ContainsKey("address_short"))
+    {
+        await repository.UpsertSettingAsync("address_short", SiteContent.DefaultAddressShort);
+        changed = true;
+    }
+
+    if (!settings.ContainsKey("maps_url"))
+    {
+        await repository.UpsertSettingAsync("maps_url", SiteContent.DefaultMapsUrl);
+        changed = true;
+    }
+
+    if (changed)
+    {
+        await unitOfWork.CommitAsync();
+    }
+}
 
 namespace Friday.MCHair.Web
 {

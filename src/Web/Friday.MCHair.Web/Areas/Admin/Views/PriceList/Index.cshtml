@@ -1,0 +1,108 @@
+@model PriceListData
+@{
+    ViewData["Title"] = "Bảng giá";
+    var columnLabels = new[] { "Cột 1", "Cột 2", "Cột 3" };
+}
+
+<p class="hint admin-lead">
+    Chỉnh sửa bảng giá hiển thị tại trang <strong>Dịch vụ</strong>. Đơn vị ghi theo nghìn đồng (350 = 350.000đ).
+</p>
+
+<form asp-action="Index" method="post" class="price-list-form" id="price-list-form">
+    @Html.AntiForgeryToken()
+
+    <section class="admin-form price-list-meta">
+        <div class="form-group">
+            <label asp-for="PriceUnitNote">Ghi chú đơn vị giá</label>
+            <textarea asp-for="PriceUnitNote" rows="2"></textarea>
+        </div>
+    </section>
+
+    <section class="admin-form price-list-length">
+        <h2>Size tóc</h2>
+        <table class="admin-table" id="length-guide-table">
+            <thead>
+                <tr>
+                    <th>Size</th>
+                    <th>Mô tả</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.LengthGuide.Count; i++)
+                {
+                    <tr class="length-row">
+                        <td><input asp-for="LengthGuide[i].Size" /></td>
+                        <td><input asp-for="LengthGuide[i].Description" /></td>
+                        <td><button type="button" class="btn btn-sm js-remove-length">Xóa</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-sm js-add-length">+ Thêm size</button>
+    </section>
+
+    <div class="price-list-columns" id="price-list-groups">
+        @for (var columnIndex = 0; columnIndex < columnLabels.Length; columnIndex++)
+        {
+            <section class="price-list-column" data-column="@columnIndex">
+                <div class="price-list-column-head">
+                    <h2>@columnLabels[columnIndex]</h2>
+                    <button type="button" class="btn btn-sm js-add-group" data-column="@columnIndex">+ Thêm nhóm</button>
+                </div>
+
+                @for (var i = 0; i < Model.Groups.Count; i++)
+                {
+                    if (Model.Groups[i].ColumnIndex != columnIndex)
+                    {
+                        continue;
+                    }
+
+                    var group = Model.Groups[i];
+                    <article class="price-group-editor" data-group-index="@i">
+                        <input type="hidden" asp-for="Groups[i].ColumnIndex" />
+                        <input type="hidden" asp-for="Groups[i].SortOrder" class="group-sort-order" />
+                        <div class="price-group-editor-head">
+                            <div class="form-group">
+                                <label>Tên nhóm</label>
+                                <input asp-for="Groups[i].Title" placeholder="VD: Cắt tóc" />
+                            </div>
+                            <button type="button" class="btn btn-sm js-remove-group">Xóa nhóm</button>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Dịch vụ</th>
+                                    <th>Giá</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="price-items-body">
+                                @for (var itemIndex = 0; itemIndex < group.Items.Count; itemIndex++)
+                                {
+                                    <tr class="price-item-row">
+                                        <td><input asp-for="Groups[i].Items[itemIndex].Name" placeholder="Tên dịch vụ" /></td>
+                                        <td><input asp-for="Groups[i].Items[itemIndex].Price" placeholder="VD: 350 hoặc S 800 · M 1.000" /></td>
+                                        <td><button type="button" class="btn btn-sm js-remove-item">Xóa</button></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-sm js-add-item">+ Thêm dòng giá</button>
+                    </article>
+                }
+            </section>
+        }
+    </div>
+
+    <div class="price-list-actions">
+        <button type="submit" class="btn btn-primary">Lưu bảng giá</button>
+    </div>
+</form>
+
+<form asp-action="Reset" method="post" class="price-list-reset-form" onsubmit="return confirm('Khôi phục bảng giá mặc định?');">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-sm">Khôi phục mặc định</button>
+</form>
+
+<script src="~/js/price-list-admin.js" asp-append-version="true"></script>

@@ -20,8 +20,6 @@ public sealed class HomeController(IMediator mediator) : Controller
         return View(new HomeIndexViewModel { Page = page });
     }
 
-    public IActionResult About() => RedirectToAction(nameof(Index));
-
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() => View();
 }

@@ -1,0 +1,71 @@
+@{
+    var missionParagraphs = SiteContent.MissionBody
+        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    var visionParagraphs = SiteContent.VisionBody
+        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+<section class="page-hero about-hero">
+    <div class="container page-hero-inner">
+        <div class="about-hero-copy">
+            <p class="eyebrow">MC Hair Salon</p>
+            <h1>Giới thiệu</h1>
+            <p class="lead">Salon làm tóc hiện đại – nơi mỗi mái tóc là một tuyên ngôn cá tính.</p>
+        </div>
+        <div class="about-hero-logo">
+            <img src="@SiteContent.LogoPath" alt="MC Hair Salon" width="280" height="280" />
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container narrow-content">
+        <div class="content-block">
+            <h2>@SiteContent.MissionTitle</h2>
+            @foreach (var paragraph in missionParagraphs)
+            {
+                <p>@paragraph</p>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container about-split">
+        <div class="about-split-image" style="background-image:url('/resources/khong-gian14.jpg')"></div>
+        <div class="content-block">
+            <h2>@SiteContent.VisionTitle</h2>
+            @foreach (var paragraph in visionParagraphs)
+            {
+                <p>@paragraph</p>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-head center">
+            <h2>Giá trị cốt lõi</h2>
+            <p>Những nguyên tắc định hình mọi trải nghiệm tại MC Hair.</p>
+        </div>
+        <div class="values-grid">
+            @foreach (var (value, index) in SiteContent.CoreValues.Select((v, i) => (v, i + 1)))
+            {
+                <article class="value-card">
+                    <span class="value-number">@index</span>
+                    <h3>@value.Title</h3>
+                    <p>@value.Description</p>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-cta">
+    <div class="container center">
+        <h2>Sẵn sàng thay đổi diện mạo?</h2>
+        <p>Đặt lịch ngay để được tư vấn kiểu tóc phù hợp với phong cách của bạn.</p>
+        <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
+    </div>
+</section>

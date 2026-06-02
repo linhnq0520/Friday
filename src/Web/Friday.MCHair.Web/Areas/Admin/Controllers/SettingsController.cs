@@ -12,6 +12,8 @@ public sealed class SettingsController(ISalonRepository repository) : AdminContr
         "hotline",
         "email",
         "address",
+        "address_short",
+        "maps_url",
         "opening_hours",
         "facebook",
         "zalo",
