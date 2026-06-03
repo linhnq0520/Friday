@@ -122,6 +122,22 @@ static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
         changed = true;
     }
 
+    if (
+        !settings.TryGetValue("zalo", out string? zalo)
+        || string.IsNullOrWhiteSpace(zalo)
+        || zalo == "0900123456"
+    )
+    {
+        await repository.UpsertSettingAsync("zalo", SiteContent.DefaultZaloPhone);
+        changed = true;
+    }
+
+    if (!settings.ContainsKey("messenger_url"))
+    {
+        await repository.UpsertSettingAsync("messenger_url", SiteContent.DefaultMessengerUrl);
+        changed = true;
+    }
+
     if (changed)
     {
         await unitOfWork.CommitAsync();

@@ -79,7 +79,7 @@
         </div>
     </footer>
 
-    <a class="float-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
+    @await Component.InvokeAsync("SiteInfo", new { template = "FloatActions" })
     @if (ViewData["ShowBackToTop"] as bool? == true)
     {
         <button type="button" class="back-to-top" aria-label="Về đầu trang" title="Về đầu trang">↑</button>

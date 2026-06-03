@@ -68,7 +68,8 @@ public static class SalonDataSeeder
             ),
             ("opening_hours", "08:30 – 20:00 (Thứ 2 – Chủ nhật)"),
             ("facebook", "https://www.facebook.com/profile.php?id=61551835762411"),
-            ("zalo", "0900123456"),
+            ("zalo", "0988305371"),
+            ("messenger_url", "https://m.me/61551835762411"),
             ("instagram", "https://instagram.com/mchair"),
             ("seo_title", "MCHair - Salon cắt tóc, nhuộm, uốn tại TP.HCM"),
             (

@@ -26,14 +26,18 @@ public sealed class SiteInfoViewComponent(ISalonRepository repository) : ViewCom
         );
 
         string address = Get(settings, "address", SiteContent.DefaultAddress);
+        string hotline = Get(settings, "hotline", SiteContent.DefaultHotline);
         SiteInfoViewModel model = new()
         {
-            Hotline = Get(settings, "hotline", SiteContent.DefaultHotline),
+            Hotline = hotline,
             Address = address,
             AddressShort = Get(settings, "address_short", SiteContent.DefaultAddressShort),
             OpeningHours = Get(settings, "opening_hours", SiteContent.DefaultOpeningHours),
             FacebookUrl = Get(settings, "facebook", SiteContent.FacebookUrl),
             MapsUrl = Get(settings, "maps_url", SiteContent.DefaultMapsUrl),
+            ZaloUrl = BuildZaloUrl(Get(settings, "zalo", SiteContent.DefaultZaloPhone)),
+            MessengerUrl = Get(settings, "messenger_url", SiteContent.DefaultMessengerUrl),
+            PhoneTel = NormalizePhone(hotline),
         };
 
         HttpContext.Items[CacheKey] = model;
@@ -47,4 +51,17 @@ public sealed class SiteInfoViewComponent(ISalonRepository repository) : ViewCom
     ) => settings.TryGetValue(key, out string? value) && !string.IsNullOrWhiteSpace(value)
         ? value
         : fallback;
+
+    private static string BuildZaloUrl(string zalo)
+    {
+        if (zalo.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        {
+            return zalo;
+        }
+
+        return $"https://zalo.me/{NormalizePhone(zalo)}";
+    }
+
+    private static string NormalizePhone(string phone) =>
+        new string(phone.Where(char.IsDigit).ToArray());
 }

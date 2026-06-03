@@ -13,4 +13,10 @@ public sealed class SiteInfoViewModel
     public string FacebookUrl { get; init; } = SiteContent.FacebookUrl;
 
     public string MapsUrl { get; init; } = SiteContent.DefaultMapsUrl;
+
+    public string ZaloUrl { get; init; } = string.Empty;
+
+    public string MessengerUrl { get; init; } = SiteContent.DefaultMessengerUrl;
+
+    public string PhoneTel { get; init; } = string.Empty;
 }

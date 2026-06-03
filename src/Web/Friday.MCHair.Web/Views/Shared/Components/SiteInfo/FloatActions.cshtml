@@ -1,0 +1,26 @@
+@model SiteInfoViewModel
+
+<div class="float-actions" aria-label="Liên hệ nhanh">
+    <div class="float-social">
+        <a class="float-social-btn float-social-zalo"
+           href="@Model.ZaloUrl"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Chat Zalo MC Hair">
+            <img src="@SiteContent.IconZaloPath" alt="" />
+        </a>
+        <a class="float-social-btn float-social-messenger"
+           href="@Model.MessengerUrl"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Nhắn Messenger MC Hair">
+            <img src="@SiteContent.IconMessengerPath" alt="" />
+        </a>
+        <a class="float-social-btn float-social-phone"
+           href="tel:@Model.PhoneTel"
+           aria-label="Gọi hotline @Model.Hotline">
+            <img src="@SiteContent.IconHotlinePath" alt="" />
+        </a>
+    </div>
+    <a class="float-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
+</div>

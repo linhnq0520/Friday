@@ -17,6 +17,7 @@ public sealed class SettingsController(ISalonRepository repository) : AdminContr
         "opening_hours",
         "facebook",
         "zalo",
+        "messenger_url",
         "instagram",
         "seo_title",
         "seo_description",

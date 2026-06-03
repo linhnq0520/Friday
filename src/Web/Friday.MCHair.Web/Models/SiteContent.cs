@@ -15,6 +15,16 @@ public static class SiteContent
     public const string DefaultMapsUrl =
         "https://www.google.com/maps/search/?api=1&query=14D+C%E1%BB%91ng+Qu%E1%BB%B3nh,+Ph%C6%B0%E1%BB%9Dng+C%E1%BA%A7u+%C3%94ng+L%C3%A3nh,+TP.+H%E1%BB%93+Ch%C3%AD+Minh";
 
+    public const string DefaultZaloPhone = "0988305371";
+
+    public const string DefaultMessengerUrl = "https://m.me/61551835762411";
+
+    public const string IconHotlinePath = "/images/icon-hotline.webp";
+
+    public const string IconZaloPath = "/images/icon-zalo.webp";
+
+    public const string IconMessengerPath = "/images/icon-messenger.svg";
+
     public const string LogoPath = "/resources/logo.jpg";
 
     public static readonly string[] HeroSlides =
