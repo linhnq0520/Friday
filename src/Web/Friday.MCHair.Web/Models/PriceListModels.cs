@@ -57,7 +57,7 @@ public static class PriceListDefaults
                 "Đơn vị: nghìn đồng. Giá có thể điều chỉnh theo tình trạng tóc thực tế.",
             LengthGuide =
             [
-                new HairLengthGuideItem { Size = "S", Description = "Ngắn hơn cằm" },
+                new HairLengthGuideItem { Size = "S", Description = "Tóc ngắn, từ cằm trở lên" },
                 new HairLengthGuideItem { Size = "M", Description = "Từ cằm đến vai" },
                 new HairLengthGuideItem { Size = "L", Description = "Từ vai đến ngực" },
                 new HairLengthGuideItem { Size = "XL", Description = "Dài qua ngực" },
@@ -88,10 +88,10 @@ public static class PriceListDefaults
                         Item("Uốn tóc", "S 1.000 · M 1.200 · L 1.400 · XL 1.600"),
                         Item("Thuần chay", "S 1.500 · M 1.800 · L 2.000 · XL 2.200"),
                         Item("Uốn mái", "300"),
-                        Item("Sóng ngang uốn", "500"),
-                        Item("Sóng ngang duỗi", "350"),
-                        Item("Phụ phí uốn chân tóc", "300"),
-                        Item("Perm nam", "500 – 1.000"),
+                        Item("Uốn phồng", "500"),
+                        Item("Xả phồng", "350"),
+                        Item("Uốn sát chân (phụ phí)", "300"),
+                        Item("Uốn nam", "500 – 1.000"),
                         Item("Phụ phí size XXL", "200"),
                     ]
                 ),
@@ -100,7 +100,7 @@ public static class PriceListDefaults
                     2,
                     "Khác",
                     [
-                        Item("Hấp dóc", "300 – 500"),
+                        Item("Hấp tóc", "300 – 500"),
                         Item("Gội đầu", "100"),
                         Item("Gội tóc nối", "150"),
                         Item("Tạo kiểu", "100"),
@@ -137,10 +137,10 @@ public static class PriceListDefaults
                         Item("40 cm", "25 / sợi"),
                         Item("50 cm", "28 / sợi"),
                         Item("60 cm", "32 / sợi"),
-                        Item("Nhuộm sáng nối", "80 / bó"),
-                        Item("Bảo trì — Nâng", "10 / bó"),
-                        Item("Bảo trì — Tháo", "4 / bó"),
-                        Item("Bảo trì — Công", "6 / bó"),
+                        Item("Nối light", "80 / tép"),
+                        Item("Nâng nối", "10 / tép"),
+                        Item("Tháo nối", "4 / tép"),
+                        Item("Công nối", "6 / tép"),
                     ]
                 ),
                 Group(
@@ -157,7 +157,7 @@ public static class PriceListDefaults
                     2,
                     "Chăm sóc & dưỡng tóc",
                     [
-                        Item("Mibon", "S 800 · M 1.000 · L 1.200 · XL 1.400"),
+                        Item("Milbon", "S 800 · M 1.000 · L 1.200 · XL 1.400"),
                         Item("Number 003", "S 1.000 · M 1.200 · L 1.400 · XL 1.600"),
                     ]
                 ),

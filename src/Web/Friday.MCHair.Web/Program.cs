@@ -1,17 +1,17 @@
 using Friday.BuildingBlocks.Application;
-using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.BuildingBlocks.Application.Abstractions;
+using Friday.BuildingBlocks.Infrastructure.Persistence;
+using Friday.MCHair.Web.Cqrs;
 using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
+using Friday.Modules.Salon.Application;
 using Friday.Modules.Salon.Application.Models;
 using Friday.Modules.Salon.Domain.Entities;
 using Friday.Modules.Salon.Domain.Enums;
 using Friday.Modules.Salon.Domain.Repositories;
-using Friday.Modules.Salon.Application;
 using Friday.Modules.Salon.Infrastructure;
 using Friday.Modules.Salon.Infrastructure.Data;
 using Friday.Modules.Salon.Infrastructure.Persistence;
-using Friday.MCHair.Web.Cqrs;
 using LinKit.Core.Cqrs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -97,24 +97,36 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
-app.MapControllerRoute(name: "areas", pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
 
 static async Task EnsurePriceListSeededAsync(IServiceProvider services)
 {
+    const string priceListVersionKey = "price_list_version";
+    const string currentPriceListVersion = "2026-06-menu";
+
     await using AsyncServiceScope scope = services.CreateAsyncScope();
     ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IPriceListStore store = scope.ServiceProvider.GetRequiredService<IPriceListStore>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
     IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync();
-    if (settings.ContainsKey(PriceListStore.SettingKey))
+
+    bool needsSeed = !settings.ContainsKey(PriceListStore.SettingKey);
+    bool needsVersionSync =
+        settings.GetValueOrDefault(priceListVersionKey) != currentPriceListVersion;
+
+    if (!needsSeed && !needsVersionSync)
     {
         return;
     }
 
-    IPriceListStore store = scope.ServiceProvider.GetRequiredService<IPriceListStore>();
     await store.SaveAsync(PriceListDefaults.Create());
-    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    await repository.UpsertSettingAsync(priceListVersionKey, currentPriceListVersion);
     await unitOfWork.CommitAsync();
 }
 
@@ -173,7 +185,8 @@ static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
 static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
 {
     await using AsyncServiceScope scope = services.CreateAsyncScope();
-    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    IWebHostEnvironment environment =
+        scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
     ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
     IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
@@ -197,9 +210,7 @@ static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
 
     foreach (GalleryItem item in existing)
     {
-        if (
-            !item.ImageUrl.StartsWith("/resources/bo_suu_tap/", StringComparison.OrdinalIgnoreCase)
-        )
+        if (!item.ImageUrl.StartsWith("/resources/bo_suu_tap/", StringComparison.OrdinalIgnoreCase))
         {
             continue;
         }
@@ -233,7 +244,8 @@ static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
                 .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
         )
         {
-            string relative = "/resources/bo_suu_tap/"
+            string relative =
+                "/resources/bo_suu_tap/"
                 + folder
                 + "/"
                 + Path.GetRelativePath(folderPath, file).Replace('\\', '/');
@@ -283,7 +295,8 @@ static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
 static async Task EnsureShowcaseFromResourcesAsync(IServiceProvider services)
 {
     await using AsyncServiceScope scope = services.CreateAsyncScope();
-    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    IWebHostEnvironment environment =
+        scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
     ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
     IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
@@ -423,7 +436,8 @@ static async Task EnsurePartnersSeededAsync(IServiceProvider services)
 static async Task EnsureStylistsFromResourcesAsync(IServiceProvider services)
 {
     await using AsyncServiceScope scope = services.CreateAsyncScope();
-    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    IWebHostEnvironment environment =
+        scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
     ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
     IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
@@ -448,7 +462,8 @@ static async Task EnsureStylistsFromResourcesAsync(IServiceProvider services)
 static async Task EnsureServiceImagesAsync(IServiceProvider services)
 {
     await using AsyncServiceScope scope = services.CreateAsyncScope();
-    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    IWebHostEnvironment environment =
+        scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
     ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
     IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
