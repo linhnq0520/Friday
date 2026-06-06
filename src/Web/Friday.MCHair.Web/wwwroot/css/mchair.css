@@ -535,10 +535,29 @@ input, select, textarea {
     height: 100%;
     object-fit: contain;
 }
+.float-book-wrap {
+    position: relative;
+    display: inline-flex;
+}
+.float-book-wrap::before,
+.float-book-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid rgba(196, 92, 38, 0.55);
+    opacity: 0;
+    pointer-events: none;
+}
+.float-book-wrap.is-attention::before {
+    animation: float-ripple 1.5s ease-out;
+}
+.float-book-wrap.is-attention::after {
+    animation: float-ripple 1.5s ease-out 0.4s;
+}
 .float-actions .float-book {
-    position: static;
-    right: auto;
-    bottom: auto;
+    position: relative;
+    z-index: 1;
     background: var(--accent);
     color: #fff !important;
     padding: 0.75rem 1.15rem;
@@ -550,6 +569,49 @@ input, select, textarea {
         0 8px 26px rgba(196, 92, 38, 0.5),
         0 4px 12px rgba(44, 33, 24, 0.15);
     text-decoration: none;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.float-book-wrap.is-attention .float-book {
+    animation: float-book-glow 1.5s ease-out;
+}
+.float-social-phone.is-attention {
+    animation: float-phone-pulse 0.75s ease-in-out 2;
+}
+@keyframes float-ripple {
+    0% {
+        transform: scale(1);
+        opacity: 0.65;
+    }
+    100% {
+        transform: scale(1.45);
+        opacity: 0;
+    }
+}
+@keyframes float-book-glow {
+    0%, 100% {
+        box-shadow:
+            0 8px 26px rgba(196, 92, 38, 0.5),
+            0 4px 12px rgba(44, 33, 24, 0.15);
+        transform: scale(1);
+    }
+    40% {
+        box-shadow:
+            0 10px 32px rgba(196, 92, 38, 0.65),
+            0 6px 18px rgba(196, 92, 38, 0.25);
+        transform: scale(1.03);
+    }
+}
+@keyframes float-phone-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .float-book-wrap.is-attention::before,
+    .float-book-wrap.is-attention::after,
+    .float-book-wrap.is-attention .float-book,
+    .float-social-phone.is-attention {
+        animation: none !important;
+    }
 }
 .float-actions .float-book:hover {
     background: var(--accent-dark);

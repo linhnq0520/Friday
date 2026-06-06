@@ -195,6 +195,28 @@ static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
     int sortOrder = existing.Count == 0 ? 0 : existing.Max(x => x.SortOrder);
     bool changed = false;
 
+    foreach (GalleryItem item in existing)
+    {
+        if (
+            !item.ImageUrl.StartsWith("/resources/bo_suu_tap/", StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            continue;
+        }
+
+        string physicalPath = Path.Combine(
+            environment.WebRootPath,
+            item.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
+        );
+
+        if (!File.Exists(physicalPath))
+        {
+            await repository.DeleteGalleryItemAsync(item);
+            existingUrls.Remove(item.ImageUrl.Trim().Replace('\\', '/'));
+            changed = true;
+        }
+    }
+
     foreach (GalleryCategory category in GalleryCategoryInfo.CollectionCategories)
     {
         string folder = GalleryCategoryInfo.GetFolderSlug(category);
