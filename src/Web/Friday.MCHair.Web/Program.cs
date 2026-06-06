@@ -61,7 +61,10 @@ await SalonDataSeeder.SeedAsync(app.Services);
 await EnsurePriceListSeededAsync(app.Services);
 await EnsureSiteContactSettingsAsync(app.Services);
 await EnsureGalleryFromResourcesAsync(app.Services);
+await EnsureShowcaseFromResourcesAsync(app.Services);
 await EnsurePartnersSeededAsync(app.Services);
+await EnsureServiceImagesAsync(app.Services);
+await EnsureStylistsFromResourcesAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -255,6 +258,67 @@ static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
     }
 }
 
+static async Task EnsureShowcaseFromResourcesAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+    IReadOnlyList<ShowcaseItem> existing = await repository.GetAllShowcaseAsync(null);
+    HashSet<string> existingUrls = existing
+        .Select(x => x.ImageUrl.Trim().Replace('\\', '/'))
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    int sortOrder = existing.Count == 0 ? 0 : existing.Max(x => x.SortOrder);
+    bool changed = false;
+
+    foreach (ShowcaseType type in ShowcaseTypeInfo.AllTypes)
+    {
+        string folder = ShowcaseTypeInfo.GetFolderSlug(type);
+        string folderPath = Path.Combine(environment.WebRootPath, "resources", folder);
+        if (!Directory.Exists(folderPath))
+        {
+            continue;
+        }
+
+        foreach (
+            string file in Directory
+                .EnumerateFiles(folderPath, "*", SearchOption.AllDirectories)
+                .Where(IsGalleryImageFile)
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            string relative =
+                $"/resources/{folder}/" + Path.GetRelativePath(folderPath, file).Replace('\\', '/');
+
+            if (existingUrls.Contains(relative))
+            {
+                continue;
+            }
+
+            sortOrder++;
+            await repository.AddShowcaseItemAsync(
+                new ShowcaseItem
+                {
+                    Title = Path.GetFileNameWithoutExtension(file),
+                    Type = type,
+                    ImageUrl = relative,
+                    SortOrder = sortOrder,
+                    IsPublished = true,
+                }
+            );
+            existingUrls.Add(relative);
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        await unitOfWork.CommitAsync();
+    }
+}
+
 static bool IsGalleryImageFile(string path)
 {
     string extension = Path.GetExtension(path);
@@ -278,16 +342,50 @@ static async Task EnsurePartnersSeededAsync(IServiceProvider services)
         changed = true;
     }
 
-    if (await repository.GetSectionByKeyAsync("partners_intro") is null)
+    bool hasPartnerLogos = SalonDataSeeder.PartnerDefinitions.Any(definition =>
+    {
+        string physicalPath = Path.Combine(
+            scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>().WebRootPath,
+            definition.LogoUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
+        );
+        return File.Exists(physicalPath);
+    });
+
+    if (hasPartnerLogos)
+    {
+        await SalonDataSeeder.ApplyPartnerDataAsync(repository);
+        changed = true;
+    }
+
+    SiteSection? existingPartnersIntro = await repository.GetSectionByKeyAsync("partners_intro");
+
+    if (hasPartnerLogos || existingPartnersIntro is null)
     {
         await repository.AddSectionAsync(
             new SiteSection
             {
+                Id = existingPartnersIntro?.Id ?? 0,
                 SectionKey = "partners_intro",
                 Title = "Đối tác",
                 Body =
-                    "Kết hợp với các thương hiệu chăm sóc tóc uy tín, được sử dụng trong quy trình dịch vụ tại MC Hair Salon.",
+                    "Kết hợp với các đối tác lớn, uy tín, bao gồm các nhãn sản phẩm chất lượng được sử dụng trong quy trình các dịch vụ đang vận hành tại hệ thống salon.",
                 SortOrder = 10,
+                IsVisible = true,
+            }
+        );
+        changed = true;
+    }
+
+    if (await repository.GetSectionByKeyAsync("feedback_intro") is null)
+    {
+        await repository.AddSectionAsync(
+            new SiteSection
+            {
+                SectionKey = "feedback_intro",
+                Title = "Feedback khách hàng",
+                Body =
+                    "Dưới đây là những chia sẻ và cảm nhận của khách hàng khi sử dụng dịch vụ tại MC Hair Salon.",
+                SortOrder = 8,
                 IsVisible = true,
             }
         );
@@ -298,6 +396,56 @@ static async Task EnsurePartnersSeededAsync(IServiceProvider services)
     {
         await unitOfWork.CommitAsync();
     }
+}
+
+static async Task EnsureStylistsFromResourcesAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+    bool hasStylistImages = SalonDataSeeder.StylistDefinitions.Any(definition =>
+    {
+        string physicalPath = Path.Combine(
+            environment.WebRootPath,
+            definition.ImageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
+        );
+        return File.Exists(physicalPath);
+    });
+
+    if (!hasStylistImages)
+    {
+        return;
+    }
+
+    await SalonDataSeeder.ApplyStylistDataAsync(repository);
+    await unitOfWork.CommitAsync();
+}
+
+static async Task EnsureServiceImagesAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+    bool hasMappedFiles = SalonDataSeeder.ServiceImageUrls.Values.Any(imageUrl =>
+    {
+        string physicalPath = Path.Combine(
+            environment.WebRootPath,
+            imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar)
+        );
+        return File.Exists(physicalPath);
+    });
+
+    if (!hasMappedFiles)
+    {
+        return;
+    }
+
+    await SalonDataSeeder.ApplyServiceImagesAsync(repository);
+    await unitOfWork.CommitAsync();
 }
 
 namespace Friday.MCHair.Web

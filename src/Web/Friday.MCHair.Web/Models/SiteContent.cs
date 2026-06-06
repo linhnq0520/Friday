@@ -50,15 +50,6 @@ public static class SiteContent
         "/resources/khong_gian/khong-gian30.jpg",
     ];
 
-    public static readonly string[] BeforeAfterShowcase =
-    [
-        "/resources/before_after/z7906296768672_c68638e47c33cb3044ae45dcd3dc61bd.jpg",
-        "/resources/before_after/z7906296774317_b076f6be9040629c1431f4bc255d4b4c.jpg",
-        "/resources/before_after/z7906296784001_066e2a361ba9866fde05f04eb224b3c6.jpg",
-        "/resources/before_after/z7906296788757_3f3cd1b9168d08a037db355067c8b593.jpg",
-        "/resources/before_after/z7906296793344_bd2c89f6990005741026e00a8674be52.jpg",
-    ];
-
     public const string MissionTitle = "Sứ mệnh";
 
     public const string MissionBody = """

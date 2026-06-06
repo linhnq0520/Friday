@@ -67,6 +67,8 @@ public sealed record BeforeAfterDto(
     string AfterImageUrl
 );
 
+public sealed record ShowcaseItemDto(int Id, string Title, string ImageUrl);
+
 public sealed record AppointmentDto(
     int Id,
     string CustomerName,
@@ -88,7 +90,8 @@ public sealed record HomePageDto(
     IReadOnlyList<HairServiceDto> Services,
     IReadOnlyList<PromotionDto> Promotions,
     IReadOnlyList<TestimonialDto> Testimonials,
-    IReadOnlyList<BeforeAfterDto> BeforeAfter,
+    IReadOnlyList<ShowcaseItemDto> FeedbackShowcase,
+    IReadOnlyList<ShowcaseItemDto> BeforeAfterShowcase,
     IReadOnlyList<StylistDto> Stylists,
     IReadOnlyList<PartnerDto> Partners
 );

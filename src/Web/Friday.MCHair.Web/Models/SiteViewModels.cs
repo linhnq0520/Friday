@@ -45,6 +45,17 @@ public sealed class BookingInputModel
     public string? Notes { get; set; }
 }
 
+public static class ShowcaseTypeLabels
+{
+    public static string GetLabel(ShowcaseType type) =>
+        type switch
+        {
+            ShowcaseType.Feedback => "Feedback",
+            ShowcaseType.BeforeAfter => "Before & After",
+            _ => type.ToString(),
+        };
+}
+
 public static class GalleryCategoryLabels
 {
     public static string GetLabel(GalleryCategory category) =>

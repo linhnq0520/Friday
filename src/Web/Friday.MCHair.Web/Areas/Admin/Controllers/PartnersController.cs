@@ -38,7 +38,7 @@ public sealed class PartnersController(ISalonRepository repository) : AdminContr
         {
             model.LogoUrl = await this.ResolveImageUrlAsync(
                 imageFile,
-                "partners",
+                "doi_tac",
                 existing?.LogoUrl,
                 model.LogoUrl,
                 cancellationToken

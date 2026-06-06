@@ -34,7 +34,7 @@ public sealed class PromotionsController(ISalonRepository repository) : AdminCon
         {
             model.ImageUrl = await this.ResolveImageUrlAsync(
                 imageFile,
-                "promotions",
+                "khuyen_mai",
                 existing?.ImageUrl,
                 model.ImageUrl,
                 cancellationToken

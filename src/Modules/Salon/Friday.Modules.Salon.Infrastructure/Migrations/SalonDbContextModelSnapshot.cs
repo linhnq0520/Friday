@@ -265,6 +265,42 @@ namespace Friday.Modules.Salon.Infrastructure.Migrations
                     b.ToTable("salon_partners", (string)null);
                 });
 
+            modelBuilder.Entity("Friday.Modules.Salon.Domain.Entities.ShowcaseItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedOnUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("salon_showcase", (string)null);
+                });
+
             modelBuilder.Entity("Friday.Modules.Salon.Domain.Entities.Promotion", b =>
                 {
                     b.Property<int>("Id")

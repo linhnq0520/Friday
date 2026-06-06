@@ -8,7 +8,7 @@ public static class AdminImageUploadExtensions
     public static async Task<string?> ResolveImageUrlAsync(
         this Controller controller,
         IFormFile? imageFile,
-        string uploadFolder,
+        string resourcesFolder,
         string? currentImageUrl,
         string? submittedImageUrl,
         CancellationToken cancellationToken
@@ -19,14 +19,14 @@ public static class AdminImageUploadExtensions
             IImageUploadService uploadService =
                 controller.HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
 
-            string newUrl = await uploadService.SaveAsync(imageFile, uploadFolder, cancellationToken);
+            string newUrl = await uploadService.SaveAsync(imageFile, resourcesFolder, cancellationToken);
 
             if (
                 !string.IsNullOrWhiteSpace(currentImageUrl)
                 && !currentImageUrl.Equals(newUrl, StringComparison.OrdinalIgnoreCase)
             )
             {
-                uploadService.TryDeleteLocalUpload(currentImageUrl);
+                uploadService.TryDeleteResourceFile(currentImageUrl);
             }
 
             return newUrl;
@@ -42,7 +42,7 @@ public static class AdminImageUploadExtensions
             {
                 IImageUploadService uploadService =
                     controller.HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
-                uploadService.TryDeleteLocalUpload(currentImageUrl);
+                uploadService.TryDeleteResourceFile(currentImageUrl);
             }
 
             return trimmed;

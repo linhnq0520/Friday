@@ -38,7 +38,7 @@ public sealed class StylistsController(ISalonRepository repository) : AdminContr
         {
             model.ImageUrl = await this.ResolveImageUrlAsync(
                 imageFile,
-                "stylists",
+                "stylist",
                 existing?.ImageUrl,
                 model.ImageUrl,
                 cancellationToken

@@ -6,6 +6,7 @@
     var about = Model.GetSection("about");
     var servicesIntro = Model.GetSection("services_intro");
     var partnersIntro = Model.GetSection("partners_intro");
+    var feedbackIntro = Model.GetSection("feedback_intro");
     var missionPreview = SiteContent.MissionBody
         .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .FirstOrDefault() ?? string.Empty;
@@ -46,7 +47,8 @@
             @foreach (var collection in Model.Page.GalleryCollections)
             {
                 <a class="collection-card" asp-controller="Gallery" asp-action="Category" asp-route-category="@((int)collection.Category)">
-                    <div class="collection-card-image" style="background-image:url('@collection.CoverImageUrl')">
+                    <div class="collection-card-image">
+                        <img src="@collection.CoverImageUrl" alt="@GalleryCategoryLabels.GetLabel(collection.Category)" loading="lazy" />
                         <span class="collection-card-overlay"></span>
                     </div>
                     <div class="collection-card-body">
@@ -98,7 +100,9 @@
             @foreach (var service in Model.Page.Services)
             {
                 <article class="card service-card">
-                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/resources/khong_gian/khong-gian10.jpg")')"></div>
+                    <div class="service-card-image">
+                        <img src="@(service.ImageUrl ?? "/resources/khong_gian/khong-gian10.jpg")" alt="@service.Name" loading="lazy" />
+                    </div>
                     <h3>@service.Name</h3>
                     <p>@service.Description</p>
                     <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
@@ -131,15 +135,15 @@
 <section class="section" id="feedback">
     <div class="container">
         <div class="section-head center">
-            <h2>Feedback khách hàng</h2>
+            <h2>@(feedbackIntro?.Title ?? "Feedback khách hàng")</h2>
+            <p>@(feedbackIntro?.Body ?? "Dưới đây là những chia sẻ và cảm nhận của khách hàng khi sử dụng dịch vụ tại MC Hair Salon.")</p>
         </div>
-        <div class="card-grid three">
-            @foreach (var item in Model.Page.Testimonials)
+        <div class="space-scroll feedback-scroll" tabindex="0" aria-label="Feedback khách hàng">
+            @foreach (var item in Model.Page.FeedbackShowcase)
             {
-                <blockquote class="testimonial">
-                    <p>"@item.Content"</p>
-                    <footer>@item.CustomerName — @item.Rating/5 ★</footer>
-                </blockquote>
+                <figure class="space-card">
+                    <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
+                </figure>
             }
         </div>
     </div>
@@ -152,10 +156,10 @@
             <p>Cùng nhìn lại hành trình thay đổi diện mạo của khách hàng tại MC Hair Salon.</p>
         </div>
         <div class="space-scroll before-after-scroll" tabindex="0" aria-label="Ảnh Before và After">
-            @foreach (var image in SiteContent.BeforeAfterShowcase)
+            @foreach (var item in Model.Page.BeforeAfterShowcase)
             {
                 <figure class="space-card">
-                    <img src="@image" alt="Before và After tại MC Hair Salon" loading="lazy" />
+                    <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
                 </figure>
             }
         </div>
@@ -172,10 +176,10 @@
             @foreach (var stylist in Model.Page.Stylists)
             {
                 <article class="card stylist-card">
-                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/resources/khong_gian/khong-gian9.jpg")')"></div>
+                    <div class="stylist-card-image">
+                        <img src="@(stylist.ImageUrl ?? "/resources/khong_gian/khong-gian9.jpg")" alt="@stylist.Name" loading="lazy" />
+                    </div>
                     <h3>@stylist.Name</h3>
-                    <p class="muted">@stylist.Title</p>
-                    <p>@stylist.Bio</p>
                     <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-stylistId="@stylist.Id">Đặt lịch ngay</a>
                 </article>
             }
@@ -192,46 +196,23 @@
         <div class="partners-grid">
             @foreach (var partner in Model.Page.Partners)
             {
-                if (!string.IsNullOrWhiteSpace(partner.WebsiteUrl))
-                {
-                    <a class="partner-card" href="@partner.WebsiteUrl" target="_blank" rel="noopener noreferrer">
-                        <div class="partner-logo">
-                            @if (!string.IsNullOrWhiteSpace(partner.LogoUrl))
-                            {
-                                <img src="@partner.LogoUrl" alt="@partner.Name" loading="lazy" />
-                            }
-                            else
-                            {
-                                <span class="partner-logo-fallback">@(partner.Name.Length > 0 ? partner.Name[0].ToString() : "?")</span>
-                            }
-                        </div>
-                        <h3>@partner.Name</h3>
-                        @if (!string.IsNullOrWhiteSpace(partner.Description))
+                <article class="partner-card">
+                    <div class="partner-logo">
+                        @if (!string.IsNullOrWhiteSpace(partner.LogoUrl))
                         {
-                            <p>@partner.Description</p>
+                            <img src="@partner.LogoUrl" alt="@partner.Name" loading="lazy" />
                         }
-                    </a>
-                }
-                else
-                {
-                    <article class="partner-card">
-                        <div class="partner-logo">
-                            @if (!string.IsNullOrWhiteSpace(partner.LogoUrl))
-                            {
-                                <img src="@partner.LogoUrl" alt="@partner.Name" loading="lazy" />
-                            }
-                            else
-                            {
-                                <span class="partner-logo-fallback">@(partner.Name.Length > 0 ? partner.Name[0].ToString() : "?")</span>
-                            }
-                        </div>
-                        <h3>@partner.Name</h3>
-                        @if (!string.IsNullOrWhiteSpace(partner.Description))
+                        else
                         {
-                            <p>@partner.Description</p>
+                            <span class="partner-logo-fallback">@(partner.Name.Length > 0 ? partner.Name[0].ToString() : "?")</span>
                         }
-                    </article>
-                }
+                    </div>
+                    <h3>@partner.Name</h3>
+                    @if (!string.IsNullOrWhiteSpace(partner.Description))
+                    {
+                        <p>@partner.Description</p>
+                    }
+                </article>
             }
         </div>
     </div>

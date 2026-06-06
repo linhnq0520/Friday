@@ -21,7 +21,8 @@
         @foreach (var collection in Model)
         {
             <a class="collection-card" asp-action="Category" asp-route-category="@((int)collection.Category)">
-                <div class="collection-card-image" style="background-image:url('@collection.CoverImageUrl')">
+                <div class="collection-card-image">
+                    <img src="@collection.CoverImageUrl" alt="@GalleryCategoryLabels.GetLabel(collection.Category)" loading="lazy" />
                     <span class="collection-card-overlay"></span>
                     <span class="collection-card-badge">@collection.ImageCount ảnh</span>
                 </div>

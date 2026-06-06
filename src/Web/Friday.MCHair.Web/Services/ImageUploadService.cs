@@ -2,9 +2,9 @@ namespace Friday.MCHair.Web.Services;
 
 public interface IImageUploadService
 {
-    Task<string> SaveAsync(IFormFile file, string folder, CancellationToken cancellationToken = default);
+    Task<string> SaveAsync(IFormFile file, string resourcesFolder, CancellationToken cancellationToken = default);
 
-    void TryDeleteLocalUpload(string? imageUrl);
+    void TryDeleteResourceFile(string? imageUrl);
 }
 
 public sealed class ImageUploadService(IWebHostEnvironment environment) : IImageUploadService
@@ -16,7 +16,7 @@ public sealed class ImageUploadService(IWebHostEnvironment environment) : IImage
 
     public async Task<string> SaveAsync(
         IFormFile file,
-        string folder,
+        string resourcesFolder,
         CancellationToken cancellationToken = default
     )
     {
@@ -36,23 +36,24 @@ public sealed class ImageUploadService(IWebHostEnvironment environment) : IImage
             throw new InvalidOperationException("Chỉ chấp nhận ảnh JPG, PNG, WEBP hoặc GIF.");
         }
 
-        string safeFolder = string.Join(
-            "_",
-            folder.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)
+        string relativeFolder = SanitizeResourceFolder(resourcesFolder);
+        string directory = Path.Combine(
+            environment.WebRootPath,
+            "resources",
+            relativeFolder.Replace('/', Path.DirectorySeparatorChar)
         );
-        string uploadDirectory = Path.Combine(environment.WebRootPath, "uploads", safeFolder);
-        Directory.CreateDirectory(uploadDirectory);
+        Directory.CreateDirectory(directory);
 
         string fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
-        string physicalPath = Path.Combine(uploadDirectory, fileName);
+        string physicalPath = Path.Combine(directory, fileName);
 
         await using FileStream stream = File.Create(physicalPath);
         await file.CopyToAsync(stream, cancellationToken);
 
-        return $"/uploads/{safeFolder}/{fileName}";
+        return $"/resources/{relativeFolder}/{fileName}";
     }
 
-    public void TryDeleteLocalUpload(string? imageUrl)
+    public void TryDeleteResourceFile(string? imageUrl)
     {
         if (string.IsNullOrWhiteSpace(imageUrl))
         {
@@ -60,16 +61,27 @@ public sealed class ImageUploadService(IWebHostEnvironment environment) : IImage
         }
 
         string normalized = imageUrl.Trim().Replace('\\', '/');
-        if (!normalized.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+        if (!normalized.StartsWith("/resources/", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        string relativePath = normalized.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-        string physicalPath = Path.GetFullPath(Path.Combine(environment.WebRootPath, relativePath));
-        string uploadsRoot = Path.GetFullPath(Path.Combine(environment.WebRootPath, "uploads"));
+        string relativePath = normalized["/resources/".Length..];
+        if (relativePath.Contains("..", StringComparison.Ordinal))
+        {
+            return;
+        }
 
-        if (!physicalPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
+        string physicalPath = Path.GetFullPath(
+            Path.Combine(
+                environment.WebRootPath,
+                "resources",
+                relativePath.Replace('/', Path.DirectorySeparatorChar)
+            )
+        );
+        string resourcesRoot = Path.GetFullPath(Path.Combine(environment.WebRootPath, "resources"));
+
+        if (!physicalPath.StartsWith(resourcesRoot, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -78,5 +90,20 @@ public sealed class ImageUploadService(IWebHostEnvironment environment) : IImage
         {
             File.Delete(physicalPath);
         }
+    }
+
+    private static string SanitizeResourceFolder(string folder)
+    {
+        IEnumerable<string> segments = folder
+            .Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries)
+            .Select(segment =>
+                string.Join(
+                    "_",
+                    segment.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)
+                )
+            )
+            .Where(segment => !string.IsNullOrWhiteSpace(segment));
+
+        return string.Join("/", segments);
     }
 }

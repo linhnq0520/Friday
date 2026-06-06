@@ -38,7 +38,7 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
         {
             model.ImageUrl = await this.ResolveImageUrlAsync(
                 imageFile,
-                "services",
+                "dich_vu",
                 existing?.ImageUrl,
                 model.ImageUrl,
                 cancellationToken

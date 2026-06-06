@@ -90,6 +90,18 @@ public sealed class SiteSectionConfiguration : IEntityTypeConfiguration<SiteSect
     }
 }
 
+public sealed class ShowcaseItemConfiguration : IEntityTypeConfiguration<ShowcaseItem>
+{
+    public void Configure(EntityTypeBuilder<ShowcaseItem> builder)
+    {
+        builder.ToTable($"{SalonTable.Prefix}showcase");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Title).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.ImageUrl).HasMaxLength(500).IsRequired();
+        builder.Ignore(x => x.DomainEvents);
+    }
+}
+
 public sealed class PartnerConfiguration : IEntityTypeConfiguration<Partner>
 {
     public void Configure(EntityTypeBuilder<Partner> builder)

@@ -13,6 +13,7 @@ public sealed class SalonDbContext(DbContextOptions<SalonDbContext> options) : D
     public DbSet<SiteSection> SiteSections => Set<SiteSection>();
     public DbSet<BeforeAfterItem> BeforeAfterItems => Set<BeforeAfterItem>();
     public DbSet<Partner> Partners => Set<Partner>();
+    public DbSet<ShowcaseItem> ShowcaseItems => Set<ShowcaseItem>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();

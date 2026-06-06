@@ -35,7 +35,12 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
         IReadOnlyList<Testimonial> testimonials = await repository.GetPublishedTestimonialsAsync(
             cancellationToken
         );
-        IReadOnlyList<BeforeAfterItem> beforeAfter = await repository.GetPublishedBeforeAfterAsync(
+        IReadOnlyList<ShowcaseItem> feedbackShowcase = await repository.GetPublishedShowcaseAsync(
+            ShowcaseType.Feedback,
+            cancellationToken
+        );
+        IReadOnlyList<ShowcaseItem> beforeAfterShowcase = await repository.GetPublishedShowcaseAsync(
+            ShowcaseType.BeforeAfter,
             cancellationToken
         );
         IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(
@@ -52,7 +57,8 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
             services.Select(MapService).ToList(),
             promotions.Take(6).Select(MapPromotion).ToList(),
             testimonials.Take(6).Select(MapTestimonial).ToList(),
-            beforeAfter.Take(6).Select(MapBeforeAfter).ToList(),
+            feedbackShowcase.Select(MapShowcase).ToList(),
+            beforeAfterShowcase.Select(MapShowcase).ToList(),
             stylists.Select(MapStylist).ToList(),
             partners.Select(MapPartner).ToList()
         );
@@ -100,6 +106,9 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
 
     internal static BeforeAfterDto MapBeforeAfter(BeforeAfterItem x) =>
         new(x.Id, x.Title, x.BeforeImageUrl, x.AfterImageUrl);
+
+    internal static ShowcaseItemDto MapShowcase(ShowcaseItem x) =>
+        new(x.Id, x.Title, x.ImageUrl);
 
     internal static AppointmentDto MapAppointment(Appointment x) =>
         new(

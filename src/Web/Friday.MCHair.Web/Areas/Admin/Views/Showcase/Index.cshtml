@@ -1,0 +1,57 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.ShowcaseItem>
+@using Friday.MCHair.Web.Models
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    var type = (ShowcaseType)ViewBag.Type!;
+    ViewData["Title"] = ShowcaseTypeLabels.GetLabel(type);
+}
+
+<div class="admin-gallery-tabs">
+    @foreach (var showcaseType in ShowcaseTypeInfo.AllTypes)
+    {
+        <a asp-action="Index" asp-route-type="@((int)showcaseType)" class="@(showcaseType == type ? "active" : "")">@ShowcaseTypeLabels.GetLabel(showcaseType)</a>
+    }
+</div>
+
+<div class="admin-gallery-upload">
+    <h2>Thêm ảnh</h2>
+    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="admin-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="type" value="@((int)type)" />
+        <div class="form-row">
+            <label>
+                Tiêu đề (tuỳ chọn)
+                <input type="text" name="title" maxlength="200" />
+            </label>
+            <label>
+                Ảnh
+                <input type="file" name="imageFile" accept="image/*" required />
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Tải lên</button>
+    </form>
+</div>
+
+@if (Model.Count == 0)
+{
+    <p class="muted">Chưa có ảnh. Thêm ảnh qua form trên hoặc copy vào <code>wwwroot/resources/@ShowcaseTypeInfo.GetFolderSlug(type)/</code> rồi restart app.</p>
+}
+else
+{
+    <div class="admin-gallery-grid">
+        @foreach (var item in Model)
+        {
+            <article class="admin-gallery-item">
+                <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
+                <div class="admin-gallery-meta">
+                    <span>@item.Title</span>
+                    <form asp-action="Delete" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn-danger" onclick="return confirm('Xóa ảnh này?')">Xóa</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+}

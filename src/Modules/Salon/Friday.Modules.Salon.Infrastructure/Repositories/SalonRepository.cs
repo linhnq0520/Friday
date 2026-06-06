@@ -124,6 +124,55 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task DeletePartnerAsync(Partner partner, CancellationToken cancellationToken = default) =>
         DeleteByIdAsync<Partner>(partner.Id, cancellationToken);
 
+    public async Task<IReadOnlyList<ShowcaseItem>> GetPublishedShowcaseAsync(
+        ShowcaseType type,
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<ShowcaseItem>()
+            .Where(x => x.IsPublished && x.Type == type)
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<ShowcaseItem>> GetAllShowcaseAsync(
+        ShowcaseType? type,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<ShowcaseItem> query = dbContext.Set<ShowcaseItem>();
+
+        if (type.HasValue)
+        {
+            query = query.Where(x => x.Type == type.Value);
+        }
+
+        return await query
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<ShowcaseItem?> GetShowcaseByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<ShowcaseItem>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task AddShowcaseItemAsync(ShowcaseItem item, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            item,
+            static (source, target) =>
+            {
+                target.Type = source.Type;
+                target.Title = source.Title;
+                target.ImageUrl = source.ImageUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsPublished = source.IsPublished;
+            },
+            cancellationToken
+        );
+
+    public Task DeleteShowcaseItemAsync(ShowcaseItem item, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<ShowcaseItem>(item.Id, cancellationToken);
+
     public async Task<IReadOnlyList<GalleryItem>> GetPublishedGalleryAsync(
         GalleryCategory? category,
         CancellationToken cancellationToken = default

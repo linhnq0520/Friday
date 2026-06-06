@@ -1,3 +1,4 @@
+using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Application.Models;
 using Friday.Modules.Salon.Domain.Entities;
@@ -7,64 +8,64 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Areas.Admin.Controllers;
 
-public sealed class GalleryController(ISalonRepository repository) : AdminControllerBase
+public sealed class ShowcaseController(ISalonRepository repository) : AdminControllerBase
 {
-    public async Task<IActionResult> Index(
-        GalleryCategory? category,
-        CancellationToken cancellationToken
-    )
+    public async Task<IActionResult> Index(ShowcaseType type, CancellationToken cancellationToken)
     {
-        IReadOnlyList<GalleryItem> items = await repository.GetAllGalleryAsync(cancellationToken);
-        IReadOnlyList<GalleryItem> filtered =
-            category.HasValue
-                ? items.Where(x => x.Category == category.Value).ToList()
-                : items;
+        if (!ShowcaseTypeInfo.AllTypes.Contains(type))
+        {
+            return RedirectToAction(nameof(Index), new { type = (int)ShowcaseType.Feedback });
+        }
 
-        ViewBag.Category = category;
-        return View(filtered);
+        ViewBag.Type = type;
+        ViewData["Title"] = ShowcaseTypeLabels.GetLabel(type);
+        return View(await repository.GetAllShowcaseAsync(type, cancellationToken));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(
-        GalleryCategory category,
+        ShowcaseType type,
         IFormFile imageFile,
         string? title,
         CancellationToken cancellationToken
     )
     {
-        if (!GalleryCategoryInfo.CollectionCategories.Contains(category))
+        if (!ShowcaseTypeInfo.AllTypes.Contains(type))
         {
             TempData["Error"] = "Danh mục không hợp lệ.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { type = (int)ShowcaseType.Feedback });
         }
 
         if (imageFile is null || imageFile.Length == 0)
         {
             TempData["Error"] = "Vui lòng chọn ảnh để tải lên.";
-            return RedirectToAction(nameof(Index), new { category = (int?)category });
+            return RedirectToAction(nameof(Index), new { type = (int)type });
         }
 
         try
         {
-            string folder = $"bo_suu_tap/{GalleryCategoryInfo.GetFolderSlug(category)}";
             IImageUploadService uploadService =
                 HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
-            string imageUrl = await uploadService.SaveAsync(imageFile, folder, cancellationToken);
-
-            IReadOnlyList<GalleryItem> existing = await repository.GetAllGalleryAsync(
+            string imageUrl = await uploadService.SaveAsync(
+                imageFile,
+                ShowcaseTypeInfo.GetFolderSlug(type),
                 cancellationToken
             );
-            int nextSort =
-                existing.Count == 0 ? 1 : existing.Max(x => x.SortOrder) + 1;
 
-            await repository.AddGalleryItemAsync(
-                new GalleryItem
+            IReadOnlyList<ShowcaseItem> existing = await repository.GetAllShowcaseAsync(
+                type,
+                cancellationToken
+            );
+            int nextSort = existing.Count == 0 ? 1 : existing.Max(x => x.SortOrder) + 1;
+
+            await repository.AddShowcaseItemAsync(
+                new ShowcaseItem
                 {
                     Title = string.IsNullOrWhiteSpace(title)
                         ? Path.GetFileNameWithoutExtension(imageFile.FileName)
                         : title.Trim(),
-                    Category = category,
+                    Type = type,
                     ImageUrl = imageUrl,
                     SortOrder = nextSort,
                     IsPublished = true,
@@ -72,21 +73,21 @@ public sealed class GalleryController(ISalonRepository repository) : AdminContro
                 cancellationToken
             );
             await CommitAsync(cancellationToken);
-            TempData["Success"] = "Đã thêm ảnh vào bộ sưu tập.";
+            TempData["Success"] = "Đã thêm ảnh.";
         }
         catch (InvalidOperationException ex)
         {
             TempData["Error"] = ex.Message;
         }
 
-        return RedirectToAction(nameof(Index), new { category = (int?)category });
+        return RedirectToAction(nameof(Index), new { type = (int)type });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        GalleryItem? item = await repository.GetGalleryByIdAsync(id, cancellationToken);
+        ShowcaseItem? item = await repository.GetShowcaseByIdAsync(id, cancellationToken);
         if (item is null)
         {
             return NotFound();
@@ -96,9 +97,9 @@ public sealed class GalleryController(ISalonRepository repository) : AdminContro
             HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
         uploadService.TryDeleteResourceFile(item.ImageUrl);
 
-        await repository.DeleteGalleryItemAsync(item, cancellationToken);
+        await repository.DeleteShowcaseItemAsync(item, cancellationToken);
         await CommitAsync(cancellationToken);
         TempData["Success"] = "Đã xóa ảnh.";
-        return RedirectToAction(nameof(Index), new { category = (int?)item.Category });
+        return RedirectToAction(nameof(Index), new { type = (int)item.Type });
     }
 }

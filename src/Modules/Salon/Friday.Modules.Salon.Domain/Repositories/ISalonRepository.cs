@@ -23,6 +23,18 @@ public interface ISalonRepository
     Task AddPartnerAsync(Partner partner, CancellationToken cancellationToken = default);
     Task DeletePartnerAsync(Partner partner, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ShowcaseItem>> GetPublishedShowcaseAsync(
+        ShowcaseType type,
+        CancellationToken cancellationToken = default
+    );
+    Task<IReadOnlyList<ShowcaseItem>> GetAllShowcaseAsync(
+        ShowcaseType? type,
+        CancellationToken cancellationToken = default
+    );
+    Task<ShowcaseItem?> GetShowcaseByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task AddShowcaseItemAsync(ShowcaseItem item, CancellationToken cancellationToken = default);
+    Task DeleteShowcaseItemAsync(ShowcaseItem item, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<GalleryItem>> GetPublishedGalleryAsync(
         GalleryCategory? category,
         CancellationToken cancellationToken = default
