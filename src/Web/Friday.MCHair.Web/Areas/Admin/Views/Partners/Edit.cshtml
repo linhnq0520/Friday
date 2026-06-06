@@ -1,0 +1,17 @@
+@model Friday.Modules.Salon.Domain.Entities.Partner
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm đối tác" : "Sửa đối tác";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="alert error"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group"><label>Tên thương hiệu</label><input asp-for="Name" required /></div>
+    <div class="form-group"><label>Mô tả</label><textarea asp-for="Description"></textarea></div>
+    <div class="form-group"><label>Website</label><input asp-for="WebsiteUrl" type="url" placeholder="https://" /></div>
+    @await Html.PartialAsync("_ImageUploadField", Model.LogoUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Logo đối tác" }, { "ImageFieldName", "LogoUrl" } })
+    <div class="form-group"><label>Thứ tự</label><input asp-for="SortOrder" type="number" /></div>
+    <label><input asp-for="IsActive" type="checkbox" /> Hiển thị trên trang chủ</label>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</form>

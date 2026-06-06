@@ -27,23 +27,36 @@ public static class SiteContent
 
     public const string LogoPath = "/resources/logo.jpg";
 
+    public const string FaviconIcoPath = "/favicon.ico";
+    public const string Favicon16Path = "/favicon-16x16.png";
+    public const string Favicon32Path = "/favicon-32x32.png";
+    public const string AppleTouchIconPath = "/apple-touch-icon.png";
+
     public static readonly string[] HeroSlides =
     [
-        "/resources/khong-gian1.jpg",
-        "/resources/khong-gian14.jpg",
-        "/resources/khong-gian20.jpg",
-        "/resources/khong-gian6.jpg",
-        "/resources/khong-gian32.jpg",
+        "/resources/khong_gian/khong-gian1.jpg",
+        "/resources/khong_gian/khong-gian14.jpg",
+        "/resources/khong_gian/khong-gian20.jpg",
+        "/resources/khong_gian/khong-gian6.jpg",
+        "/resources/khong_gian/khong-gian32.jpg",
     ];
 
     public static readonly string[] SpaceShowcase =
     [
-        "/resources/khong-gian7.jpg",
-        "/resources/khong-gian11.jpg",
-        "/resources/khong-gian17.jpg",
-        "/resources/khong-gian22.jpg",
-        "/resources/khong-gian28.jpg",
-        "/resources/khong-gian30.jpg",
+        "/resources/khong_gian/khong-gian7.jpg",
+        "/resources/khong_gian/khong-gian17.jpg",
+        "/resources/khong_gian/khong-gian22.jpg",
+        "/resources/khong_gian/khong-gian28.jpg",
+        "/resources/khong_gian/khong-gian30.jpg",
+    ];
+
+    public static readonly string[] BeforeAfterShowcase =
+    [
+        "/resources/before_after/z7906296768672_c68638e47c33cb3044ae45dcd3dc61bd.jpg",
+        "/resources/before_after/z7906296774317_b076f6be9040629c1431f4bc255d4b4c.jpg",
+        "/resources/before_after/z7906296784001_066e2a361ba9866fde05f04eb224b3c6.jpg",
+        "/resources/before_after/z7906296788757_3f3cd1b9168d08a037db355067c8b593.jpg",
+        "/resources/before_after/z7906296793344_bd2c89f6990005741026e00a8674be52.jpg",
     ];
 
     public const string MissionTitle = "Sứ mệnh";

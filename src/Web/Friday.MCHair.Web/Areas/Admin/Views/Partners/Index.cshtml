@@ -1,0 +1,30 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.Partner>
+@{
+    ViewData["Title"] = "Đối tác";
+}
+
+<a class="btn btn-primary" asp-action="Edit">Thêm đối tác</a>
+<table class="admin-table">
+    <thead>
+        <tr><th>Tên</th><th>Website</th><th>Thứ tự</th><th>Hiển thị</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@(string.IsNullOrWhiteSpace(item.WebsiteUrl) ? "—" : item.WebsiteUrl)</td>
+                <td>@item.SortOrder</td>
+                <td>@(item.IsActive ? "Có" : "Ẩn")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                    <form asp-action="Delete" method="post" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" onclick="return confirm('Xóa đối tác?')">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

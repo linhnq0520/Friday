@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <meta name="description" content="@ViewData["MetaDescription"]" />
+    <partial name="_Favicons" />
     <link rel="stylesheet" href="~/css/mchair.css" asp-append-version="true" />
     @await RenderSectionAsync("Head", required: false)
     <script type="application/ld+json">
@@ -39,6 +40,7 @@
                 <a asp-controller="Home" asp-action="Index">Trang chủ</a>
                 <a asp-controller="About" asp-action="Index">Giới thiệu</a>
                 <a asp-controller="Services" asp-action="Index">Dịch vụ</a>
+                <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
                 <a asp-controller="News" asp-action="Index">Tin tức</a>
                 <a asp-controller="Warranty" asp-action="Index">Bảo hành</a>
                 <a class="btn-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
@@ -68,6 +70,7 @@
                 <h4>Liên kết</h4>
                 <a asp-controller="About" asp-action="Index">Giới thiệu</a>
                 <a asp-controller="Services" asp-action="Index">Bảng giá</a>
+                <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
                 <a asp-controller="Warranty" asp-action="Index">Chế độ bảo hành</a>
                 <a asp-controller="Booking" asp-action="Index">Đặt lịch online</a>
                 <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Fanpage Facebook</a>

@@ -41,16 +41,20 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
         IReadOnlyList<Stylist> stylists = await repository.GetActiveStylistsAsync(
             cancellationToken
         );
+        IReadOnlyList<Partner> partners = await repository.GetActivePartnersAsync(
+            cancellationToken
+        );
 
         return new HomePageDto(
             settings,
             sections.Select(MapSection).ToList(),
-            gallery.Take(8).Select(MapGallery).ToList(),
+            BuildGalleryCollections(gallery),
             services.Select(MapService).ToList(),
             promotions.Take(6).Select(MapPromotion).ToList(),
             testimonials.Take(6).Select(MapTestimonial).ToList(),
             beforeAfter.Take(6).Select(MapBeforeAfter).ToList(),
-            stylists.Select(MapStylist).ToList()
+            stylists.Select(MapStylist).ToList(),
+            partners.Select(MapPartner).ToList()
         );
     }
 
@@ -63,8 +67,30 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
     internal static StylistDto MapStylist(Stylist x) =>
         new(x.Id, x.Name, x.Title, x.Bio, x.ImageUrl);
 
+    internal static PartnerDto MapPartner(Partner x) =>
+        new(x.Id, x.Name, x.Description, x.LogoUrl, x.WebsiteUrl);
+
     internal static GalleryItemDto MapGallery(GalleryItem x) =>
         new(x.Id, x.Title, x.Category, x.ImageUrl);
+
+    internal static IReadOnlyList<GalleryCollectionDto> BuildGalleryCollections(
+        IReadOnlyList<GalleryItem> items
+    ) =>
+        GalleryCategoryInfo.CollectionCategories
+            .Select(category =>
+            {
+                IReadOnlyList<GalleryItem> categoryItems = items
+                    .Where(x => x.Category == category)
+                    .OrderBy(x => x.SortOrder)
+                    .ToList();
+
+                string cover =
+                    categoryItems.FirstOrDefault()?.ImageUrl
+                    ?? GalleryCategoryInfo.GetDefaultCover(category);
+
+                return new GalleryCollectionDto(category, cover, categoryItems.Count);
+            })
+            .ToList();
 
     internal static PromotionDto MapPromotion(Promotion x) =>
         new(x.Id, x.Title, x.Summary, x.Content, x.ImageUrl, x.PublishedAt);
@@ -105,6 +131,24 @@ public sealed class GetServicesPageHandler(ISalonRepository repository)
             cancellationToken
         );
         return services.Select(GetHomePageHandler.MapService).ToList();
+    }
+}
+
+public sealed record GetGalleryCollectionsQuery : IQuery<IReadOnlyList<GalleryCollectionDto>>;
+
+public sealed class GetGalleryCollectionsHandler(ISalonRepository repository)
+    : IQueryHandler<GetGalleryCollectionsQuery, IReadOnlyList<GalleryCollectionDto>>
+{
+    public async Task<IReadOnlyList<GalleryCollectionDto>> HandleAsync(
+        GetGalleryCollectionsQuery request,
+        CancellationToken cancellationToken
+    )
+    {
+        IReadOnlyList<GalleryItem> items = await repository.GetPublishedGalleryAsync(
+            null,
+            cancellationToken
+        );
+        return GetHomePageHandler.BuildGalleryCollections(items);
     }
 }
 

@@ -189,7 +189,7 @@
     place-items: center;
     background:
         linear-gradient(135deg, rgba(92, 64, 51, 0.96), rgba(42, 33, 24, 0.92)),
-        url("/resources/khong-gian14.jpg") center/cover no-repeat;
+        url("/resources/khong_gian/khong-gian14.jpg") center/cover no-repeat;
 }
 
 .login-card {
@@ -334,6 +334,87 @@
     gap: 0.75rem;
     align-items: center;
 }
+
+.alert.error {
+    background: #fde8e4;
+    border: 1px solid #e8b4ab;
+    color: #7a2e22;
+}
+
+.admin-gallery-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+.admin-gallery-tabs a {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.9rem;
+}
+.admin-gallery-tabs a.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.admin-gallery-upload {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.admin-gallery-upload h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: var(--brand);
+}
+
+.admin-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+.admin-gallery-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+.admin-gallery-item img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.admin-gallery-meta {
+    padding: 0.65rem 0.75rem 0.8rem;
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+}
+.admin-gallery-meta strong {
+    color: var(--brand);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.btn-danger {
+    margin-top: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border: 0;
+    border-radius: 6px;
+    background: #b33a2c;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+}
+.btn-danger:hover { background: #922f24; }
 
 @media (max-width: 900px) {
     .price-list-columns {

@@ -3,6 +3,9 @@ using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.BuildingBlocks.Application.Abstractions;
 using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
+using Friday.Modules.Salon.Application.Models;
+using Friday.Modules.Salon.Domain.Entities;
+using Friday.Modules.Salon.Domain.Enums;
 using Friday.Modules.Salon.Domain.Repositories;
 using Friday.Modules.Salon.Application;
 using Friday.Modules.Salon.Infrastructure;
@@ -57,6 +60,8 @@ await SalonDbMigrationStartup.ApplyMigrationsAsync(app.Services, app.Configurati
 await SalonDataSeeder.SeedAsync(app.Services);
 await EnsurePriceListSeededAsync(app.Services);
 await EnsureSiteContactSettingsAsync(app.Services);
+await EnsureGalleryFromResourcesAsync(app.Services);
+await EnsurePartnersSeededAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -65,7 +70,25 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        OnPrepareResponse = static ctx =>
+        {
+            string path = ctx.Context.Request.Path.Value ?? string.Empty;
+            if (
+                path.Contains("favicon", StringComparison.OrdinalIgnoreCase)
+                || path.Contains("apple-touch-icon", StringComparison.OrdinalIgnoreCase)
+            )
+            {
+                IHeaderDictionary headers = ctx.Context.Response.Headers;
+                headers.CacheControl = "no-cache, no-store, must-revalidate";
+                headers.Pragma = "no-cache";
+                headers.Expires = "0";
+            }
+        },
+    }
+);
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -135,6 +158,139 @@ static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
     if (!settings.ContainsKey("messenger_url"))
     {
         await repository.UpsertSettingAsync("messenger_url", SiteContent.DefaultMessengerUrl);
+        changed = true;
+    }
+
+    if (changed)
+    {
+        await unitOfWork.CommitAsync();
+    }
+}
+
+static async Task EnsureGalleryFromResourcesAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    IWebHostEnvironment environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+    string root = Path.Combine(environment.WebRootPath, "resources", "bo_suu_tap");
+    if (!Directory.Exists(root))
+    {
+        return;
+    }
+
+    IReadOnlyList<GalleryItem> existing = await repository.GetAllGalleryAsync();
+    HashSet<string> existingUrls = existing
+        .Select(x => x.ImageUrl.Trim().Replace('\\', '/'))
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    bool hasPlaceholders = existing.Any(x =>
+        x.ImageUrl.Contains("/images/placeholders/", StringComparison.OrdinalIgnoreCase)
+    );
+
+    int sortOrder = existing.Count == 0 ? 0 : existing.Max(x => x.SortOrder);
+    bool changed = false;
+
+    foreach (GalleryCategory category in GalleryCategoryInfo.CollectionCategories)
+    {
+        string folder = GalleryCategoryInfo.GetFolderSlug(category);
+        string folderPath = Path.Combine(root, folder);
+        if (!Directory.Exists(folderPath))
+        {
+            continue;
+        }
+
+        foreach (
+            string file in Directory
+                .EnumerateFiles(folderPath, "*", SearchOption.AllDirectories)
+                .Where(IsGalleryImageFile)
+                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            string relative = "/resources/bo_suu_tap/"
+                + folder
+                + "/"
+                + Path.GetRelativePath(folderPath, file).Replace('\\', '/');
+
+            if (existingUrls.Contains(relative))
+            {
+                continue;
+            }
+
+            sortOrder++;
+            await repository.AddGalleryItemAsync(
+                new GalleryItem
+                {
+                    Title = Path.GetFileNameWithoutExtension(file),
+                    Category = category,
+                    ImageUrl = relative,
+                    SortOrder = sortOrder,
+                    IsPublished = true,
+                }
+            );
+            existingUrls.Add(relative);
+            changed = true;
+        }
+    }
+
+    if (hasPlaceholders && changed)
+    {
+        foreach (
+            GalleryItem placeholder in existing
+                .Where(x =>
+                    x.ImageUrl.Contains("/images/placeholders/", StringComparison.OrdinalIgnoreCase)
+                )
+                .ToList()
+        )
+        {
+            await repository.DeleteGalleryItemAsync(placeholder);
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        await unitOfWork.CommitAsync();
+    }
+}
+
+static bool IsGalleryImageFile(string path)
+{
+    string extension = Path.GetExtension(path);
+    return extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".png", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".webp", StringComparison.OrdinalIgnoreCase)
+        || extension.Equals(".gif", StringComparison.OrdinalIgnoreCase);
+}
+
+static async Task EnsurePartnersSeededAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    bool changed = false;
+
+    if ((await repository.GetAllPartnersAsync()).Count == 0)
+    {
+        await SalonDataSeeder.SeedPartnersAsync(repository);
+        changed = true;
+    }
+
+    if (await repository.GetSectionByKeyAsync("partners_intro") is null)
+    {
+        await repository.AddSectionAsync(
+            new SiteSection
+            {
+                SectionKey = "partners_intro",
+                Title = "Đối tác",
+                Body =
+                    "Kết hợp với các thương hiệu chăm sóc tóc uy tín, được sử dụng trong quy trình dịch vụ tại MC Hair Salon.",
+                SortOrder = 10,
+                IsVisible = true,
+            }
+        );
         changed = true;
     }
 

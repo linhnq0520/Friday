@@ -84,6 +84,46 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task DeleteStylistAsync(Stylist stylist, CancellationToken cancellationToken = default) =>
         DeleteByIdAsync<Stylist>(stylist.Id, cancellationToken);
 
+    public async Task<IReadOnlyList<Partner>> GetActivePartnersAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<Partner>()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Partner>> GetAllPartnersAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<Partner>()
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+    public Task<Partner?> GetPartnerByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<Partner>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public Task AddPartnerAsync(Partner partner, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            partner,
+            static (source, target) =>
+            {
+                target.Name = source.Name;
+                target.Description = source.Description;
+                target.LogoUrl = source.LogoUrl;
+                target.WebsiteUrl = source.WebsiteUrl;
+                target.SortOrder = source.SortOrder;
+                target.IsActive = source.IsActive;
+            },
+            cancellationToken
+        );
+
+    public Task DeletePartnerAsync(Partner partner, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<Partner>(partner.Id, cancellationToken);
+
     public async Task<IReadOnlyList<GalleryItem>> GetPublishedGalleryAsync(
         GalleryCategory? category,
         CancellationToken cancellationToken = default

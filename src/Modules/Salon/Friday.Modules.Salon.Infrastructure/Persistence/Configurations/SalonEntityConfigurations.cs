@@ -90,6 +90,20 @@ public sealed class SiteSectionConfiguration : IEntityTypeConfiguration<SiteSect
     }
 }
 
+public sealed class PartnerConfiguration : IEntityTypeConfiguration<Partner>
+{
+    public void Configure(EntityTypeBuilder<Partner> builder)
+    {
+        builder.ToTable($"{SalonTable.Prefix}partners");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.Description).HasMaxLength(2000);
+        builder.Property(x => x.LogoUrl).HasMaxLength(500);
+        builder.Property(x => x.WebsiteUrl).HasMaxLength(500);
+        builder.Ignore(x => x.DomainEvents);
+    }
+}
+
 public sealed class BeforeAfterItemConfiguration : IEntityTypeConfiguration<BeforeAfterItem>
 {
     public void Configure(EntityTypeBuilder<BeforeAfterItem> builder)

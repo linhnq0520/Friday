@@ -1,8 +1,11 @@
 ﻿@model HomeIndexViewModel
+@using Friday.MCHair.Web.Models
 @{
     var hero = Model.GetSection("hero");
+    var hotGallery = Model.GetSection("gallery_intro");
     var about = Model.GetSection("about");
     var servicesIntro = Model.GetSection("services_intro");
+    var partnersIntro = Model.GetSection("partners_intro");
     var missionPreview = SiteContent.MissionBody
         .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .FirstOrDefault() ?? string.Empty;
@@ -30,6 +33,29 @@
         {
             <button type="button" class="hero-dot @(i == 0 ? "is-active" : string.Empty)" aria-label="Ảnh @(i + 1)" data-slide="@i"></button>
         }
+    </div>
+</section>
+
+<section class="section section-hot-gallery" id="collections">
+    <div class="container">
+        <div class="section-head center">
+            <h2>@(hotGallery?.Title ?? "Mẫu tóc hot")</h2>
+            <p>@(hotGallery?.Body ?? "Chào mừng Quý khách đến với MC Hair Salon. Dưới đây là bộ sưu tập những mẫu tóc đẹp giúp nâng tầm vẻ đẹp của bạn.")</p>
+        </div>
+        <div class="collection-grid four">
+            @foreach (var collection in Model.Page.GalleryCollections)
+            {
+                <a class="collection-card" asp-controller="Gallery" asp-action="Category" asp-route-category="@((int)collection.Category)">
+                    <div class="collection-card-image" style="background-image:url('@collection.CoverImageUrl')">
+                        <span class="collection-card-overlay"></span>
+                    </div>
+                    <div class="collection-card-body">
+                        <h3>@GalleryCategoryLabels.GetLabel(collection.Category)</h3>
+                        <span class="collection-card-link">Xem thêm →</span>
+                    </div>
+                </a>
+            }
+        </div>
     </div>
 </section>
 
@@ -72,7 +98,7 @@
             @foreach (var service in Model.Page.Services)
             {
                 <article class="card service-card">
-                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/resources/khong-gian10.jpg")')"></div>
+                    <div class="card-image placeholder-image" style="background-image:url('@(service.ImageUrl ?? "/resources/khong_gian/khong-gian10.jpg")')"></div>
                     <h3>@service.Name</h3>
                     <p>@service.Description</p>
                     <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
@@ -123,17 +149,14 @@
     <div class="container">
         <div class="section-head center">
             <h2>Before &amp; After</h2>
+            <p>Cùng nhìn lại hành trình thay đổi diện mạo của khách hàng tại MC Hair Salon.</p>
         </div>
-        <div class="card-grid three">
-            @foreach (var item in Model.Page.BeforeAfter)
+        <div class="space-scroll before-after-scroll" tabindex="0" aria-label="Ảnh Before và After">
+            @foreach (var image in SiteContent.BeforeAfterShowcase)
             {
-                <article class="ba-card">
-                    <div class="ba-images">
-                        <div class="placeholder-image" style="background-image:url('@(item.BeforeImageUrl ?? "/resources/khong-gian23.jpg")')" title="Trước"></div>
-                        <div class="placeholder-image" style="background-image:url('@(item.AfterImageUrl ?? "/resources/khong-gian24.jpg")')" title="Sau"></div>
-                    </div>
-                    <h3>@item.Title</h3>
-                </article>
+                <figure class="space-card">
+                    <img src="@image" alt="Before và After tại MC Hair Salon" loading="lazy" />
+                </figure>
             }
         </div>
     </div>
@@ -149,12 +172,66 @@
             @foreach (var stylist in Model.Page.Stylists)
             {
                 <article class="card stylist-card">
-                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/resources/khong-gian9.jpg")')"></div>
+                    <div class="avatar placeholder-image" style="background-image:url('@(stylist.ImageUrl ?? "/resources/khong_gian/khong-gian9.jpg")')"></div>
                     <h3>@stylist.Name</h3>
                     <p class="muted">@stylist.Title</p>
                     <p>@stylist.Bio</p>
                     <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-stylistId="@stylist.Id">Đặt lịch ngay</a>
                 </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt" id="partners">
+    <div class="container">
+        <div class="section-head center">
+            <h2>@(partnersIntro?.Title ?? "Đối tác")</h2>
+            <p>@(partnersIntro?.Body ?? "Kết hợp với các thương hiệu chăm sóc tóc uy tín tại MC Hair Salon.")</p>
+        </div>
+        <div class="partners-grid">
+            @foreach (var partner in Model.Page.Partners)
+            {
+                if (!string.IsNullOrWhiteSpace(partner.WebsiteUrl))
+                {
+                    <a class="partner-card" href="@partner.WebsiteUrl" target="_blank" rel="noopener noreferrer">
+                        <div class="partner-logo">
+                            @if (!string.IsNullOrWhiteSpace(partner.LogoUrl))
+                            {
+                                <img src="@partner.LogoUrl" alt="@partner.Name" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="partner-logo-fallback">@(partner.Name.Length > 0 ? partner.Name[0].ToString() : "?")</span>
+                            }
+                        </div>
+                        <h3>@partner.Name</h3>
+                        @if (!string.IsNullOrWhiteSpace(partner.Description))
+                        {
+                            <p>@partner.Description</p>
+                        }
+                    </a>
+                }
+                else
+                {
+                    <article class="partner-card">
+                        <div class="partner-logo">
+                            @if (!string.IsNullOrWhiteSpace(partner.LogoUrl))
+                            {
+                                <img src="@partner.LogoUrl" alt="@partner.Name" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="partner-logo-fallback">@(partner.Name.Length > 0 ? partner.Name[0].ToString() : "?")</span>
+                            }
+                        </div>
+                        <h3>@partner.Name</h3>
+                        @if (!string.IsNullOrWhiteSpace(partner.Description))
+                        {
+                            <p>@partner.Description</p>
+                        }
+                    </article>
+                }
             }
         </div>
     </div>

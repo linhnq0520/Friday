@@ -46,6 +46,7 @@ public static class SalonDataSeeder
         await SeedPromotionsAsync(repository, cancellationToken);
         await SeedTestimonialsAsync(repository, cancellationToken);
         await SeedBeforeAfterAsync(repository, cancellationToken);
+        await SeedPartnersAsync(repository, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -120,6 +121,15 @@ public static class SalonDataSeeder
                 Subtitle = "Giá minh bạch — chất lượng đảm bảo",
                 Body = "Các dịch vụ làm tóc phổ biến tại salon với mức giá cạnh tranh.",
                 SortOrder = 4,
+            },
+            new()
+            {
+                SectionKey = "partners_intro",
+                Title = "Đối tác",
+                Body =
+                    "Kết hợp với các thương hiệu chăm sóc tóc uy tín, được sử dụng trong quy trình dịch vụ tại MC Hair Salon.",
+                SortOrder = 10,
+                IsVisible = true,
             },
         ];
 
@@ -223,45 +233,8 @@ public static class SalonDataSeeder
         }
     }
 
-    private static async Task SeedGalleryAsync(ISalonRepository repository, CancellationToken ct)
-    {
-        GalleryItem[] items =
-        [
-            new()
-            {
-                Title = "Màu thời trang",
-                Category = GalleryCategory.FashionColor,
-                ImageUrl = "/images/placeholders/color.jpg",
-                SortOrder = 1,
-            },
-            new()
-            {
-                Title = "Kiểu tóc thịnh hành",
-                Category = GalleryCategory.TrendingStyle,
-                ImageUrl = "/images/placeholders/style.jpg",
-                SortOrder = 2,
-            },
-            new()
-            {
-                Title = "Phục hồi hư tổn",
-                Category = GalleryCategory.HairRecovery,
-                ImageUrl = "/images/placeholders/recovery.jpg",
-                SortOrder = 3,
-            },
-            new()
-            {
-                Title = "Nối tóc",
-                Category = GalleryCategory.HairExtensions,
-                ImageUrl = "/images/placeholders/extensions.jpg",
-                SortOrder = 4,
-            },
-        ];
-
-        foreach (GalleryItem item in items)
-        {
-            await repository.AddGalleryItemAsync(item, ct);
-        }
-    }
+    private static Task SeedGalleryAsync(ISalonRepository repository, CancellationToken ct) =>
+        Task.CompletedTask;
 
     private static async Task SeedPromotionsAsync(ISalonRepository repository, CancellationToken ct)
     {
@@ -344,6 +317,46 @@ public static class SalonDataSeeder
         foreach (BeforeAfterItem item in items)
         {
             await repository.AddBeforeAfterAsync(item, ct);
+        }
+    }
+
+    public static async Task SeedPartnersAsync(ISalonRepository repository, CancellationToken ct = default)
+    {
+        Partner[] partners =
+        [
+            new()
+            {
+                Name = "Olaplex",
+                Description =
+                    "Thương hiệu chăm sóc tóc hàng đầu thế giới, giúp phục hồi và bảo vệ tóc trong quá trình hóa chất.",
+                SortOrder = 1,
+            },
+            new()
+            {
+                Name = "Moroccanoil",
+                Description =
+                    "Thương hiệu dầu argan nổi tiếng, được các chuyên gia tạo mẫu tóc khuyên dùng trên toàn cầu.",
+                SortOrder = 2,
+            },
+            new()
+            {
+                Name = "B3 Brazilian",
+                Description =
+                    "Giải pháp phục hồi liên kết tóc chuyên sâu, lựa chọn của nhiều salon chuyên nghiệp.",
+                SortOrder = 3,
+            },
+            new()
+            {
+                Name = "L'Oréal Professionnel",
+                Description =
+                    "Thương hiệu mỹ phẩm chuyên nghiệp hàng đầu, mang đến chất lượng và xu hướng làm tóc hiện đại.",
+                SortOrder = 4,
+            },
+        ];
+
+        foreach (Partner partner in partners)
+        {
+            await repository.AddPartnerAsync(partner, ct);
         }
     }
 }

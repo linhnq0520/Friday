@@ -13,11 +13,25 @@ public sealed record HairServiceDto(
 
 public sealed record StylistDto(int Id, string Name, string? Title, string? Bio, string? ImageUrl);
 
+public sealed record PartnerDto(
+    int Id,
+    string Name,
+    string? Description,
+    string? LogoUrl,
+    string? WebsiteUrl
+);
+
 public sealed record GalleryItemDto(
     int Id,
     string Title,
     GalleryCategory Category,
     string ImageUrl
+);
+
+public sealed record GalleryCollectionDto(
+    GalleryCategory Category,
+    string CoverImageUrl,
+    int ImageCount
 );
 
 public sealed record PromotionDto(
@@ -70,12 +84,13 @@ public sealed record AppointmentDto(
 public sealed record HomePageDto(
     IReadOnlyDictionary<string, string> Settings,
     IReadOnlyList<SiteSectionDto> Sections,
-    IReadOnlyList<GalleryItemDto> HotGallery,
+    IReadOnlyList<GalleryCollectionDto> GalleryCollections,
     IReadOnlyList<HairServiceDto> Services,
     IReadOnlyList<PromotionDto> Promotions,
     IReadOnlyList<TestimonialDto> Testimonials,
     IReadOnlyList<BeforeAfterDto> BeforeAfter,
-    IReadOnlyList<StylistDto> Stylists
+    IReadOnlyList<StylistDto> Stylists,
+    IReadOnlyList<PartnerDto> Partners
 );
 
 public sealed record AdminLoginResult(bool Success, string? DisplayName, string? ErrorMessage);

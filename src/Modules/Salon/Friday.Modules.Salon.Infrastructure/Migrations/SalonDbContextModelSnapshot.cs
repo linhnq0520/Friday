@@ -225,6 +225,46 @@ namespace Friday.Modules.Salon.Infrastructure.Migrations
                     b.ToTable("salon_services", (string)null);
                 });
 
+            modelBuilder.Entity("Friday.Modules.Salon.Domain.Entities.Partner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedOnUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("UpdatedOnUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WebsiteUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("salon_partners", (string)null);
+                });
+
             modelBuilder.Entity("Friday.Modules.Salon.Domain.Entities.Promotion", b =>
                 {
                     b.Property<int>("Id")

@@ -16,6 +16,7 @@ public sealed class SitemapController : Controller
             CreateUrl(ns, baseUrl + "/", "daily", "1.0"),
             CreateUrl(ns, baseUrl + "/About", "monthly", "0.9"),
             CreateUrl(ns, baseUrl + "/Services", "weekly", "0.9"),
+            CreateUrl(ns, baseUrl + "/Gallery", "weekly", "0.9"),
             CreateUrl(ns, baseUrl + "/News", "weekly", "0.8"),
             CreateUrl(ns, baseUrl + "/Warranty", "monthly", "0.7"),
             CreateUrl(ns, baseUrl + "/Booking", "monthly", "0.9")

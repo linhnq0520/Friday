@@ -1,0 +1,62 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.GalleryItemDto>
+@using Friday.MCHair.Web.Models
+@using Friday.Modules.Salon.Application.Models
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    var category = (GalleryCategory)ViewBag.Category!;
+    var categoryLabel = GalleryCategoryLabels.GetLabel(category);
+}
+
+<section class="page-hero">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <span aria-hidden="true">/</span>
+            <a asp-action="Index">Bộ sưu tập</a>
+            <span aria-hidden="true">/</span>
+            <span>@categoryLabel</span>
+        </nav>
+        <h1>@categoryLabel</h1>
+        <div class="filter-tabs">
+            <a asp-action="Index">Tất cả bộ sưu tập</a>
+            @foreach (var cat in GalleryCategoryInfo.CollectionCategories)
+            {
+                <a asp-action="Category" asp-route-category="@((int)cat)" class="@(cat == category ? "active" : "")">@GalleryCategoryLabels.GetLabel(cat)</a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        @if (Model.Count == 0)
+        {
+            <p class="center muted">Chưa có ảnh trong bộ sưu tập này. Vui lòng quay lại sau.</p>
+        }
+        else
+        {
+            <div class="gallery-photo-grid" data-gallery>
+                @foreach (var item in Model)
+                {
+                    <button type="button" class="gallery-photo" data-gallery-src="@item.ImageUrl" data-gallery-title="@item.Title" aria-label="Xem ảnh @item.Title">
+                        <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<div class="gallery-lightbox" id="gallery-lightbox" hidden>
+    <button type="button" class="gallery-lightbox-close" aria-label="Đóng">&times;</button>
+    <button type="button" class="gallery-lightbox-nav gallery-lightbox-prev" aria-label="Ảnh trước">‹</button>
+    <figure class="gallery-lightbox-content">
+        <img src="" alt="" id="gallery-lightbox-image" />
+        <figcaption id="gallery-lightbox-caption"></figcaption>
+    </figure>
+    <button type="button" class="gallery-lightbox-nav gallery-lightbox-next" aria-label="Ảnh sau">›</button>
+</div>
+
+@section Scripts {
+    <script src="~/js/gallery-lightbox.js" asp-append-version="true"></script>
+}

@@ -1,33 +1,35 @@
-@model IReadOnlyList<Friday.Modules.Salon.Application.Models.GalleryItemDto>
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.GalleryCollectionDto>
 @using Friday.MCHair.Web.Models
-@using Friday.Modules.Salon.Domain.Enums
 @{
-    ViewData["Title"] = "Bộ sưu tập | MCHair";
-    var category = ViewBag.Category as GalleryCategory?;
+    ViewData["Title"] = "Bộ sưu tập | MC Hair Salon";
 }
 
 <section class="page-hero">
     <div class="container">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <span aria-hidden="true">/</span>
+            <span>Bộ sưu tập</span>
+        </nav>
         <h1>Bộ sưu tập</h1>
-        <div class="filter-tabs">
-            <a asp-action="Index" class="@(category is null ? "active" : "")">Tất cả</a>
-            @foreach (GalleryCategory cat in Enum.GetValues<GalleryCategory>())
-            {
-                <a asp-action="Index" asp-route-category="@((int)cat)" class="@(category == cat ? "active" : "")">@GalleryCategoryLabels.GetLabel(cat)</a>
-            }
-        </div>
+        <p class="lead">Khám phá các bộ sưu tập mẫu tóc nổi bật tại MC Hair Salon.</p>
     </div>
 </section>
 
 <section class="section">
-    <div class="container card-grid four">
-        @foreach (var item in Model)
+    <div class="container collection-grid four">
+        @foreach (var collection in Model)
         {
-            <article class="card gallery-card">
-                <div class="card-image placeholder-image" style="background-image:url('@item.ImageUrl')"></div>
-                <h3>@item.Title</h3>
-                <p>@GalleryCategoryLabels.GetLabel(item.Category)</p>
-            </article>
+            <a class="collection-card" asp-action="Category" asp-route-category="@((int)collection.Category)">
+                <div class="collection-card-image" style="background-image:url('@collection.CoverImageUrl')">
+                    <span class="collection-card-overlay"></span>
+                    <span class="collection-card-badge">@collection.ImageCount ảnh</span>
+                </div>
+                <div class="collection-card-body">
+                    <h3>@GalleryCategoryLabels.GetLabel(collection.Category)</h3>
+                    <span class="collection-card-link">Xem thêm →</span>
+                </div>
+            </a>
         }
     </div>
 </section>

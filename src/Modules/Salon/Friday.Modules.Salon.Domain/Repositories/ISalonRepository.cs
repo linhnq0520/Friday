@@ -17,6 +17,12 @@ public interface ISalonRepository
     Task AddStylistAsync(Stylist stylist, CancellationToken cancellationToken = default);
     Task DeleteStylistAsync(Stylist stylist, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Partner>> GetActivePartnersAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Partner>> GetAllPartnersAsync(CancellationToken cancellationToken = default);
+    Task<Partner?> GetPartnerByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task AddPartnerAsync(Partner partner, CancellationToken cancellationToken = default);
+    Task DeletePartnerAsync(Partner partner, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<GalleryItem>> GetPublishedGalleryAsync(
         GalleryCategory? category,
         CancellationToken cancellationToken = default
