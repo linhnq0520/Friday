@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Friday.MCHair.Web.Models;
 
 public static class SiteContent
@@ -62,7 +64,11 @@ public static class SiteContent
     public const string AboutStoryBody = """
         MC Hair được tạo ra với mong muốn mở ra cánh cửa mới cho vẻ đẹp và sự tự tin của mỗi khách hàng. Chúng tôi tin rằng một mái tóc đẹp không chỉ là xu hướng thời trang mà còn là cách để mỗi người thể hiện cá tính, phong cách và phiên bản tốt hơn của chính mình.
 
-        Tên gọi MC Hair mang trong mình những giá trị cốt lõi mà chúng tôi luôn theo đuổi. “M – Mode” đại diện cho thời trang và sự đổi mới, thể hiện tinh thần luôn cập nhật những xu hướng tóc hiện đại, tinh tế và phù hợp với từng khách hàng. “C – Mirror Confidence” là sự tự tin khi nhìn vào chính mình trong gương, bởi chúng tôi tin rằng một diện mạo mới có thể mang đến nguồn năng lượng tích cực và sự tự tin trong cuộc sống.
+        Tên gọi MC Hair mang trong mình những giá trị cốt lõi mà chúng tôi luôn theo đuổi.
+
+        “M – Mode” đại diện cho thời trang và sự đổi mới, thể hiện tinh thần luôn cập nhật những xu hướng tóc hiện đại, tinh tế và phù hợp với từng khách hàng.
+
+        “C – Mirror Confidence” là sự tự tin khi nhìn vào chính mình trong gương, bởi chúng tôi tin rằng một diện mạo mới có thể mang đến nguồn năng lượng tích cực và sự tự tin trong cuộc sống.
 
         Bên cạnh đó, “M – Masterpiece Creation” còn mang ý nghĩa tạo nên những tác phẩm nghệ thuật trên mái tóc bằng kỹ thuật, sự tỉ mỉ và niềm đam mê của đội ngũ hairstylist tại MC Hair. Mỗi kiểu tóc không chỉ đơn thuần là làm đẹp mà còn là dấu ấn riêng dành cho từng khách hàng.
 
@@ -119,6 +125,13 @@ public static class SiteContent
             "Tạo dựng uy tín lâu dài dựa trên chất lượng thật và sự hài lòng của khách hàng."
         ),
     ];
+
+    public static string[] SplitParagraphs(string body) =>
+        Regex
+            .Split(body.Trim(), @"\r?\n\s*\r?\n")
+            .Select(p => p.Trim())
+            .Where(p => p.Length > 0)
+            .ToArray();
 }
 
 public sealed record CoreValueItem(string Title, string Description);

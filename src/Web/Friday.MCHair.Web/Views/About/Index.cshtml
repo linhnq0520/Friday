@@ -1,10 +1,7 @@
 @{
-    var storyParagraphs = SiteContent.AboutStoryBody
-        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    var missionParagraphs = SiteContent.MissionBody
-        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-    var visionParagraphs = SiteContent.VisionBody
-        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    var storyParagraphs = SiteContent.SplitParagraphs(SiteContent.AboutStoryBody);
+    var missionParagraphs = SiteContent.SplitParagraphs(SiteContent.MissionBody);
+    var visionParagraphs = SiteContent.SplitParagraphs(SiteContent.VisionBody);
 }
 
 <section class="page-hero about-hero">
