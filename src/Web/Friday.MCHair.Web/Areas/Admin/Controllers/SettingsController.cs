@@ -21,6 +21,8 @@ public sealed class SettingsController(ISalonRepository repository) : AdminContr
         "instagram",
         "seo_title",
         "seo_description",
+        "booking_mode",
+        "booking_external_url",
     ];
 
     [HttpGet]

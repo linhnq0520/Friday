@@ -78,7 +78,7 @@
                         <h3>@service.Name</h3>
                         <p>@service.Description</p>
                         <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> đ</p>
-                        <a class="btn btn-primary" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch</a>
+                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch", serviceId = service.Id })
                     </article>
                 }
             </div>
@@ -90,6 +90,6 @@
     <div class="container center">
         <h2>Cần tư vấn thêm?</h2>
         <p>Liên hệ MC Hair để được stylist tư vấn dịch vụ và báo giá chi tiết.</p>
-        <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
+        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch ngay" })
     </div>
 </section>

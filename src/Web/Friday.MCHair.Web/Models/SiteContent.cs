@@ -19,6 +19,10 @@ public static class SiteContent
 
     public const string DefaultMessengerUrl = "https://m.me/61551835762411";
 
+    public const string DefaultBookingEasySalonUrl = "https://booking.easysalon.vn/mchairsalon";
+
+    public const string DefaultBookingMode = BookingSettings.ModeEasySalon;
+
     public const string IconHotlinePath = "/images/icon-hotline.webp";
 
     public const string IconZaloPath = "/images/icon-zalo.webp";
@@ -49,6 +53,23 @@ public static class SiteContent
         "/resources/khong_gian/khong-gian28.jpg",
         "/resources/khong_gian/khong-gian30.jpg",
     ];
+
+    public const string AboutStoryTitle = "Về MC Hair";
+
+    public const string AboutTagline =
+        "MC Hair – Opening a New Door to Beauty, Confidence and New Opportunities.";
+
+    public const string AboutStoryBody = """
+        MC Hair được tạo ra với mong muốn mở ra cánh cửa mới cho vẻ đẹp và sự tự tin của mỗi khách hàng. Chúng tôi tin rằng một mái tóc đẹp không chỉ là xu hướng thời trang mà còn là cách để mỗi người thể hiện cá tính, phong cách và phiên bản tốt hơn của chính mình.
+
+        Tên gọi MC Hair mang trong mình những giá trị cốt lõi mà chúng tôi luôn theo đuổi. “M – Mode” đại diện cho thời trang và sự đổi mới, thể hiện tinh thần luôn cập nhật những xu hướng tóc hiện đại, tinh tế và phù hợp với từng khách hàng. “C – Mirror Confidence” là sự tự tin khi nhìn vào chính mình trong gương, bởi chúng tôi tin rằng một diện mạo mới có thể mang đến nguồn năng lượng tích cực và sự tự tin trong cuộc sống.
+
+        Bên cạnh đó, “M – Masterpiece Creation” còn mang ý nghĩa tạo nên những tác phẩm nghệ thuật trên mái tóc bằng kỹ thuật, sự tỉ mỉ và niềm đam mê của đội ngũ hairstylist tại MC Hair. Mỗi kiểu tóc không chỉ đơn thuần là làm đẹp mà còn là dấu ấn riêng dành cho từng khách hàng.
+
+        MC Hair cũng theo đuổi hai giá trị quan trọng là “Mộc – Chân” và “Mỹ – Chất”. “Mộc – Chân” thể hiện sự tự nhiên và chân thành trong từng trải nghiệm, từ cách lắng nghe, tư vấn đến việc lựa chọn giải pháp phù hợp nhất cho mái tóc. “Mỹ – Chất” là vẻ đẹp đi cùng chất lượng bền vững, nơi mái tóc không chỉ đẹp bên ngoài mà còn được chăm sóc khỏe mạnh từ bên trong.
+
+        Không đơn thuần là một salon tóc, MC Hair mong muốn trở thành nơi đồng hành cùng khách hàng trên hành trình thay đổi bản thân, khám phá vẻ đẹp riêng và tạo nên những cơ hội mới trong cuộc sống.
+        """;
 
     public const string MissionTitle = "Sứ mệnh";
 

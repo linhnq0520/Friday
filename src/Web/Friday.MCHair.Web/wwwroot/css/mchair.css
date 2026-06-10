@@ -427,6 +427,17 @@ a.partner-card:hover { color: inherit; }
 .content-block + .content-block { margin-top: 2rem; }
 .content-block h2 { color: var(--brand); margin-bottom: .75rem; }
 .content-block p { color: var(--text); }
+.about-story p + p { margin-top: 1rem; }
+.about-tagline {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--brand);
+    text-align: center;
+    line-height: 1.55;
+}
 .policy-list { padding-left: 1.2rem; }
 .policy-list li { margin-bottom: .5rem; }
 

@@ -25,7 +25,7 @@
         <h1>@(hero?.Title ?? "MC Hair Salon")</h1>
         <p class="hero-text">@(hero?.Body ?? "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá cho từng khách hàng.")</p>
         <div class="hero-actions">
-            <a class="btn btn-primary" asp-controller="Booking" asp-action="Index">Đặt lịch ngay</a>
+            @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch ngay" })
             <a class="btn btn-outline" asp-controller="Services" asp-action="Index">Xem bảng giá</a>
         </div>
     </div>
@@ -107,7 +107,7 @@
                     <p>@service.Description</p>
                     <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
                     <div class="rating">@service.RatingDisplay ★ đánh giá</div>
-                    <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-serviceId="@service.Id">Đặt lịch ngay</a>
+                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = "Đặt lịch ngay", serviceId = service.Id })
                 </article>
             }
         </div>
@@ -180,7 +180,7 @@
                         <img src="@(stylist.ImageUrl ?? "/resources/khong_gian/khong-gian9.jpg")" alt="@stylist.Name" loading="lazy" />
                     </div>
                     <h3>@stylist.Name</h3>
-                    <a class="btn btn-sm" asp-controller="Booking" asp-action="Index" asp-route-stylistId="@stylist.Id">Đặt lịch ngay</a>
+                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = "Đặt lịch ngay", stylistId = stylist.Id })
                 </article>
             }
         </div>

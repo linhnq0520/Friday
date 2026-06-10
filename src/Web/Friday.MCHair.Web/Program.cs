@@ -40,6 +40,7 @@ builder.Services.AddLinKitCqrs();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped<IPriceListStore, PriceListStore>();
+builder.Services.AddScoped<IWarrantyStore, WarrantyStore>();
 builder.Services.AddControllersWithViews();
 
 builder
@@ -59,6 +60,7 @@ WebApplication app = builder.Build();
 await SalonDbMigrationStartup.ApplyMigrationsAsync(app.Services, app.Configuration);
 await SalonDataSeeder.SeedAsync(app.Services);
 await EnsurePriceListSeededAsync(app.Services);
+await EnsureWarrantySeededAsync(app.Services);
 await EnsureSiteContactSettingsAsync(app.Services);
 await EnsureGalleryFromResourcesAsync(app.Services);
 await EnsureShowcaseFromResourcesAsync(app.Services);
@@ -130,6 +132,48 @@ static async Task EnsurePriceListSeededAsync(IServiceProvider services)
     await unitOfWork.CommitAsync();
 }
 
+static async Task EnsureWarrantySeededAsync(IServiceProvider services)
+{
+    const string warrantyVersionKey = "warranty_page_version";
+    const string currentWarrantyVersion = "2026-06-periods";
+
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IWarrantyStore store = scope.ServiceProvider.GetRequiredService<IWarrantyStore>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync();
+
+    bool needsSeed = !settings.ContainsKey(WarrantyStore.SettingKey);
+    bool needsPeriodSync =
+        settings.GetValueOrDefault(warrantyVersionKey) != currentWarrantyVersion;
+
+    if (!needsSeed && !needsPeriodSync)
+    {
+        return;
+    }
+
+    if (needsSeed)
+    {
+        await store.SaveAsync(WarrantyDefaults.Create());
+    }
+    else
+    {
+        WarrantyPageData data = await store.GetAsync();
+        WarrantySectionData? periodsSection = data.Sections.FirstOrDefault(section =>
+            section.Title.Contains("Thời gian bảo hành", StringComparison.OrdinalIgnoreCase)
+        );
+
+        if (periodsSection is not null)
+        {
+            periodsSection.Body = WarrantyDefaults.WarrantyPeriodsBody;
+            await store.SaveAsync(data);
+        }
+    }
+
+    await repository.UpsertSettingAsync(warrantyVersionKey, currentWarrantyVersion);
+    await unitOfWork.CommitAsync();
+}
+
 static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
 {
     await using AsyncServiceScope scope = services.CreateAsyncScope();
@@ -163,7 +207,7 @@ static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
     if (
         !settings.TryGetValue("zalo", out string? zalo)
         || string.IsNullOrWhiteSpace(zalo)
-        || zalo == "0900123456"
+        || zalo == SiteContent.DefaultZaloPhone
     )
     {
         await repository.UpsertSettingAsync("zalo", SiteContent.DefaultZaloPhone);
@@ -173,6 +217,24 @@ static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)
     if (!settings.ContainsKey("messenger_url"))
     {
         await repository.UpsertSettingAsync("messenger_url", SiteContent.DefaultMessengerUrl);
+        changed = true;
+    }
+
+    if (!settings.ContainsKey(BookingSettings.ModeKey))
+    {
+        await repository.UpsertSettingAsync(
+            BookingSettings.ModeKey,
+            SiteContent.DefaultBookingMode
+        );
+        changed = true;
+    }
+
+    if (!settings.ContainsKey(BookingSettings.ExternalUrlKey))
+    {
+        await repository.UpsertSettingAsync(
+            BookingSettings.ExternalUrlKey,
+            SiteContent.DefaultBookingEasySalonUrl
+        );
         changed = true;
     }
 

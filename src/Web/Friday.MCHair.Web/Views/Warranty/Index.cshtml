@@ -1,59 +1,41 @@
+@model WarrantyPageData
+@using Friday.MCHair.Web.Models
+
 <section class="page-hero">
     <div class="container">
         <p class="eyebrow">MC Hair Salon</p>
-        <h1>Chế độ bảo hành</h1>
-        <p class="lead">Cam kết chất lượng dịch vụ và sự hài lòng của khách hàng sau mỗi lần làm tóc.</p>
+        <h1>@Model.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Lead))
+        {
+            <p class="lead">@Model.Lead</p>
+        }
     </div>
 </section>
 
 <section class="section">
     <div class="container narrow-content">
-        <div class="content-block">
-            <h2>1. Phạm vi bảo hành</h2>
-            <p>
-                MC Hair áp dụng chế độ bảo hành cho các dịch vụ nhuộm, uốn, duỗi và phục hồi tóc
-                trong thời gian quy định tùy theo từng loại dịch vụ. Bảo hành áp dụng khi sản phẩm
-                và kỹ thuật thực hiện đúng quy trình chuẩn của salon.
-            </p>
-        </div>
-
-        <div class="content-block">
-            <h2>2. Thời gian bảo hành</h2>
-            <ul class="policy-list">
-                <li><strong>Nhuộm tóc:</strong> 7–14 ngày (tùy loại màu và tình trạng tóc).</li>
-                <li><strong>Uốn / duỗi:</strong> 7–30 ngày (tùy kỹ thuật và chất tóc).</li>
-                <li><strong>Phục hồi hư tổn:</strong> 7 ngày – hỗ trợ tư vấn và chăm sóc bổ sung.</li>
-                <li><strong>Cắt tóc:</strong> Chỉnh sửa nhẹ trong 7 ngày nếu chưa phù hợp mong muốn.</li>
-            </ul>
-        </div>
-
-        <div class="content-block">
-            <h2>3. Điều kiện áp dụng</h2>
-            <ul class="policy-list">
-                <li>Khách hàng giữ hóa đơn hoặc xác nhận đặt lịch tại MC Hair.</li>
-                <li>Tóc được chăm sóc theo hướng dẫn sau dịch vụ của stylist.</li>
-                <li>Không tự ý dùng hóa chất, nhuộm hoặc xử lý nhiệt quá mức tại nơi khác trong thời gian bảo hành.</li>
-                <li>Liên hệ salon trước khi đến để được sắp xếp thời gian chỉnh sửa.</li>
-            </ul>
-        </div>
-
-        <div class="content-block">
-            <h2>4. Trường hợp không áp dụng</h2>
-            <ul class="policy-list">
-                <li>Tóc hư tổn nặng do tự chăm sóc sai cách sau dịch vụ.</li>
-                <li>Yêu cầu thay đổi kiểu/màu hoàn toàn khác so với dịch vụ ban đầu.</li>
-                <li>Quá thời hạn bảo hành đã thông báo khi làm dịch vụ.</li>
-            </ul>
-        </div>
-
-        <div class="content-block">
-            <h2>5. Liên hệ hỗ trợ</h2>
-            <p>
-                Mọi thắc mắc về bảo hành, vui lòng liên hệ hotline
-                <strong id="warranty-hotline">0900 123 456</strong> hoặc nhắn tin qua
-                <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener">fanpage MC Hair</a>.
-            </p>
-        </div>
+        @foreach (var block in Model.Sections)
+        {
+            <div class="content-block">
+                @if (!string.IsNullOrWhiteSpace(block.Title))
+                {
+                    <h2>@block.Title</h2>
+                }
+                @if (string.Equals(block.Format, "list", StringComparison.OrdinalIgnoreCase))
+                {
+                    <ul class="policy-list">
+                        @foreach (var line in block.Body.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                        {
+                            <li>@Html.Raw(line)</li>
+                        }
+                    </ul>
+                }
+                else if (!string.IsNullOrWhiteSpace(block.Body))
+                {
+                    <p>@Html.Raw(block.Body)</p>
+                }
+            </div>
+        }
     </div>
 </section>
 

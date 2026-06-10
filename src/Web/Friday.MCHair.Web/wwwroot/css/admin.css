@@ -261,6 +261,27 @@
     margin-bottom: 1rem;
 }
 
+.warranty-section-editor {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+    background: #fff;
+}
+
+.warranty-section-editor-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.warranty-section-editor-head h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
 .price-list-reset-form {
     margin-top: 1rem;
 }

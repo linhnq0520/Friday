@@ -44,7 +44,7 @@
                 <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
                 <a asp-controller="News" asp-action="Index">Tin tức</a>
                 <a asp-controller="Warranty" asp-action="Index">Bảo hành</a>
-                <a class="btn-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn-book", label = "Đặt lịch" })
             </nav>
         </div>
     </header>
@@ -73,7 +73,7 @@
                 <a asp-controller="Services" asp-action="Index">Bảng giá</a>
                 <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
                 <a asp-controller="Warranty" asp-action="Index">Chế độ bảo hành</a>
-                <a asp-controller="Booking" asp-action="Index">Đặt lịch online</a>
+                @await Component.InvokeAsync("BookingLink", new { label = "Đặt lịch online" })
                 <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Fanpage Facebook</a>
                 <a href="/sitemap.xml">Sitemap</a>
             </div>

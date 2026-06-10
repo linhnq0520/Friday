@@ -1,0 +1,9 @@
+@model BookingLinkViewModel
+@if (Model.UseExternal)
+{
+    <a href="@Model.ExternalUrl" class="@Model.CssClass" target="_blank" rel="noopener noreferrer">@Model.Label</a>
+}
+else
+{
+    <a asp-controller="Booking" asp-action="Index" asp-route-serviceId="@Model.ServiceId" asp-route-stylistId="@Model.StylistId" class="@Model.CssClass">@Model.Label</a>
+}

@@ -1,0 +1,68 @@
+@model WarrantyPageData
+@{
+    ViewData["Title"] = "Chế độ bảo hành";
+}
+
+<p class="hint admin-lead">
+    Nội dung hiển thị tại trang <strong>/Warranty</strong>. Mục kiểu danh sách: mỗi dòng là một bullet (có thể dùng &lt;strong&gt;).
+</p>
+
+<form asp-action="Index" method="post" class="admin-form" id="warranty-form">
+    @Html.AntiForgeryToken()
+
+    <section class="admin-form">
+        <div class="form-group">
+            <label asp-for="Title">Tiêu đề trang</label>
+            <input asp-for="Title" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Lead">Mô tả ngắn (dưới tiêu đề)</label>
+            <textarea asp-for="Lead" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label asp-for="MetaDescription">Meta description (SEO)</label>
+            <textarea asp-for="MetaDescription" rows="2"></textarea>
+        </div>
+    </section>
+
+    <section class="admin-form" id="warranty-sections">
+        <h2>Các mục nội dung</h2>
+        @for (var i = 0; i < Model.Sections.Count; i++)
+        {
+            <article class="warranty-section-editor" data-section-index="@i">
+                <div class="warranty-section-editor-head">
+                    <h3>Mục @(i + 1)</h3>
+                    <button type="button" class="btn btn-sm js-remove-warranty-section">Xóa mục</button>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Sections[i].Title">Tiêu đề mục</label>
+                    <input asp-for="Sections[i].Title" placeholder="VD: 1. Phạm vi bảo hành" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Sections[i].Format">Kiểu hiển thị</label>
+                    <select asp-for="Sections[i].Format">
+                        <option value="paragraph">Đoạn văn</option>
+                        <option value="list">Danh sách (mỗi dòng một ý)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Sections[i].Body">Nội dung</label>
+                    <textarea asp-for="Sections[i].Body" rows="5"></textarea>
+                </div>
+            </article>
+        }
+    </section>
+
+    <button type="button" class="btn btn-sm js-add-warranty-section">+ Thêm mục</button>
+
+    <div class="price-list-actions">
+        <button type="submit" class="btn btn-primary">Lưu bảo hành</button>
+    </div>
+</form>
+
+<form asp-action="Reset" method="post" class="price-list-reset-form" onsubmit="return confirm('Khôi phục nội dung bảo hành mặc định?');">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-sm">Khôi phục mặc định</button>
+</form>
+
+<script src="~/js/warranty-admin.js" asp-append-version="true"></script>

@@ -1,7 +1,13 @@
 @model IReadOnlyDictionary<string, string>
+@using Friday.MCHair.Web.Models
 @{
     ViewData["Title"] = "Cài đặt & SEO";
     string V(string key) => Model.GetValueOrDefault(key, "");
+    string bookingMode = V(BookingSettings.ModeKey);
+    if (string.IsNullOrWhiteSpace(bookingMode))
+    {
+        bookingMode = SiteContent.DefaultBookingMode;
+    }
 }
 
 <form method="post" class="admin-form">
@@ -18,6 +24,27 @@
     <div class="form-group"><label>Zalo (SĐT hoặc link)</label><input name="zalo" value="@V("zalo")" placeholder="0988305371 hoặc https://zalo.me/..." /></div>
     <div class="form-group"><label>Messenger (link m.me)</label><input name="messenger_url" value="@V("messenger_url")" placeholder="https://m.me/..." /></div>
     <div class="form-group"><label>Instagram</label><input name="instagram" value="@V("instagram")" /></div>
+    <h2>Đặt lịch</h2>
+    <div class="form-group">
+        <label>Chế độ đặt lịch</label>
+        <select name="@BookingSettings.ModeKey">
+            @if (bookingMode == BookingSettings.ModeEasySalon)
+            {
+                <option value="@BookingSettings.ModeEasySalon" selected>EasySalon (mở trang đặt lịch ngoài)</option>
+                <option value="@BookingSettings.ModeInternal">Form đặt lịch trên website</option>
+            }
+            else
+            {
+                <option value="@BookingSettings.ModeEasySalon">EasySalon (mở trang đặt lịch ngoài)</option>
+                <option value="@BookingSettings.ModeInternal" selected>Form đặt lịch trên website</option>
+            }
+        </select>
+        <p class="form-hint">EasySalon mở tab mới; form nội bộ dùng trang /Booking và quản lý lịch trong Admin.</p>
+    </div>
+    <div class="form-group">
+        <label>Link EasySalon</label>
+        <input name="@BookingSettings.ExternalUrlKey" value="@V(BookingSettings.ExternalUrlKey)" placeholder="@SiteContent.DefaultBookingEasySalonUrl" />
+    </div>
     <div class="form-group"><label>SEO Title</label><input name="seo_title" value="@V("seo_title")" /></div>
     <div class="form-group"><label>SEO Description</label><textarea name="seo_description" rows="3">@V("seo_description")</textarea></div>
     <button type="submit" class="btn btn-primary">Lưu</button>

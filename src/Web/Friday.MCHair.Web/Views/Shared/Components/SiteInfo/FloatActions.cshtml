@@ -23,6 +23,6 @@
         </a>
     </div>
     <div class="float-book-wrap">
-        <a class="float-book" asp-controller="Booking" asp-action="Index">Đặt lịch</a>
+        @await Component.InvokeAsync("BookingLink", new { cssClass = "float-book", label = "Đặt lịch" })
     </div>
 </div>

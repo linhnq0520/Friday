@@ -1,12 +1,13 @@
 using Friday.MCHair.Web.Models;
 using Friday.Modules.Salon.Application.Features;
 using Friday.Modules.Salon.Application.Models;
+using Friday.Modules.Salon.Domain.Repositories;
 using LinKit.Core.Cqrs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Controllers;
 
-public sealed class BookingController(IMediator mediator) : Controller
+public sealed class BookingController(IMediator mediator, ISalonRepository repository) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -15,6 +16,15 @@ public sealed class BookingController(IMediator mediator) : Controller
         CancellationToken cancellationToken
     )
     {
+        IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync(
+            cancellationToken
+        );
+
+        if (BookingSettings.IsExternalMode(settings))
+        {
+            return Redirect(BookingSettings.GetExternalUrl(settings));
+        }
+
         BookingFormDto form = await mediator.QueryAsync(new GetBookingFormQuery(), cancellationToken);
         ViewData["Title"] = "Đặt lịch | MCHair Salon";
         ViewData["MetaDescription"] =
