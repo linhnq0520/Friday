@@ -73,4 +73,6 @@ public static class GalleryCategoryLabels
 public static class SeoDefaults
 {
     public const string SiteName = "MC Hair Salon";
+    public const string GoogleSiteVerification =
+        "Wl2m3g0qP_w8DCxyMUrNzxEzA4QLjdwvypX-nh5P0hQ";
 }
