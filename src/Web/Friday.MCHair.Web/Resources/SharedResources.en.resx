@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>About</value></data>
+  <data name="Nav_Services" xml:space="preserve"><value>Services</value></data>
+  <data name="Nav_Gallery" xml:space="preserve"><value>Gallery</value></data>
+  <data name="Nav_News" xml:space="preserve"><value>News</value></data>
+  <data name="Nav_Warranty" xml:space="preserve"><value>Warranty</value></data>
+  <data name="Nav_Booking" xml:space="preserve"><value>Book now</value></data>
+  <data name="Nav_BookingOnline" xml:space="preserve"><value>Online booking</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="Common_BookingNow" xml:space="preserve"><value>Book now</value></data>
+  <data name="Common_SeeMore" xml:space="preserve"><value>See more →</value></data>
+  <data name="Common_ViewAll" xml:space="preserve"><value>View all</value></data>
+  <data name="Common_ViewDetails" xml:space="preserve"><value>View details</value></data>
+  <data name="Common_Hotline" xml:space="preserve"><value>Hotline:</value></data>
+  <data name="Common_PriceFrom" xml:space="preserve"><value>From:</value></data>
+  <data name="Common_Rating" xml:space="preserve"><value>rating</value></data>
+  <data name="Common_Images" xml:space="preserve"><value>photos</value></data>
+  <data name="Common_BackToTop" xml:space="preserve"><value>Back to top</value></data>
+  <data name="Common_BackHome" xml:space="preserve"><value>Back to home</value></data>
+  <data name="Footer_Description" xml:space="preserve"><value>Modern hair salon — cut, color, perm and repair in Ho Chi Minh City.</value></data>
+  <data name="Footer_Links" xml:space="preserve"><value>Links</value></data>
+  <data name="Footer_PriceList" xml:space="preserve"><value>Price list</value></data>
+  <data name="Footer_WarrantyPolicy" xml:space="preserve"><value>Warranty policy</value></data>
+  <data name="Footer_Facebook" xml:space="preserve"><value>Facebook fanpage</value></data>
+  <data name="Footer_Copyright" xml:space="preserve"><value>MC Hair Salon. All rights reserved.</value></data>
+  <data name="Lang_VI" xml:space="preserve"><value>VI</value></data>
+  <data name="Lang_EN" xml:space="preserve"><value>EN</value></data>
+  <data name="Lang_SwitchAria" xml:space="preserve"><value>Choose language</value></data>
+  <data name="Float_Book" xml:space="preserve"><value>Book now</value></data>
+  <data name="Float_Zalo" xml:space="preserve"><value>Chat Zalo MC Hair</value></data>
+  <data name="Float_Messenger" xml:space="preserve"><value>Message MC Hair on Messenger</value></data>
+  <data name="Float_Call" xml:space="preserve"><value>Call hotline {0}</value></data>
+  <data name="Float_Contact" xml:space="preserve"><value>Quick contact</value></data>
+  <data name="Home_HeroLead" xml:space="preserve"><value>Opening a new door to beauty, confidence and new opportunities.</value></data>
+  <data name="Home_ViewPriceList" xml:space="preserve"><value>View price list</value></data>
+  <data name="Home_AboutMore" xml:space="preserve"><value>Our mission &amp; vision →</value></data>
+  <data name="Home_SpaceTitle" xml:space="preserve"><value>MC Hair space</value></data>
+  <data name="Home_SpaceLead" xml:space="preserve"><value>Modern, welcoming design — where you find confidence and your own style.</value></data>
+  <data name="Home_SpaceAlt" xml:space="preserve"><value>MC Hair Salon interior</value></data>
+  <data name="Home_Promotions" xml:space="preserve"><value>Promotions</value></data>
+  <data name="Home_BeforeAfterLead" xml:space="preserve"><value>See our clients' transformation journeys at MC Hair Salon.</value></data>
+  <data name="Home_StylistsTitle" xml:space="preserve"><value>MC Hair stylists</value></data>
+  <data name="Home_StylistsLead" xml:space="preserve"><value>Experienced, creative and dedicated hair artists.</value></data>
+  <data name="Home_HeroAria" xml:space="preserve"><value>MC Hair space</value></data>
+  <data name="Home_GalleryFallbackTitle" xml:space="preserve"><value>Hot hairstyles</value></data>
+  <data name="Home_GalleryFallbackBody" xml:space="preserve"><value>Welcome to MC Hair Salon. Explore our collection of stunning looks to elevate your style.</value></data>
+  <data name="Home_AboutFallbackTitle" xml:space="preserve"><value>About MC Hair</value></data>
+  <data name="Home_ServicesFallbackTitle" xml:space="preserve"><value>Hair services</value></data>
+  <data name="Home_FeedbackFallbackTitle" xml:space="preserve"><value>Client feedback</value></data>
+  <data name="Home_FeedbackFallbackBody" xml:space="preserve"><value>What our clients share about their experience at MC Hair Salon.</value></data>
+  <data name="Home_PartnersFallbackTitle" xml:space="preserve"><value>Partners</value></data>
+  <data name="Home_PartnersFallbackBody" xml:space="preserve"><value>We partner with trusted professional hair care brands.</value></data>
+  <data name="About_Title" xml:space="preserve"><value>About us</value></data>
+  <data name="About_Lead" xml:space="preserve"><value>Opening a new door to beauty, confidence and new opportunities.</value></data>
+  <data name="About_CoreValuesTitle" xml:space="preserve"><value>Core values</value></data>
+  <data name="About_CoreValuesLead" xml:space="preserve"><value>Principles that shape every experience at MC Hair.</value></data>
+  <data name="About_CtaTitle" xml:space="preserve"><value>Ready for a new look?</value></data>
+  <data name="About_CtaLead" xml:space="preserve"><value>Book now for a style consultation tailored to you.</value></data>
+  <data name="Services_Title" xml:space="preserve"><value>Services &amp; pricing</value></data>
+  <data name="Services_Lead" xml:space="preserve"><value>Transparent pricing — personalized consultation and design.</value></data>
+  <data name="Services_OpeningHours" xml:space="preserve"><value>Opening hours:</value></data>
+  <data name="Services_QuickBookingTitle" xml:space="preserve"><value>Quick booking</value></data>
+  <data name="Services_QuickBookingLead" xml:space="preserve"><value>Choose a main service group to book online.</value></data>
+  <data name="Services_SizeGuideTitle" xml:space="preserve"><value>Hair length</value></data>
+  <data name="Services_SizeGuideLead" xml:space="preserve"><value>Many service prices depend on hair length. Refer to the size guide below:</value></data>
+  <data name="Services_CtaTitle" xml:space="preserve"><value>Need more advice?</value></data>
+  <data name="Services_CtaLead" xml:space="preserve"><value>Contact MC Hair for stylist consultation and detailed pricing.</value></data>
+  <data name="Gallery_Title" xml:space="preserve"><value>Gallery</value></data>
+  <data name="Gallery_Lead" xml:space="preserve"><value>Explore featured hairstyle collections at MC Hair Salon.</value></data>
+  <data name="News_Title" xml:space="preserve"><value>News &amp; promotions</value></data>
+  <data name="Booking_Title" xml:space="preserve"><value>Book appointment</value></data>
+  <data name="Booking_Lead" xml:space="preserve"><value>Choose service, stylist (optional) and preferred time.</value></data>
+  <data name="Booking_Name" xml:space="preserve"><value>Full name *</value></data>
+  <data name="Booking_Phone" xml:space="preserve"><value>Phone *</value></data>
+  <data name="Booking_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Booking_Service" xml:space="preserve"><value>Service *</value></data>
+  <data name="Booking_Stylist" xml:space="preserve"><value>Stylist (optional)</value></data>
+  <data name="Booking_StylistDefault" xml:space="preserve"><value>Salon will assign</value></data>
+  <data name="Booking_Date" xml:space="preserve"><value>Date *</value></data>
+  <data name="Booking_Time" xml:space="preserve"><value>Time *</value></data>
+  <data name="Booking_Notes" xml:space="preserve"><value>Notes</value></data>
+  <data name="Booking_Submit" xml:space="preserve"><value>Submit booking</value></data>
+  <data name="Booking_Success" xml:space="preserve"><value>Booking received! We will contact you to confirm shortly.</value></data>
+  <data name="Meta_Home" xml:space="preserve"><value>MC Hair Salon | Hair salon in Ho Chi Minh City</value></data>
+  <data name="Meta_About" xml:space="preserve"><value>About | MC Hair Salon</value></data>
+  <data name="Meta_Services" xml:space="preserve"><value>Services &amp; pricing | MC Hair Salon</value></data>
+  <data name="Meta_Gallery" xml:space="preserve"><value>Gallery | MC Hair Salon</value></data>
+  <data name="Meta_News" xml:space="preserve"><value>News | MC Hair Salon</value></data>
+  <data name="Meta_Booking" xml:space="preserve"><value>Book appointment | MC Hair Salon</value></data>
+  <data name="Meta_AboutDescription" xml:space="preserve"><value>Mission, vision and core values of MC Hair Salon – modern hair salon in Ho Chi Minh City.</value></data>
+  <data name="Meta_BookingDescription" xml:space="preserve"><value>Book haircut, color or perm at MC Hair Salon. Choose service, stylist and time slot.</value></data>
+  <data name="Gallery_FashionColor" xml:space="preserve"><value>Fashion color</value></data>
+  <data name="Gallery_TrendingStyle" xml:space="preserve"><value>Trending styles</value></data>
+  <data name="Gallery_HairRecovery" xml:space="preserve"><value>Damage repair</value></data>
+  <data name="Gallery_HairExtensions" xml:space="preserve"><value>Hair extensions</value></data>
+  <data name="Gallery_BeforeAfter" xml:space="preserve"><value>Before &amp; After</value></data>
+</root>

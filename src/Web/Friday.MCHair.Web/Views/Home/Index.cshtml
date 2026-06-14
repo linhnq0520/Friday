@@ -1,18 +1,17 @@
 ﻿@model HomeIndexViewModel
-@using Friday.MCHair.Web.Models
+@using Friday.MCHair.Web.Localization
 @{
-    var hero = Model.GetSection("hero");
-    var hotGallery = Model.GetSection("gallery_intro");
-    var about = Model.GetSection("about");
-    var servicesIntro = Model.GetSection("services_intro");
-    var partnersIntro = Model.GetSection("partners_intro");
-    var feedbackIntro = Model.GetSection("feedback_intro");
-    var missionPreview = SiteContent.MissionBody
-        .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .FirstOrDefault() ?? string.Empty;
+    var hero = LocalizationExtensions.LocalizeSection(Model.GetSection("hero"));
+    var hotGallery = LocalizationExtensions.LocalizeSection(Model.GetSection("gallery_intro"));
+    var about = LocalizationExtensions.LocalizeSection(Model.GetSection("about"));
+    var servicesIntro = LocalizationExtensions.LocalizeSection(Model.GetSection("services_intro"));
+    var partnersIntro = LocalizationExtensions.LocalizeSection(Model.GetSection("partners_intro"));
+    var feedbackIntro = LocalizationExtensions.LocalizeSection(Model.GetSection("feedback_intro"));
+    var missionPreview = SiteContent.SplitParagraphs(LocalizedSiteContent.MissionBody).FirstOrDefault() ?? string.Empty;
+    bool isEn = CultureHelper.IsEnglish;
 }
 
-<section class="hero-slider" aria-label="Không gian MC Hair">
+<section class="hero-slider" aria-label="@Localizer["Home_HeroAria"]">
     <div class="hero-slides">
         @for (var i = 0; i < SiteContent.HeroSlides.Length; i++)
         {
@@ -23,10 +22,10 @@
     <div class="container hero-content">
         <p class="eyebrow">@Model.GetSetting("tagline", "Salon làm tóc chuyên nghiệp")</p>
         <h1>@(hero?.Title ?? "MC Hair Salon")</h1>
-        <p class="hero-text">@(hero?.Body ?? "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá cho từng khách hàng.")</p>
+        <p class="hero-text">@(hero?.Body ?? (isEn ? "A modern, refined and personalized beauty experience." : "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá cho từng khách hàng."))</p>
         <div class="hero-actions">
-            @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch ngay" })
-            <a class="btn btn-outline" asp-controller="Services" asp-action="Index">Xem bảng giá</a>
+            @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Common_BookingNow"].Value })
+            <a class="btn btn-outline" asp-controller="Services" asp-action="Index">@Localizer["Home_ViewPriceList"]</a>
         </div>
     </div>
     <div class="hero-dots" role="tablist" aria-label="Chọn ảnh">
@@ -40,8 +39,8 @@
 <section class="section section-hot-gallery" id="collections">
     <div class="container">
         <div class="section-head center">
-            <h2>@(hotGallery?.Title ?? "Mẫu tóc hot")</h2>
-            <p>@(hotGallery?.Body ?? "Chào mừng Quý khách đến với MC Hair Salon. Dưới đây là bộ sưu tập những mẫu tóc đẹp giúp nâng tầm vẻ đẹp của bạn.")</p>
+            <h2>@(hotGallery?.Title ?? Localizer["Home_GalleryFallbackTitle"].Value)</h2>
+            <p>@(hotGallery?.Body ?? Localizer["Home_GalleryFallbackBody"].Value)</p>
         </div>
         <div class="collection-grid four">
             @foreach (var collection in Model.Page.GalleryCollections)
@@ -53,7 +52,7 @@
                     </div>
                     <div class="collection-card-body">
                         <h3>@GalleryCategoryLabels.GetLabel(collection.Category)</h3>
-                        <span class="collection-card-link">Xem thêm →</span>
+                        <span class="collection-card-link">@Localizer["Common_SeeMore"]</span>
                     </div>
                 </a>
             }
@@ -64,9 +63,9 @@
 <section class="section" id="about">
     <div class="container about-teaser">
         <div class="about-teaser-copy">
-            <h2>@(about?.Title ?? "Về MC Hair")</h2>
+            <h2>@(about?.Title ?? Localizer["Home_AboutFallbackTitle"].Value)</h2>
             <p>@(about?.Body ?? missionPreview)</p>
-            <a class="link-more" asp-controller="About" asp-action="Index">Tìm hiểu sứ mệnh &amp; tầm nhìn →</a>
+            <a class="link-more" asp-controller="About" asp-action="Index">@Localizer["Home_AboutMore"]</a>
         </div>
         <div class="about-teaser-image" style="background-image:url('@SiteContent.LogoPath')"></div>
     </div>
@@ -75,14 +74,14 @@
 <section class="section section-alt" id="space">
     <div class="container">
         <div class="section-head center">
-            <h2>Không gian MC Hair</h2>
-            <p>Thiết kế hiện đại, ấm cúng – nơi bạn tìm thấy sự tự tin và phong cách riêng.</p>
+            <h2>@Localizer["Home_SpaceTitle"]</h2>
+            <p>@Localizer["Home_SpaceLead"]</p>
         </div>
-        <div class="space-scroll" tabindex="0" aria-label="Ảnh không gian salon">
+        <div class="space-scroll" tabindex="0" aria-label="@Localizer["Home_SpaceAlt"]">
             @foreach (var image in SiteContent.SpaceShowcase)
             {
                 <figure class="space-card">
-                    <img src="@image" alt="Không gian MC Hair Salon" loading="lazy" />
+                    <img src="@image" alt="@Localizer["Home_SpaceAlt"]" loading="lazy" />
                 </figure>
             }
         </div>
@@ -92,9 +91,9 @@
 <section class="section" id="services">
     <div class="container">
         <div class="section-head center">
-            <h2>@(servicesIntro?.Title ?? "Dịch vụ tóc")</h2>
+            <h2>@(servicesIntro?.Title ?? Localizer["Home_ServicesFallbackTitle"].Value)</h2>
             <p>@(servicesIntro?.Body)</p>
-            <a class="link-more" asp-controller="Services" asp-action="Index">Xem tất cả</a>
+            <a class="link-more" asp-controller="Services" asp-action="Index">@Localizer["Common_ViewAll"]</a>
         </div>
         <div class="card-grid four">
             @foreach (var service in Model.Page.Services)
@@ -103,11 +102,11 @@
                     <div class="service-card-image">
                         <img src="@(service.ImageUrl ?? "/resources/khong_gian/khong-gian10.jpg")" alt="@service.Name" loading="lazy" />
                     </div>
-                    <h3>@service.Name</h3>
-                    <p>@service.Description</p>
-                    <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> vnđ</p>
-                    <div class="rating">@service.RatingDisplay ★ đánh giá</div>
-                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = "Đặt lịch ngay", serviceId = service.Id })
+                    <h3>@CatalogTranslations.ServiceName(service.Name, isEn)</h3>
+                    <p>@CatalogTranslations.ServiceDescription(service.Name, service.Description, isEn)</p>
+                    <p class="price">@Localizer["Common_PriceFrom"] <strong>@service.PriceFrom.ToString("N0")</strong> @(isEn ? "VND" : "vnđ")</p>
+                    <div class="rating">@service.RatingDisplay ★ @Localizer["Common_Rating"]</div>
+                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = Localizer["Common_BookingNow"].Value, serviceId = service.Id })
                 </article>
             }
         </div>
@@ -117,7 +116,7 @@
 <section class="section section-alt" id="promotions">
     <div class="container">
         <div class="section-head center">
-            <h2>Chương trình khuyến mãi</h2>
+            <h2>@Localizer["Home_Promotions"]</h2>
         </div>
         <div class="promo-list">
             @foreach (var promo in Model.Page.Promotions)
@@ -125,7 +124,7 @@
                 <article class="promo-item">
                     <h3>@promo.Title</h3>
                     <p>@promo.Summary</p>
-                    <a asp-controller="News" asp-action="Index">Xem chi tiết</a>
+                    <a asp-controller="News" asp-action="Index">@Localizer["Common_ViewDetails"]</a>
                 </article>
             }
         </div>
@@ -135,8 +134,8 @@
 <section class="section" id="feedback">
     <div class="container">
         <div class="section-head center">
-            <h2>@(feedbackIntro?.Title ?? "Feedback khách hàng")</h2>
-            <p>@(feedbackIntro?.Body ?? "Dưới đây là những chia sẻ và cảm nhận của khách hàng khi sử dụng dịch vụ tại MC Hair Salon.")</p>
+            <h2>@(feedbackIntro?.Title ?? Localizer["Home_FeedbackFallbackTitle"].Value)</h2>
+            <p>@(feedbackIntro?.Body ?? Localizer["Home_FeedbackFallbackBody"].Value)</p>
         </div>
         <div class="space-scroll feedback-scroll" tabindex="0" aria-label="Feedback khách hàng">
             @foreach (var item in Model.Page.FeedbackShowcase)
@@ -153,7 +152,7 @@
     <div class="container">
         <div class="section-head center">
             <h2>Before &amp; After</h2>
-            <p>Cùng nhìn lại hành trình thay đổi diện mạo của khách hàng tại MC Hair Salon.</p>
+            <p>@Localizer["Home_BeforeAfterLead"]</p>
         </div>
         <div class="space-scroll before-after-scroll" tabindex="0" aria-label="Ảnh Before và After">
             @foreach (var item in Model.Page.BeforeAfterShowcase)
@@ -169,8 +168,8 @@
 <section class="section" id="stylists">
     <div class="container">
         <div class="section-head center">
-            <h2>MC Hair Stylist</h2>
-            <p>Đội ngũ nghệ sĩ tóc giàu kinh nghiệm, sáng tạo và tận tâm.</p>
+            <h2>@Localizer["Home_StylistsTitle"]</h2>
+            <p>@Localizer["Home_StylistsLead"]</p>
         </div>
         <div class="card-grid three">
             @foreach (var stylist in Model.Page.Stylists)
@@ -180,7 +179,7 @@
                         <img src="@(stylist.ImageUrl ?? "/resources/khong_gian/khong-gian9.jpg")" alt="@stylist.Name" loading="lazy" />
                     </div>
                     <h3>@stylist.Name</h3>
-                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = "Đặt lịch ngay", stylistId = stylist.Id })
+                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = Localizer["Common_BookingNow"].Value, stylistId = stylist.Id })
                 </article>
             }
         </div>
@@ -190,8 +189,8 @@
 <section class="section section-alt" id="partners">
     <div class="container">
         <div class="section-head center">
-            <h2>@(partnersIntro?.Title ?? "Đối tác")</h2>
-            <p>@(partnersIntro?.Body ?? "Kết hợp với các thương hiệu chăm sóc tóc uy tín tại MC Hair Salon.")</p>
+            <h2>@(partnersIntro?.Title ?? Localizer["Home_PartnersFallbackTitle"].Value)</h2>
+            <p>@(partnersIntro?.Body ?? Localizer["Home_PartnersFallbackBody"].Value)</p>
         </div>
         <div class="partners-grid">
             @foreach (var partner in Model.Page.Partners)
@@ -210,7 +209,7 @@
                     <h3>@partner.Name</h3>
                     @if (!string.IsNullOrWhiteSpace(partner.Description))
                     {
-                        <p>@partner.Description</p>
+                        <p>@CatalogTranslations.PartnerDescription(partner.Name, partner.Description, isEn)</p>
                     }
                 </article>
             }

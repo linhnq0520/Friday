@@ -1,7 +1,9 @@
+using System.Globalization;
 using Friday.BuildingBlocks.Application;
 using Friday.BuildingBlocks.Application.Abstractions;
 using Friday.BuildingBlocks.Infrastructure.Persistence;
 using Friday.MCHair.Web.Cqrs;
+using Friday.MCHair.Web.Localization;
 using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Application;
@@ -14,6 +16,7 @@ using Friday.Modules.Salon.Infrastructure.Data;
 using Friday.Modules.Salon.Infrastructure.Persistence;
 using LinKit.Core.Cqrs;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -41,7 +44,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped<IPriceListStore, PriceListStore>();
 builder.Services.AddScoped<IWarrantyStore, WarrantyStore>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
+
+builder.Services.AddSingleton<IUiLocalizer, UiLocalizer>();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder
     .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -57,10 +65,24 @@ builder.Services.AddAuthorization();
 
 WebApplication app = builder.Build();
 
+RequestLocalizationOptions localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(CultureConstants.Vietnamese)
+    .AddSupportedCultures(CultureConstants.SupportedCultures)
+    .AddSupportedUICultures(CultureConstants.SupportedCultures);
+
+localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>
+{
+    new CookieRequestCultureProvider(),
+    new AcceptLanguageHeaderRequestCultureProvider(),
+};
+
+app.UseRequestLocalization(localizationOptions);
+
 await SalonDbMigrationStartup.ApplyMigrationsAsync(app.Services, app.Configuration);
 await SalonDataSeeder.SeedAsync(app.Services);
 await EnsurePriceListSeededAsync(app.Services);
 await EnsureWarrantySeededAsync(app.Services);
+await EnsureEnglishContentSeededAsync(app.Services);
 await EnsureSiteContactSettingsAsync(app.Services);
 await EnsureGalleryFromResourcesAsync(app.Services);
 await EnsureShowcaseFromResourcesAsync(app.Services);
@@ -172,6 +194,46 @@ static async Task EnsureWarrantySeededAsync(IServiceProvider services)
 
     await repository.UpsertSettingAsync(warrantyVersionKey, currentWarrantyVersion);
     await unitOfWork.CommitAsync();
+}
+
+static async Task EnsureEnglishContentSeededAsync(IServiceProvider services)
+{
+    await using AsyncServiceScope scope = services.CreateAsyncScope();
+    ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+    IReadOnlyDictionary<string, string> settings = await repository.GetSettingsAsync();
+    bool changed = false;
+
+    if (!settings.ContainsKey(PriceListStore.SettingKeyEn))
+    {
+        string json = System.Text.Json.JsonSerializer.Serialize(
+            PriceListDefaultsEn.Create(),
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            }
+        );
+        await repository.UpsertSettingAsync(PriceListStore.SettingKeyEn, json);
+        changed = true;
+    }
+
+    if (!settings.ContainsKey(WarrantyStore.SettingKeyEn))
+    {
+        string json = System.Text.Json.JsonSerializer.Serialize(
+            WarrantyDefaultsEn.Create(),
+            new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            }
+        );
+        await repository.UpsertSettingAsync(WarrantyStore.SettingKeyEn, json);
+        changed = true;
+    }
+
+    if (changed)
+    {
+        await unitOfWork.CommitAsync();
+    }
 }
 
 static async Task EnsureSiteContactSettingsAsync(IServiceProvider services)

@@ -10,15 +10,15 @@
 <section class="page-hero">
     <div class="container">
         <nav class="breadcrumb" aria-label="Breadcrumb">
-            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
             <span aria-hidden="true">/</span>
-            <a asp-action="Index">Bộ sưu tập</a>
+            <a asp-action="Index">@Localizer["Nav_Gallery"]</a>
             <span aria-hidden="true">/</span>
             <span>@categoryLabel</span>
         </nav>
         <h1>@categoryLabel</h1>
         <div class="filter-tabs">
-            <a asp-action="Index">Tất cả bộ sưu tập</a>
+            <a asp-action="Index">@Localizer["Common_ViewAll"]</a>
             @foreach (var cat in GalleryCategoryInfo.CollectionCategories)
             {
                 <a asp-action="Category" asp-route-category="@((int)cat)" class="@(cat == category ? "active" : "")">@GalleryCategoryLabels.GetLabel(cat)</a>

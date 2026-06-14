@@ -1,3 +1,4 @@
+using Friday.MCHair.Web.Localization;
 using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Application.Features;
@@ -11,7 +12,8 @@ namespace Friday.MCHair.Web.Controllers;
 public sealed class ServicesController(
     IMediator mediator,
     ISalonRepository repository,
-    IPriceListStore priceListStore
+    IPriceListStore priceListStore,
+    IUiLocalizer localizer
 ) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -24,9 +26,10 @@ public sealed class ServicesController(
             cancellationToken
         );
         PriceListData priceList = await priceListStore.GetAsync(cancellationToken);
-        ViewData["Title"] = $"Dịch vụ & bảng giá | {settings.GetValueOrDefault("site_name", SeoDefaults.SiteName)}";
-        ViewData["MetaDescription"] =
-            "Bảng giá cắt tóc, nhuộm, uốn, duỗi, nối tóc và phục hồi tại MC Hair Salon. Hotline 0988305371.";
+        ViewData["Title"] = localizer["Meta_Services"].Value;
+        ViewData["MetaDescription"] = CultureHelper.IsEnglish
+            ? "Haircut, color, perm, extensions and repair pricing at MC Hair Salon. Hotline 0988305371."
+            : "Bảng giá cắt tóc, nhuộm, uốn, duỗi, nối tóc và phục hồi tại MC Hair Salon. Hotline 0988305371.";
         return View(
             new ServicesIndexViewModel
             {

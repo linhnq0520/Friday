@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Nav_Home" xml:space="preserve"><value>Trang chủ</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>Giới thiệu</value></data>
+  <data name="Nav_Services" xml:space="preserve"><value>Dịch vụ</value></data>
+  <data name="Nav_Gallery" xml:space="preserve"><value>Bộ sưu tập</value></data>
+  <data name="Nav_News" xml:space="preserve"><value>Tin tức</value></data>
+  <data name="Nav_Warranty" xml:space="preserve"><value>Bảo hành</value></data>
+  <data name="Nav_Booking" xml:space="preserve"><value>Đặt lịch</value></data>
+  <data name="Nav_BookingOnline" xml:space="preserve"><value>Đặt lịch online</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="Common_BookingNow" xml:space="preserve"><value>Đặt lịch ngay</value></data>
+  <data name="Common_SeeMore" xml:space="preserve"><value>Xem thêm →</value></data>
+  <data name="Common_ViewAll" xml:space="preserve"><value>Xem tất cả</value></data>
+  <data name="Common_ViewDetails" xml:space="preserve"><value>Xem chi tiết</value></data>
+  <data name="Common_Hotline" xml:space="preserve"><value>Hotline:</value></data>
+  <data name="Common_PriceFrom" xml:space="preserve"><value>Giá từ:</value></data>
+  <data name="Common_Rating" xml:space="preserve"><value>đánh giá</value></data>
+  <data name="Common_Images" xml:space="preserve"><value>ảnh</value></data>
+  <data name="Common_BackToTop" xml:space="preserve"><value>Về đầu trang</value></data>
+  <data name="Common_BackHome" xml:space="preserve"><value>Về trang chủ</value></data>
+  <data name="Footer_Description" xml:space="preserve"><value>Salon làm tóc hiện đại — cắt, nhuộm, uốn, phục hồi tại TP.HCM.</value></data>
+  <data name="Footer_Links" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="Footer_PriceList" xml:space="preserve"><value>Bảng giá</value></data>
+  <data name="Footer_WarrantyPolicy" xml:space="preserve"><value>Chế độ bảo hành</value></data>
+  <data name="Footer_Facebook" xml:space="preserve"><value>Fanpage Facebook</value></data>
+  <data name="Footer_Copyright" xml:space="preserve"><value>MC Hair Salon. All rights reserved.</value></data>
+  <data name="Lang_VI" xml:space="preserve"><value>VI</value></data>
+  <data name="Lang_EN" xml:space="preserve"><value>EN</value></data>
+  <data name="Lang_SwitchAria" xml:space="preserve"><value>Chọn ngôn ngữ</value></data>
+  <data name="Float_Book" xml:space="preserve"><value>Đặt lịch</value></data>
+  <data name="Float_Zalo" xml:space="preserve"><value>Chat Zalo MC Hair</value></data>
+  <data name="Float_Messenger" xml:space="preserve"><value>Nhắn Messenger MC Hair</value></data>
+  <data name="Float_Call" xml:space="preserve"><value>Gọi hotline {0}</value></data>
+  <data name="Float_Contact" xml:space="preserve"><value>Liên hệ nhanh</value></data>
+  <data name="Home_HeroLead" xml:space="preserve"><value>Mở ra cánh cửa mới cho vẻ đẹp, sự tự tin và những cơ hội mới.</value></data>
+  <data name="Home_ViewPriceList" xml:space="preserve"><value>Xem bảng giá</value></data>
+  <data name="Home_AboutMore" xml:space="preserve"><value>Tìm hiểu sứ mệnh &amp; tầm nhìn →</value></data>
+  <data name="Home_SpaceTitle" xml:space="preserve"><value>Không gian MC Hair</value></data>
+  <data name="Home_SpaceLead" xml:space="preserve"><value>Thiết kế hiện đại, ấm cúng – nơi bạn tìm thấy sự tự tin và phong cách riêng.</value></data>
+  <data name="Home_SpaceAlt" xml:space="preserve"><value>Không gian MC Hair Salon</value></data>
+  <data name="Home_Promotions" xml:space="preserve"><value>Chương trình khuyến mãi</value></data>
+  <data name="Home_BeforeAfterLead" xml:space="preserve"><value>Cùng nhìn lại hành trình thay đổi diện mạo của khách hàng tại MC Hair Salon.</value></data>
+  <data name="Home_StylistsTitle" xml:space="preserve"><value>MC Hair Stylist</value></data>
+  <data name="Home_StylistsLead" xml:space="preserve"><value>Đội ngũ nghệ sĩ tóc giàu kinh nghiệm, sáng tạo và tận tâm.</value></data>
+  <data name="Home_HeroAria" xml:space="preserve"><value>Không gian MC Hair</value></data>
+  <data name="Home_GalleryFallbackTitle" xml:space="preserve"><value>Mẫu tóc hot</value></data>
+  <data name="Home_GalleryFallbackBody" xml:space="preserve"><value>Chào mừng Quý khách đến với MC Hair Salon. Dưới đây là bộ sưu tập những mẫu tóc đẹp giúp nâng tầm vẻ đẹp của bạn.</value></data>
+  <data name="Home_AboutFallbackTitle" xml:space="preserve"><value>Về MC Hair</value></data>
+  <data name="Home_ServicesFallbackTitle" xml:space="preserve"><value>Dịch vụ tóc</value></data>
+  <data name="Home_FeedbackFallbackTitle" xml:space="preserve"><value>Feedback khách hàng</value></data>
+  <data name="Home_FeedbackFallbackBody" xml:space="preserve"><value>Dưới đây là những chia sẻ và cảm nhận của khách hàng khi sử dụng dịch vụ tại MC Hair Salon.</value></data>
+  <data name="Home_PartnersFallbackTitle" xml:space="preserve"><value>Đối tác</value></data>
+  <data name="Home_PartnersFallbackBody" xml:space="preserve"><value>Kết hợp với các thương hiệu chăm sóc tóc uy tín tại MC Hair Salon.</value></data>
+  <data name="About_Title" xml:space="preserve"><value>Giới thiệu</value></data>
+  <data name="About_Lead" xml:space="preserve"><value>Mở ra cánh cửa mới cho vẻ đẹp, sự tự tin và những cơ hội mới.</value></data>
+  <data name="About_CoreValuesTitle" xml:space="preserve"><value>Giá trị cốt lõi</value></data>
+  <data name="About_CoreValuesLead" xml:space="preserve"><value>Những nguyên tắc định hình mọi trải nghiệm tại MC Hair.</value></data>
+  <data name="About_CtaTitle" xml:space="preserve"><value>Sẵn sàng thay đổi diện mạo?</value></data>
+  <data name="About_CtaLead" xml:space="preserve"><value>Đặt lịch ngay để được tư vấn kiểu tóc phù hợp với phong cách của bạn.</value></data>
+  <data name="Services_Title" xml:space="preserve"><value>Dịch vụ &amp; bảng giá</value></data>
+  <data name="Services_Lead" xml:space="preserve"><value>Bảng giá minh bạch — tư vấn và thiết kế phù hợp từng khách hàng.</value></data>
+  <data name="Services_OpeningHours" xml:space="preserve"><value>Giờ mở cửa:</value></data>
+  <data name="Services_QuickBookingTitle" xml:space="preserve"><value>Đặt lịch nhanh</value></data>
+  <data name="Services_QuickBookingLead" xml:space="preserve"><value>Chọn nhóm dịch vụ chính để đặt lịch online.</value></data>
+  <data name="Services_SizeGuideTitle" xml:space="preserve"><value>Size tóc</value></data>
+  <data name="Services_SizeGuideLead" xml:space="preserve"><value>Giá nhiều dịch vụ phụ thuộc độ dài tóc. Tham khảo bảng size dưới đây:</value></data>
+  <data name="Services_CtaTitle" xml:space="preserve"><value>Cần tư vấn thêm?</value></data>
+  <data name="Services_CtaLead" xml:space="preserve"><value>Liên hệ MC Hair để được stylist tư vấn dịch vụ và báo giá chi tiết.</value></data>
+  <data name="Gallery_Title" xml:space="preserve"><value>Bộ sưu tập</value></data>
+  <data name="Gallery_Lead" xml:space="preserve"><value>Khám phá các bộ sưu tập mẫu tóc nổi bật tại MC Hair Salon.</value></data>
+  <data name="News_Title" xml:space="preserve"><value>Tin tức &amp; khuyến mãi</value></data>
+  <data name="Booking_Title" xml:space="preserve"><value>Đặt lịch</value></data>
+  <data name="Booking_Lead" xml:space="preserve"><value>Chọn dịch vụ, thợ (tuỳ chọn) và thời gian phù hợp.</value></data>
+  <data name="Booking_Name" xml:space="preserve"><value>Họ tên *</value></data>
+  <data name="Booking_Phone" xml:space="preserve"><value>Số điện thoại *</value></data>
+  <data name="Booking_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Booking_Service" xml:space="preserve"><value>Dịch vụ *</value></data>
+  <data name="Booking_Stylist" xml:space="preserve"><value>Chọn thợ (tuỳ chọn)</value></data>
+  <data name="Booking_StylistDefault" xml:space="preserve"><value>Salon sắp xếp</value></data>
+  <data name="Booking_Date" xml:space="preserve"><value>Ngày *</value></data>
+  <data name="Booking_Time" xml:space="preserve"><value>Giờ *</value></data>
+  <data name="Booking_Notes" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="Booking_Submit" xml:space="preserve"><value>Gửi đặt lịch</value></data>
+  <data name="Booking_Success" xml:space="preserve"><value>Đặt lịch thành công! Salon sẽ liên hệ xác nhận sớm nhất.</value></data>
+  <data name="Meta_Home" xml:space="preserve"><value>MC Hair Salon | Salon làm tóc TP.HCM</value></data>
+  <data name="Meta_About" xml:space="preserve"><value>Giới thiệu | MC Hair Salon</value></data>
+  <data name="Meta_Services" xml:space="preserve"><value>Dịch vụ &amp; bảng giá | MC Hair Salon</value></data>
+  <data name="Meta_Gallery" xml:space="preserve"><value>Bộ sưu tập | MC Hair Salon</value></data>
+  <data name="Meta_News" xml:space="preserve"><value>Tin tức | MC Hair Salon</value></data>
+  <data name="Meta_Booking" xml:space="preserve"><value>Đặt lịch | MC Hair Salon</value></data>
+  <data name="Meta_AboutDescription" xml:space="preserve"><value>Sứ mệnh, tầm nhìn và giá trị cốt lõi của MC Hair Salon – salon làm tóc hiện đại tại TP.HCM.</value></data>
+  <data name="Meta_BookingDescription" xml:space="preserve"><value>Đặt lịch cắt tóc, nhuộm, uốn tại MC Hair Salon. Chọn dịch vụ, thợ và khung giờ phù hợp.</value></data>
+  <data name="Gallery_FashionColor" xml:space="preserve"><value>Màu thời trang</value></data>
+  <data name="Gallery_TrendingStyle" xml:space="preserve"><value>Kiểu tóc thịnh hành</value></data>
+  <data name="Gallery_HairRecovery" xml:space="preserve"><value>Phục hồi hư tổn</value></data>
+  <data name="Gallery_HairExtensions" xml:space="preserve"><value>Nối tóc</value></data>
+  <data name="Gallery_BeforeAfter" xml:space="preserve"><value>Before &amp; After</value></data>
+</root>

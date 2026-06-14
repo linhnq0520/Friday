@@ -1,0 +1,18 @@
+@model string
+@using Friday.MCHair.Web.Localization
+
+@{
+    string returnUrl = Context.Request.Path + Context.Request.QueryString;
+    bool isVi = Model == CultureConstants.Vietnamese;
+    bool isEn = Model == CultureConstants.English;
+}
+
+<div class="lang-switcher" role="navigation" aria-label="@Localizer["Lang_SwitchAria"]">
+    <a class="lang-switch @(isVi ? "is-active" : null)"
+       href="@Url.Action("Set", "Culture", new { culture = CultureConstants.Vietnamese, returnUrl })"
+       aria-current="@(isVi ? "true" : null)">@Localizer["Lang_VI"]</a>
+    <span class="lang-switch-sep" aria-hidden="true">|</span>
+    <a class="lang-switch @(isEn ? "is-active" : null)"
+       href="@Url.Action("Set", "Culture", new { culture = CultureConstants.English, returnUrl })"
+       aria-current="@(isEn ? "true" : null)">@Localizer["Lang_EN"]</a>
+</div>

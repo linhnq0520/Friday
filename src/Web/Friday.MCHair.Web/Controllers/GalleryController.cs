@@ -1,3 +1,4 @@
+using Friday.MCHair.Web.Localization;
 using Friday.MCHair.Web.Models;
 using Friday.Modules.Salon.Application.Features;
 using Friday.Modules.Salon.Application.Models;
@@ -7,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Controllers;
 
-public sealed class GalleryController(IMediator mediator) : Controller
+public sealed class GalleryController(
+    IMediator mediator,
+    IUiLocalizer localizer
+) : Controller
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
@@ -15,9 +19,10 @@ public sealed class GalleryController(IMediator mediator) : Controller
             new GetGalleryCollectionsQuery(),
             cancellationToken
         );
-        ViewData["Title"] = "Bộ sưu tập | MC Hair Salon";
-        ViewData["MetaDescription"] =
-            "Khám phá bộ sưu tập mẫu tóc hot: màu thời trang, kiểu tóc thịnh hành, phục hồi hư tổn và nối tóc tại MC Hair Salon.";
+        ViewData["Title"] = localizer["Meta_Gallery"].Value;
+        ViewData["MetaDescription"] = CultureHelper.IsEnglish
+            ? "Explore MC Hair Salon gallery: fashion color, trending styles, repair and extensions."
+            : "Khám phá bộ sưu tập mẫu tóc hot: màu thời trang, kiểu tóc thịnh hành, phục hồi hư tổn và nối tóc tại MC Hair Salon.";
         return View(collections);
     }
 
@@ -39,9 +44,11 @@ public sealed class GalleryController(IMediator mediator) : Controller
             cancellationToken
         );
         ViewBag.Category = galleryCategory;
-        ViewData["Title"] = $"{GalleryCategoryLabels.GetLabel(galleryCategory)} | MC Hair Salon";
-        ViewData["MetaDescription"] =
-            $"Xem bộ sưu tập {GalleryCategoryLabels.GetLabel(galleryCategory)} tại MC Hair Salon.";
+        string label = GalleryCategoryLabels.GetLabel(galleryCategory);
+        ViewData["Title"] = $"{label} | MC Hair Salon";
+        ViewData["MetaDescription"] = CultureHelper.IsEnglish
+            ? $"Browse the {label} collection at MC Hair Salon."
+            : $"Xem bộ sưu tập {label} tại MC Hair Salon.";
         return View(items);
     }
 }

@@ -1,18 +1,19 @@
 @model ServicesIndexViewModel
+@using Friday.MCHair.Web.Localization
 @{
-    ViewData["Title"] ??= "Dịch vụ & bảng giá | MC Hair";
     var openingHours = Model.Settings.GetValueOrDefault("opening_hours", "08:30 – 20:00");
     var hotline = Model.Settings.GetValueOrDefault("hotline", "0988305371");
+    bool isEn = CultureHelper.IsEnglish;
 }
 
 <section class="page-hero price-hero">
     <div class="container">
         <p class="eyebrow eyebrow-dark">MC Hair Salon</p>
-        <h1>Dịch vụ &amp; bảng giá</h1>
-        <p class="lead">Bảng giá minh bạch — tư vấn và thiết kế phù hợp từng khách hàng.</p>
+        <h1>@Localizer["Services_Title"]</h1>
+        <p class="lead">@Localizer["Services_Lead"]</p>
         <div class="price-meta">
-            <span>Giờ mở cửa: <strong>@openingHours</strong></span>
-            <span>Hotline: <strong>@hotline</strong></span>
+            <span>@Localizer["Services_OpeningHours"] <strong>@openingHours</strong></span>
+            <span>@Localizer["Common_Hotline"] <strong>@hotline</strong></span>
             <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
         </div>
     </div>
@@ -48,8 +49,8 @@
         </div>
 
         <article class="price-group price-length-guide">
-            <h2>Size tóc</h2>
-            <p class="muted">Giá nhiều dịch vụ phụ thuộc độ dài tóc. Tham khảo bảng size dưới đây:</p>
+            <h2>@Localizer["Services_SizeGuideTitle"]</h2>
+            <p class="muted">@Localizer["Services_SizeGuideLead"]</p>
             <div class="length-grid">
                 @foreach (var size in Model.PriceList.LengthGuide)
                 {
@@ -68,17 +69,17 @@
     <section class="section section-alt">
         <div class="container">
             <div class="section-head center">
-                <h2>Đặt lịch nhanh</h2>
-                <p>Chọn nhóm dịch vụ chính để đặt lịch online.</p>
+                <h2>@Localizer["Services_QuickBookingTitle"]</h2>
+                <p>@Localizer["Services_QuickBookingLead"]</p>
             </div>
             <div class="card-grid four">
                 @foreach (var service in Model.Services)
                 {
                     <article class="card service-card">
-                        <h3>@service.Name</h3>
-                        <p>@service.Description</p>
-                        <p class="price">Giá từ: <strong>@service.PriceFrom.ToString("N0")</strong> đ</p>
-                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch", serviceId = service.Id })
+                        <h3>@CatalogTranslations.ServiceName(service.Name, isEn)</h3>
+                        <p>@CatalogTranslations.ServiceDescription(service.Name, service.Description, isEn)</p>
+                        <p class="price">@Localizer["Common_PriceFrom"] <strong>@service.PriceFrom.ToString("N0")</strong> @(isEn ? "VND" : "đ")</p>
+                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Nav_Booking"].Value, serviceId = service.Id })
                     </article>
                 }
             </div>
@@ -88,8 +89,8 @@
 
 <section class="section section-cta">
     <div class="container center">
-        <h2>Cần tư vấn thêm?</h2>
-        <p>Liên hệ MC Hair để được stylist tư vấn dịch vụ và báo giá chi tiết.</p>
-        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch ngay" })
+        <h2>@Localizer["Services_CtaTitle"]</h2>
+        <p>@Localizer["Services_CtaLead"]</p>
+        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Common_BookingNow"].Value })
     </div>
 </section>

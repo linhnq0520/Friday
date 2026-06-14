@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Friday.MCHair.Web.Localization;
 using Friday.MCHair.Web.Models;
 using Friday.Modules.Salon.Domain.Repositories;
 
@@ -15,6 +16,8 @@ public sealed class PriceListStore(ISalonRepository repository) : IPriceListStor
 {
     public const string SettingKey = "price_list_json";
 
+    public const string SettingKeyEn = "price_list_json_en";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -27,8 +30,10 @@ public sealed class PriceListStore(ISalonRepository repository) : IPriceListStor
             cancellationToken
         );
 
+        string key = CultureHelper.IsEnglish ? SettingKeyEn : SettingKey;
+
         if (
-            settings.TryGetValue(SettingKey, out string? json)
+            settings.TryGetValue(key, out string? json)
             && !string.IsNullOrWhiteSpace(json)
         )
         {
@@ -46,7 +51,7 @@ public sealed class PriceListStore(ISalonRepository repository) : IPriceListStor
             }
         }
 
-        return PriceListDefaults.Create();
+        return CultureHelper.IsEnglish ? PriceListDefaultsEn.Create() : PriceListDefaults.Create();
     }
 
     public async Task SaveAsync(PriceListData data, CancellationToken cancellationToken = default)

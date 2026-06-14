@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Friday.MCHair.Web.Localization;
 using Friday.MCHair.Web.Models;
 using Friday.Modules.Salon.Domain.Repositories;
 
@@ -15,6 +16,8 @@ public sealed class WarrantyStore(ISalonRepository repository) : IWarrantyStore
 {
     public const string SettingKey = "warranty_page_json";
 
+    public const string SettingKeyEn = "warranty_page_json_en";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -27,8 +30,10 @@ public sealed class WarrantyStore(ISalonRepository repository) : IWarrantyStore
             cancellationToken
         );
 
+        string key = CultureHelper.IsEnglish ? SettingKeyEn : SettingKey;
+
         if (
-            settings.TryGetValue(SettingKey, out string? json)
+            settings.TryGetValue(key, out string? json)
             && !string.IsNullOrWhiteSpace(json)
         )
         {
@@ -40,7 +45,7 @@ public sealed class WarrantyStore(ISalonRepository repository) : IWarrantyStore
                 );
                 if (data is not null)
                 {
-                    return Normalize(data);
+                    return Normalize(data, CultureHelper.IsEnglish);
                 }
             }
             catch (JsonException)
@@ -49,20 +54,25 @@ public sealed class WarrantyStore(ISalonRepository repository) : IWarrantyStore
             }
         }
 
-        return WarrantyDefaults.Create();
+        return CultureHelper.IsEnglish ? WarrantyDefaultsEn.Create() : WarrantyDefaults.Create();
     }
 
     public async Task SaveAsync(WarrantyPageData data, CancellationToken cancellationToken = default)
     {
-        WarrantyPageData normalized = Normalize(data);
+        WarrantyPageData normalized = Normalize(data, CultureHelper.IsEnglish);
         string json = JsonSerializer.Serialize(normalized, JsonOptions);
-        await repository.UpsertSettingAsync(SettingKey, json, cancellationToken);
+        string key = CultureHelper.IsEnglish ? SettingKeyEn : SettingKey;
+        await repository.UpsertSettingAsync(key, json, cancellationToken);
     }
 
-    public static WarrantyPageData Normalize(WarrantyPageData data)
+    public static WarrantyPageData Normalize(WarrantyPageData data, bool isEnglish)
     {
+        WarrantyPageData defaults = isEnglish
+            ? WarrantyDefaultsEn.Create()
+            : WarrantyDefaults.Create();
+
         data.Title = string.IsNullOrWhiteSpace(data.Title)
-            ? WarrantyDefaults.Create().Title
+            ? defaults.Title
             : data.Title.Trim();
         data.Lead = data.Lead?.Trim() ?? string.Empty;
         data.MetaDescription = data.MetaDescription?.Trim() ?? string.Empty;

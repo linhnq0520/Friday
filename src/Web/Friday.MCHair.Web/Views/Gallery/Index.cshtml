@@ -1,18 +1,17 @@
 @model IReadOnlyList<Friday.Modules.Salon.Application.Models.GalleryCollectionDto>
-@using Friday.MCHair.Web.Models
 @{
-    ViewData["Title"] = "Bộ sưu tập | MC Hair Salon";
+    ViewData["Title"] ??= Localizer["Meta_Gallery"].Value;
 }
 
 <section class="page-hero">
     <div class="container">
         <nav class="breadcrumb" aria-label="Breadcrumb">
-            <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+            <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
             <span aria-hidden="true">/</span>
-            <span>Bộ sưu tập</span>
+            <span>@Localizer["Nav_Gallery"]</span>
         </nav>
-        <h1>Bộ sưu tập</h1>
-        <p class="lead">Khám phá các bộ sưu tập mẫu tóc nổi bật tại MC Hair Salon.</p>
+        <h1>@Localizer["Gallery_Title"]</h1>
+        <p class="lead">@Localizer["Gallery_Lead"]</p>
     </div>
 </section>
 
@@ -24,11 +23,11 @@
                 <div class="collection-card-image">
                     <img src="@collection.CoverImageUrl" alt="@GalleryCategoryLabels.GetLabel(collection.Category)" loading="lazy" />
                     <span class="collection-card-overlay"></span>
-                    <span class="collection-card-badge">@collection.ImageCount ảnh</span>
+                    <span class="collection-card-badge">@collection.ImageCount @Localizer["Common_Images"]</span>
                 </div>
                 <div class="collection-card-body">
                     <h3>@GalleryCategoryLabels.GetLabel(collection.Category)</h3>
-                    <span class="collection-card-link">Xem thêm →</span>
+                    <span class="collection-card-link">@Localizer["Common_SeeMore"]</span>
                 </div>
             </a>
         }

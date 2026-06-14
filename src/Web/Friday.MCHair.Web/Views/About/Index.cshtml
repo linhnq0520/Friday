@@ -1,15 +1,15 @@
 @{
-    var storyParagraphs = SiteContent.SplitParagraphs(SiteContent.AboutStoryBody);
-    var missionParagraphs = SiteContent.SplitParagraphs(SiteContent.MissionBody);
-    var visionParagraphs = SiteContent.SplitParagraphs(SiteContent.VisionBody);
+    var storyParagraphs = SiteContent.SplitParagraphs(LocalizedSiteContent.AboutStoryBody);
+    var missionParagraphs = SiteContent.SplitParagraphs(LocalizedSiteContent.MissionBody);
+    var visionParagraphs = SiteContent.SplitParagraphs(LocalizedSiteContent.VisionBody);
 }
 
 <section class="page-hero about-hero">
     <div class="container page-hero-inner">
         <div class="about-hero-copy">
             <p class="eyebrow">MC Hair Salon</p>
-            <h1>Giới thiệu</h1>
-            <p class="lead">Mở ra cánh cửa mới cho vẻ đẹp, sự tự tin và những cơ hội mới.</p>
+            <h1>@Localizer["About_Title"]</h1>
+            <p class="lead">@Localizer["About_Lead"]</p>
         </div>
         <div class="about-hero-logo">
             <img src="@SiteContent.LogoPath" alt="MC Hair Salon" width="280" height="280" />
@@ -20,12 +20,12 @@
 <section class="section">
     <div class="container narrow-content">
         <div class="content-block about-story">
-            <h2>@SiteContent.AboutStoryTitle</h2>
+            <h2>@LocalizedSiteContent.AboutStoryTitle</h2>
             @foreach (var paragraph in storyParagraphs)
             {
                 <p>@paragraph</p>
             }
-            <p class="about-tagline">@SiteContent.AboutTagline</p>
+            <p class="about-tagline">@LocalizedSiteContent.AboutTagline</p>
         </div>
     </div>
 </section>
@@ -33,7 +33,7 @@
 <section class="section section-alt">
     <div class="container narrow-content">
         <div class="content-block">
-            <h2>@SiteContent.MissionTitle</h2>
+            <h2>@LocalizedSiteContent.MissionTitle</h2>
             @foreach (var paragraph in missionParagraphs)
             {
                 <p>@paragraph</p>
@@ -46,7 +46,7 @@
     <div class="container about-split">
         <div class="about-split-image" style="background-image:url('/resources/khong_gian/khong-gian14.jpg')"></div>
         <div class="content-block">
-            <h2>@SiteContent.VisionTitle</h2>
+            <h2>@LocalizedSiteContent.VisionTitle</h2>
             @foreach (var paragraph in visionParagraphs)
             {
                 <p>@paragraph</p>
@@ -58,11 +58,11 @@
 <section class="section">
     <div class="container">
         <div class="section-head center">
-            <h2>Giá trị cốt lõi</h2>
-            <p>Những nguyên tắc định hình mọi trải nghiệm tại MC Hair.</p>
+            <h2>@Localizer["About_CoreValuesTitle"]</h2>
+            <p>@Localizer["About_CoreValuesLead"]</p>
         </div>
         <div class="values-grid">
-            @foreach (var (value, index) in SiteContent.CoreValues.Select((v, i) => (v, i + 1)))
+            @foreach (var (value, index) in LocalizedSiteContent.CoreValues.Select((v, i) => (v, i + 1)))
             {
                 <article class="value-card">
                     <span class="value-number">@index</span>
@@ -76,8 +76,8 @@
 
 <section class="section section-cta">
     <div class="container center">
-        <h2>Sẵn sàng thay đổi diện mạo?</h2>
-        <p>Đặt lịch ngay để được tư vấn kiểu tóc phù hợp với phong cách của bạn.</p>
-        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch ngay" })
+        <h2>@Localizer["About_CtaTitle"]</h2>
+        <p>@Localizer["About_CtaLead"]</p>
+        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Common_BookingNow"].Value })
     </div>
 </section>

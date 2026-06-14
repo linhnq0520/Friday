@@ -1,28 +1,28 @@
 @model SiteInfoViewModel
 
-<div class="float-actions" aria-label="Liên hệ nhanh">
+<div class="float-actions" aria-label="@Localizer["Float_Contact"]">
     <div class="float-social">
         <a class="float-social-btn float-social-zalo"
            href="@Model.ZaloUrl"
            target="_blank"
            rel="noopener noreferrer"
-           aria-label="Chat Zalo MC Hair">
+           aria-label="@Localizer["Float_Zalo"]">
             <img src="@SiteContent.IconZaloPath" alt="" />
         </a>
         <a class="float-social-btn float-social-messenger"
            href="@Model.MessengerUrl"
            target="_blank"
            rel="noopener noreferrer"
-           aria-label="Nhắn Messenger MC Hair">
+           aria-label="@Localizer["Float_Messenger"]">
             <img src="@SiteContent.IconMessengerPath" alt="" />
         </a>
         <a class="float-social-btn float-social-phone"
            href="tel:@Model.PhoneTel"
-           aria-label="Gọi hotline @Model.Hotline">
+           aria-label="@Localizer["Float_Call", Model.Hotline]">
             <img src="@SiteContent.IconHotlinePath" alt="" />
         </a>
     </div>
     <div class="float-book-wrap">
-        @await Component.InvokeAsync("BookingLink", new { cssClass = "float-book", label = "Đặt lịch" })
+        @await Component.InvokeAsync("BookingLink", new { cssClass = "float-book", label = Localizer["Float_Book"].Value })
     </div>
 </div>

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="vi">
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,15 +36,15 @@
                     <span class="logo-tagline">Hair salon</span>
                 </span>
             </a>
-            <button class="nav-toggle" type="button" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+            <button class="nav-toggle" type="button" aria-label="@Localizer["Nav_Menu"]" onclick="document.body.classList.toggle('nav-open')">☰</button>
             <nav class="main-nav">
-                <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-                <a asp-controller="About" asp-action="Index">Giới thiệu</a>
-                <a asp-controller="Services" asp-action="Index">Dịch vụ</a>
-                <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
-                <a asp-controller="News" asp-action="Index">Tin tức</a>
-                <a asp-controller="Warranty" asp-action="Index">Bảo hành</a>
-                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn-book", label = "Đặt lịch" })
+                <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
+                <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
+                <a asp-controller="Services" asp-action="Index">@Localizer["Nav_Services"]</a>
+                <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
+                <a asp-controller="News" asp-action="Index">@Localizer["Nav_News"]</a>
+                <a asp-controller="Warranty" asp-action="Index">@Localizer["Nav_Warranty"]</a>
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn-book", label = Localizer["Nav_Booking"].Value })
             </nav>
         </div>
     </header>
@@ -62,31 +62,31 @@
                         <span class="logo-tagline">Hair salon</span>
                     </span>
                 </a>
-                <p>Salon làm tóc hiện đại — cắt, nhuộm, uốn, phục hồi tại TP.HCM.</p>
+                <p>@Localizer["Footer_Description"]</p>
             </div>
             <div>
                 @await Component.InvokeAsync("SiteInfo", new { template = "FooterContact" })
             </div>
             <div>
-                <h4>Liên kết</h4>
-                <a asp-controller="About" asp-action="Index">Giới thiệu</a>
-                <a asp-controller="Services" asp-action="Index">Bảng giá</a>
-                <a asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
-                <a asp-controller="Warranty" asp-action="Index">Chế độ bảo hành</a>
-                @await Component.InvokeAsync("BookingLink", new { label = "Đặt lịch online" })
-                <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Fanpage Facebook</a>
+                <h4>@Localizer["Footer_Links"]</h4>
+                <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
+                <a asp-controller="Services" asp-action="Index">@Localizer["Footer_PriceList"]</a>
+                <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
+                <a asp-controller="Warranty" asp-action="Index">@Localizer["Footer_WarrantyPolicy"]</a>
+                @await Component.InvokeAsync("BookingLink", new { label = Localizer["Nav_BookingOnline"].Value })
+                <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">@Localizer["Footer_Facebook"]</a>
                 <a href="/sitemap.xml">Sitemap</a>
             </div>
         </div>
         <div class="container footer-bottom">
-            <p>&copy; @DateTime.Now.Year MC Hair Salon. All rights reserved.</p>
+            <p>&copy; @DateTime.Now.Year @Localizer["Footer_Copyright"]</p>
         </div>
     </footer>
 
     @await Component.InvokeAsync("SiteInfo", new { template = "FloatActions" })
     @if (ViewData["ShowBackToTop"] as bool? == true)
     {
-        <button type="button" class="back-to-top" aria-label="Về đầu trang" title="Về đầu trang">↑</button>
+        <button type="button" class="back-to-top" aria-label="@Localizer["Common_BackToTop"]" title="@Localizer["Common_BackToTop"]">↑</button>
     }
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/float-actions.js" asp-append-version="true"></script>

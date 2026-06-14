@@ -13,7 +13,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LinKit.Core" />
+    <EmbeddedResource Update="Resources\SharedResources.en.resx" />
+    <EmbeddedResource Update="Resources\SharedResources.vi.resx" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

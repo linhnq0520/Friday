@@ -1,4 +1,5 @@
 using Friday.MCHair.Web.Models;
+using Friday.MCHair.Web.Localization;
 using Friday.Modules.Salon.Application.Features;
 using Friday.Modules.Salon.Application.Models;
 using Friday.Modules.Salon.Domain.Repositories;
@@ -7,7 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Controllers;
 
-public sealed class BookingController(IMediator mediator, ISalonRepository repository) : Controller
+public sealed class BookingController(
+    IMediator mediator,
+    ISalonRepository repository,
+    IUiLocalizer localizer
+) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -26,9 +31,8 @@ public sealed class BookingController(IMediator mediator, ISalonRepository repos
         }
 
         BookingFormDto form = await mediator.QueryAsync(new GetBookingFormQuery(), cancellationToken);
-        ViewData["Title"] = "Đặt lịch | MCHair Salon";
-        ViewData["MetaDescription"] =
-            "Đặt lịch cắt tóc, nhuộm, uốn tại MCHair Salon. Chọn dịch vụ, thợ và khung giờ phù hợp.";
+        ViewData["Title"] = localizer["Meta_Booking"].Value;
+        ViewData["MetaDescription"] = localizer["Meta_BookingDescription"].Value;
         return View(
             new BookingViewModel
             {
@@ -85,7 +89,7 @@ public sealed class BookingController(IMediator mediator, ISalonRepository repos
             new BookingViewModel
             {
                 Form = form,
-                SuccessMessage = "Đặt lịch thành công! Salon sẽ liên hệ xác nhận sớm nhất.",
+                SuccessMessage = localizer["Booking_Success"].Value,
             }
         );
     }

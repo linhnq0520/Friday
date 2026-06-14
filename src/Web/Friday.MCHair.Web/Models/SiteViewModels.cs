@@ -1,5 +1,6 @@
 using Friday.Modules.Salon.Application.Features;
 using Friday.Modules.Salon.Application.Models;
+using Friday.MCHair.Web.Localization;
 using Friday.Modules.Salon.Domain.Enums;
 
 namespace Friday.MCHair.Web.Models;
@@ -59,12 +60,26 @@ public static class ShowcaseTypeLabels
 public static class GalleryCategoryLabels
 {
     public static string GetLabel(GalleryCategory category) =>
+        CultureHelper.IsEnglish ? GetLabelEn(category) : GetLabelVi(category);
+
+    private static string GetLabelVi(GalleryCategory category) =>
         category switch
         {
             GalleryCategory.FashionColor => "Màu thời trang",
             GalleryCategory.TrendingStyle => "Kiểu tóc thịnh hành",
             GalleryCategory.HairRecovery => "Phục hồi hư tổn",
             GalleryCategory.HairExtensions => "Nối tóc",
+            GalleryCategory.BeforeAfter => "Before & After",
+            _ => category.ToString(),
+        };
+
+    private static string GetLabelEn(GalleryCategory category) =>
+        category switch
+        {
+            GalleryCategory.FashionColor => "Fashion color",
+            GalleryCategory.TrendingStyle => "Trending styles",
+            GalleryCategory.HairRecovery => "Damage repair",
+            GalleryCategory.HairExtensions => "Hair extensions",
             GalleryCategory.BeforeAfter => "Before & After",
             _ => category.ToString(),
         };
