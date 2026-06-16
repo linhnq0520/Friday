@@ -1,6 +1,6 @@
+using Friday.MCHair.Web.Localization;
 using Friday.Modules.Salon.Application.Features;
 using Friday.Modules.Salon.Application.Models;
-using Friday.MCHair.Web.Localization;
 using Friday.Modules.Salon.Domain.Enums;
 
 namespace Friday.MCHair.Web.Models;
@@ -88,6 +88,6 @@ public static class GalleryCategoryLabels
 public static class SeoDefaults
 {
     public const string SiteName = "MC Hair Salon";
-    public const string GoogleSiteVerification =
-        "Wl2m3g0qP_w8DCxyMUrNzxEzA4QLjdwvypX-nh5P0hQ";
+    public const string GoogleSiteVerification = "Wl2m3g0qP_w8DCxyMUrNzxEzA4QLjdwvypX-nh5P0hQ";
+    public const string GoogleTagManagerId = "GTM-WRQRXXBR";
 }
