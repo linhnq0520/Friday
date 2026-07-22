@@ -115,16 +115,32 @@
 
 <section class="section section-alt" id="promotions">
     <div class="container">
-        <div class="section-head center">
+        <div class="section-head">
             <h2>@Localizer["Home_Promotions"]</h2>
         </div>
-        <div class="promo-list">
+        <div class="home-promo-grid">
             @foreach (var promo in Model.Page.Promotions)
             {
-                <article class="promo-item">
-                    <h3>@promo.Title</h3>
-                    <p>@promo.Summary</p>
-                    <a asp-controller="News" asp-action="Index">@Localizer["Common_ViewDetails"]</a>
+                <article class="home-promo-card">
+                    @if (!string.IsNullOrWhiteSpace(promo.ImageUrl))
+                    {
+                        <div class="home-promo-card-image">
+                            <img src="@promo.ImageUrl" alt="@promo.Title" loading="lazy" />
+                        </div>
+                    }
+                    <div class="home-promo-card-body">
+                        <h3>@promo.Title</h3>
+                        @if (!string.IsNullOrWhiteSpace(promo.Summary))
+                        {
+                            <p class="home-promo-card-excerpt">@promo.Summary</p>
+                        }
+                        <footer class="home-promo-card-footer">
+                            <a class="home-promo-card-link" asp-controller="News" asp-action="Index">
+                                <span>/ @Localizer["Common_ViewDetails"]</span>
+                                <span class="home-promo-card-link-icon" aria-hidden="true">+</span>
+                            </a>
+                        </footer>
+                    </div>
                 </article>
             }
         </div>

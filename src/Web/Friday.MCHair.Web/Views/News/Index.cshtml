@@ -11,13 +11,24 @@
         @foreach (var item in Model)
         {
             <article class="promo-item">
-                <h2>@item.Title</h2>
-                <p class="muted">@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy"))</p>
-                <p>@item.Summary</p>
-                @if (!string.IsNullOrWhiteSpace(item.Content))
+                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
                 {
-                    <p>@item.Content</p>
+                    <div class="promo-item-image">
+                        <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
+                    </div>
                 }
+                <div class="promo-item-body">
+                    <h2>@item.Title</h2>
+                    <p class="muted">@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy"))</p>
+                    @if (!string.IsNullOrWhiteSpace(item.Summary))
+                    {
+                        <p>@item.Summary</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.Content))
+                    {
+                        <p>@item.Content</p>
+                    }
+                </div>
             </article>
         }
     </div>

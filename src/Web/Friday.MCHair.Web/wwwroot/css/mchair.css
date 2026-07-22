@@ -398,13 +398,201 @@ a.partner-card:hover { color: inherit; }
 }
 .price, .price-lg { color: var(--accent); }
 .muted { color: var(--muted); }
-.promo-list { display: grid; gap: 1rem; }
+.promo-list { display: grid; gap: 1.5rem; }
 .promo-item {
     padding: 1.2rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--card);
     box-shadow: var(--shadow);
+}
+.promo-item-image {
+    border-radius: calc(var(--radius) - 4px);
+    overflow: hidden;
+    margin-bottom: .8rem;
+    background: #f8f4ef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.promo-item-image img {
+    width: auto;
+    max-width: 100%;
+    max-height: 420px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+.promo-item-body h2,
+.promo-item-body h3 {
+    margin-top: 0;
+}
+
+@media (min-width: 768px) {
+    .promo-list .promo-item:has(.promo-item-image) {
+        display: grid;
+        grid-template-columns: minmax(180px, 280px) 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .promo-list .promo-item-image {
+        margin-bottom: 0;
+    }
+
+    .promo-list .promo-item-image img {
+        max-height: 360px;
+    }
+}
+
+/* Homepage promotions — compact 2 cols mobile, 3 cols desktop */
+.home-promo-grid {
+    display: grid;
+    gap: 1rem 0.75rem;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 992px) {
+    .home-promo-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem 1.5rem;
+    }
+}
+
+.home-promo-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.home-promo-card-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    background: #f8f4ef;
+    border-radius: calc(var(--radius) - 4px);
+    overflow: hidden;
+    min-height: 100px;
+    max-height: 140px;
+}
+
+.home-promo-card-image img {
+    width: 100%;
+    max-height: 140px;
+    height: auto;
+    object-fit: contain;
+}
+
+.home-promo-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.home-promo-card-body h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.home-promo-card-excerpt {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.72rem;
+    line-height: 1.45;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.home-promo-card-footer {
+    margin-top: 0.65rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.home-promo-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.home-promo-card-link:hover {
+    color: var(--accent);
+}
+
+.home-promo-card-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    background: var(--text);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background .2s ease;
+}
+
+.home-promo-card-link:hover .home-promo-card-link-icon {
+    background: var(--accent);
+}
+
+@media (min-width: 992px) {
+    .home-promo-card-image {
+        margin-bottom: 1.25rem;
+        min-height: 160px;
+        max-height: 260px;
+    }
+
+    .home-promo-card-image img {
+        max-height: 260px;
+    }
+
+    .home-promo-card-body h3 {
+        margin-bottom: 0.75rem;
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        line-height: 1.45;
+        letter-spacing: 0.01em;
+    }
+
+    .home-promo-card-excerpt {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        display: block;
+        -webkit-line-clamp: unset;
+        overflow: visible;
+    }
+
+    .home-promo-card-footer {
+        margin-top: 1.25rem;
+    }
+
+    .home-promo-card-link {
+        gap: 0.65rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+    }
+
+    .home-promo-card-link-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.2rem;
+    }
 }
 .testimonial {
     margin: 0;
