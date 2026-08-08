@@ -1,0 +1,115 @@
+﻿@page "/"
+@using Friday.Portfolio.Components
+
+<PageTitle>@ProfileData.FullName — @ProfileData.Title</PageTitle>
+
+<section class="hero">
+    <div class="hero-backdrop" aria-hidden="true"></div>
+    <div class="hero-shell">
+        <div class="hero-content">
+            <p class="hero-kicker reveal">@ProfileData.Location · Writing since @ProfileData.WritingSince</p>
+            <h1 class="hero-brand reveal delay-1">@ProfileData.FullName</h1>
+            <p class="hero-title reveal delay-2">@ProfileData.Title</p>
+            <p class="hero-lead reveal delay-3">@ProfileData.Mission</p>
+            <div class="hero-actions reveal delay-4">
+                <a class="btn btn-primary" href="/blog">Read articles</a>
+                <a class="btn btn-ghost" href="/courses">Browse courses</a>
+            </div>
+            <p class="hero-meta reveal delay-4">@ProfileData.Tagline</p>
+        </div>
+        <figure class="hero-portrait reveal delay-2">
+            <img src="img/linh.jpg"
+                 alt="@ProfileData.FullName (@ProfileData.Nickname), @ProfileData.Title"
+                 width="720"
+                 height="900"
+                 decoding="async"
+                 fetchpriority="high" />
+        </figure>
+    </div>
+</section>
+
+<section class="section home-publish">
+    <div class="section-inner">
+        <header class="section-head">
+            <p class="section-label">What I publish</p>
+            <h2>Profile, deep-dives, and structured courses</h2>
+        </header>
+        <div class="publish-grid">
+            <a class="publish-item" href="/blog">
+                <span class="publish-icon">✎</span>
+                <h3>Blog</h3>
+                <p>Tutorials and field notes on ASP.NET Core, messaging, performance, and Azure — written after shipping something real.</p>
+                <span class="publish-cta">Read articles →</span>
+            </a>
+            <a class="publish-item" href="/courses">
+                <span class="publish-icon">◆</span>
+                <h3>Courses</h3>
+                <p>Free learning tracks with clear outcomes. Start from backend fundamentals, then messaging and CI/CD.</p>
+                <span class="publish-cta">Browse courses →</span>
+            </a>
+            <a class="publish-item" href="/about">
+                <span class="publish-icon">◎</span>
+                <h3>Profile</h3>
+                <p>CV, experience at Payoo / JUST-IN-TIME, open-source work (LinKit.Core, Bon), and how to reach me.</p>
+                <span class="publish-cta">View profile →</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        <header class="section-head row-head">
+            <div>
+                <p class="section-label">Latest</p>
+                <h2>From the desk</h2>
+            </div>
+            <a class="text-link" href="/blog">All articles →</a>
+        </header>
+        <PostList Posts="SiteContent.LatestPosts(3)" />
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        <header class="section-head row-head">
+            <div>
+                <p class="section-label">Courses</p>
+                <h2>Learn by building</h2>
+            </div>
+            <a class="text-link" href="/courses">All courses →</a>
+        </header>
+        <CourseList Courses="SiteContent.Courses.Take(3)" />
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-inner">
+        <header class="section-head">
+            <p class="section-label">Who this is for</p>
+            <h2>Wherever you are in .NET</h2>
+        </header>
+        <div class="audience-grid">
+            @foreach (var item in ProfileData.Audiences)
+            {
+                <article class="audience-item">
+                    <span>@item.Number</span>
+                    <h3>@item.Title</h3>
+                    <p>@item.Description</p>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section author-note">
+    <div class="section-inner author-inner">
+        <p class="section-label">A note from the author</p>
+        <h2>@ProfileData.Nickname · @ProfileData.Title</h2>
+        <blockquote>@ProfileData.AuthorNote</blockquote>
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="mailto:@ProfileData.Email">Get in touch</a>
+            <a class="btn btn-ghost" href="/about">Full profile</a>
+        </div>
+    </div>
+</section>

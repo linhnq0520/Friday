@@ -1,0 +1,20 @@
+@page "/about"
+@using Friday.Portfolio.Components
+
+<PageTitle>Profile — @ProfileData.FullName</PageTitle>
+
+<section class="section page-hero">
+    <div class="section-inner">
+        <p class="section-label">Profile</p>
+        <h1>@ProfileData.FullName <span class="thin">(@ProfileData.Nickname)</span></h1>
+        <p class="section-lead">@ProfileData.Summary</p>
+        <p class="section-lead muted">@ProfileData.Objective</p>
+    </div>
+</section>
+
+<AboutSection />
+<ExperienceSection />
+<ProjectsSection />
+<SkillsSection />
+<EducationSection />
+<ContactSection />

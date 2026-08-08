@@ -1,0 +1,19 @@
+<section id="education" class="section education">
+    <div class="section-inner">
+        <header class="section-head">
+            <p class="section-label">Education</p>
+            <h2>Learning path</h2>
+        </header>
+
+        <ul class="edu-list">
+            @foreach (var item in ProfileData.Education)
+            {
+                <li>
+                    <h3>@item.School</h3>
+                    <p>@item.Degree</p>
+                    <time>@item.Period</time>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

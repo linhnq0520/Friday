@@ -1,0 +1,38 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/_framework/*",
+      "/css/*",
+      "/content/*",
+      "/js/*",
+      "/*.{css,js,json,ico,png,jpg,jpeg,gif,svg,webp,woff,woff2,map,wasm,dll,dat,blat,pdb,md}"
+    ]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+  },
+  "routes": [
+    {
+      "route": "/_framework/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/css/*",
+      "headers": {
+        "Cache-Control": "public, max-age=604800"
+      }
+    },
+    {
+      "route": "/content/*",
+      "headers": {
+        "Cache-Control": "public, max-age=300"
+      }
+    }
+  ]
+}

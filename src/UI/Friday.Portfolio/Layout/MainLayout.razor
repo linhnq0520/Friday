@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<div class="site">
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="Home">
+            <span class="brand-mark">QL</span>
+            <span class="brand-text">Quoc Linh</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink href="/blog">Blog</NavLink>
+            <NavLink href="/courses">Courses</NavLink>
+            <NavLink href="/about">Profile</NavLink>
+            <NavLink href="/about#contact">Contact</NavLink>
+        </nav>
+        <a class="header-cta" href="mailto:@ProfileData.Email">Email me</a>
+    </header>
+
+    <main>
+        @Body
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div>
+                <p class="footer-brand">@ProfileData.FullName (@ProfileData.Nickname)</p>
+                <p>@ProfileData.Title · @ProfileData.Location</p>
+            </div>
+            <div class="footer-links">
+                <a href="/blog">Blog</a>
+                <a href="/courses">Courses</a>
+                <a href="/about">Profile</a>
+                <a href="@ProfileData.LinkedIn" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+        </div>
+        <p class="footer-meta">Built with Blazor WebAssembly · Azure Static Web Apps · GitHub Actions · Learning & research</p>
+    </footer>
+</div>

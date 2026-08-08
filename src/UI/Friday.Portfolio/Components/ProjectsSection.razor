@@ -1,0 +1,25 @@
+<section id="projects" class="section projects">
+    <div class="section-inner">
+        <header class="section-head">
+            <p class="section-label">Personal projects</p>
+            <h2>Open work &amp; libraries</h2>
+        </header>
+
+        <div class="project-list">
+            @foreach (var project in ProfileData.Projects)
+            {
+                <article class="project-row">
+                    <div>
+                        <h3>@project.Name</h3>
+                        <p>@project.Description</p>
+                        <p class="tech-line">@string.Join(" · ", project.Tech)</p>
+                    </div>
+                    <a class="project-link" href="@project.Url" target="_blank" rel="noopener noreferrer">
+                        @project.UrlLabel
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                </article>
+            }
+        </div>
+    </div>
+</section>

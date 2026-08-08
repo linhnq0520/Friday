@@ -1,0 +1,76 @@
+# CI/CD: build Blazor WASM portfolio and deploy to Azure Static Web Apps (free tier).
+# Secret required: AZURE_STATIC_WEB_APPS_API_TOKEN_PORTFOLIO
+# See docs/portfolio-azure-deploy-guide.md for full setup.
+
+name: Portfolio — Azure Static Web Apps
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/personal-portfolio
+    paths:
+      - "src/UI/Friday.Portfolio/**"
+      - "src/Directory.Packages.props"
+      - "src/Directory.Build.props"
+      - ".github/workflows/azure-static-web-apps-portfolio.yml"
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+      - develop
+    paths:
+      - "src/UI/Friday.Portfolio/**"
+      - "src/Directory.Packages.props"
+      - "src/Directory.Build.props"
+      - ".github/workflows/azure-static-web-apps-portfolio.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build_and_deploy:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore & publish Blazor WASM
+        working-directory: src/UI/Friday.Portfolio
+        run: |
+          dotnet restore
+          dotnet publish -c Release -o "${{ github.workspace }}/portfolio-publish"
+
+      - name: Deploy to Azure Static Web Apps
+        id: deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PORTFOLIO }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: portfolio-publish/wwwroot
+          api_location: ""
+          output_location: ""
+          skip_app_build: true
+
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request staging
+    steps:
+      - name: Close staging environment
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PORTFOLIO }}
+          action: close
