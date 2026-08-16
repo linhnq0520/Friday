@@ -2,10 +2,10 @@
   "fullName": "Nguyen Quoc Linh",
   "nickname": "Thomas",
   "title": "Senior Software Engineer",
-  "tagline": "Fintech & Core Banking · Manufacturing · Distributed Systems · ASP.NET Core & Mendix",
-  "mission": "I design and ship high-throughput enterprise systems — bridging robust backend architectures (.NET Core, distributed messaging) with low-code enterprise platforms across fintech, banking, and manufacturing.",
+  "tagline": "Fintech \u0026 Core Banking \u00B7 Manufacturing \u00B7 Distributed Systems \u00B7 ASP.NET Core \u0026 Mendix",
+  "mission": "I design and ship high-throughput enterprise systems \u2014 bridging robust backend architectures (.NET Core, distributed messaging) with low-code enterprise platforms across fintech, banking, and manufacturing.",
   "dateOfBirth": "20/05/1999",
-  "phone": "+84 943 894 177",
+  "phone": "\u002B84 943 894 177",
   "email": "zquoclinh@gmail.com",
   "linkedIn": "https://linkedin.com/in/quoclinh0520",
   "linkedInDisplay": "linkedin.com/in/quoclinh0520",
@@ -14,8 +14,8 @@
   "bonGitHub": "https://github.com/linhnq0520/Bon",
   "location": "Ho Chi Minh City, Vietnam",
   "writingSince": "2026",
-  "summary": "Senior Software Engineer with extensive experience in architecting and modernizing high-scale enterprise systems across Fintech, Core Banking, and Smart Manufacturing (MES/MOM). Expert in building distributed microservices using ASP.NET Core, RabbitMQ, and gRPC, complemented by rapid enterprise application delivery with Mendix. Proven track record in optimizing high-concurrency workloads and leading technical migrations.",
-  "objective": "Career objective: Transition into a Technical Lead / System Architect role — leveraging strong system design, enterprise modernization, and hybrid tech stacks (.NET + Low-Code) to deliver scalable solutions while mentoring engineering teams. Open to onsite collaboration with global clients.",
+  "summary": "Senior Software Engineer with extensive experience in architecting and modernizing high-scale enterprise systems across Fintech, Core Banking, and Manufacturing (MES/MOM). Expert in building distributed microservices using ASP.NET Core, RabbitMQ, and gRPC, complemented by rapid enterprise application delivery with Mendix. Proven track record in optimizing high-concurrency workloads and leading technical migrations.",
+  "objective": "Career objective: Transition into a Technical Lead / System Architect role \u2014 leveraging strong system design, enterprise modernization, and hybrid tech stacks (.NET \u002B Low-Code) to deliver scalable solutions while mentoring engineering teams. Open to onsite collaboration with global clients.",
   "authorNote": "I started this site as a learning lab: publish what I actually ship in fintech, manufacturing, and .NET, keep a public trail of deep-dives, and turn recurring architectural patterns into actionable knowledge.",
   "languages": [
     "C#",
@@ -51,7 +51,7 @@
     {
       "company": "FPT Software",
       "role": "Senior Software Engineer",
-      "period": "Apr 2026 – Present",
+      "period": "Apr 2026 \u2013 Present",
       "location": "Ho Chi Minh City, Vietnam",
       "bullets": [
         "Architect and engineer digital manufacturing execution solutions, integrating custom .NET backend with the Mendix enterprise low-code platform.",
@@ -68,7 +68,7 @@
     {
       "company": "VietUnion Online Services Corporation (Payoo)",
       "role": ".NET Developer",
-      "period": "Apr 2025 – Apr 2026",
+      "period": "Apr 2025 \u2013 Apr 2026",
       "location": "Ho Chi Minh City, Vietnam",
       "bullets": [
         "Delivered critical features for core payment ecosystems handling massive transaction volumes (QRCode, POS, mPOS, Pay4Biz).",
@@ -87,7 +87,7 @@
     {
       "company": "JUST-IN-TIME Solutions",
       "role": "Software Developer",
-      "period": "Oct 2022 – Apr 2025",
+      "period": "Oct 2022 \u2013 Apr 2025",
       "location": "Vietnam / Myanmar (onsite)",
       "bullets": [
         "Delivered onsite technical deployment and mission-critical production troubleshooting in Myanmar for enterprise core banking rollouts.",
@@ -107,9 +107,9 @@
       ]
     },
     {
-      "company": "Freelance — Microservice Orchestration Platform",
+      "company": "Freelance \u2014 Microservice Orchestration Platform",
       "role": "System Architect",
-      "period": "2025 – Present",
+      "period": "2025 \u2013 Present",
       "location": "Remote",
       "bullets": [
         "Architected an orchestration flow for distributed microservices covering routing, workflow execution, and resilient inter-service messaging.",
@@ -143,7 +143,7 @@
     },
     {
       "title": "Bon Framework",
-      "description": "Microservices framework built with .NET — EF Core data access, DI service resolution, and RabbitMQ messaging.",
+      "description": "Microservices framework built with .NET \u2014 EF Core data access, DI service resolution, and RabbitMQ messaging.",
       "techStack": [
         "ASP.NET Core",
         "EF Core",
@@ -155,14 +155,14 @@
   ],
   "education": [
     {
-      "institution": "University of Science — VNUHCM",
+      "institution": "University of Science \u2014 VNUHCM",
       "degree": "Java programming certification",
-      "period": "5/2022 – 11/2022"
+      "period": "5/2022 \u2013 11/2022"
     },
     {
       "institution": "University of Economics Ho Chi Minh City",
       "degree": "Bachelor of Commercial Business",
-      "period": "7/2017 – 5/2021"
+      "period": "7/2017 \u2013 5/2021"
     }
   ]
 }
