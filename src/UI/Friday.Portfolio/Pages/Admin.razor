@@ -6,6 +6,7 @@
 @inject ProfileService ProfileService
 @inject AdminAuthService AuthService
 @inject LanguageService Lang
+@inject GitHubApiService GitHubApi
 @inject IJSRuntime JS
 
 <PageTitle>@Lang.Text("Quản Trị & Chỉnh Sửa Profile — CV Editor", "Admin & Profile Editor — CV Editor")</PageTitle>
@@ -14,7 +15,7 @@
     <div class="section-inner">
         <p class="section-label">@Lang.Text("⚡ Quản trị / Trình biên tập CMS", "⚡ Admin / CMS Editor")</p>
         <h1>@Lang.Text("Chỉnh Sửa Thông Tin Profile & CV Online", "Edit Online Profile & CV Information")</h1>
-        <p class="section-lead">@Lang.Text("Chỉnh sửa trực tiếp thông tin cá nhân, kinh nghiệm làm việc, kỹ năng và xuất file JSON mới.", "Directly edit personal information, work experience, skills and export a new JSON file.")</p>
+        <p class="section-lead">@Lang.Text("Chỉnh sửa trực tiếp thông tin cá nhân, kinh nghiệm làm việc, kỹ năng và đồng bộ lên GitHub.", "Directly edit personal information, work experience, skills and sync to GitHub.")</p>
     </div>
 </section>
 
@@ -55,29 +56,53 @@ else
 {
     <section class="section">
         <div class="section-inner">
+            <!-- GitHub Direct API Sync Card -->
             <div style="background: var(--card-bg, #1a1e24); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border-color, #2a2f38);">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <h3 style="margin: 0;">@Lang.Text("📤 Xuất dữ liệu JSON", "📤 Export JSON Data")</h3>
+                    <h3 style="margin: 0;">🚀 @Lang.Text("Đồng bộ trực tiếp qua GitHub API", "Direct Sync via GitHub API")</h3>
                     <button class="btn btn-ghost" @onclick="HandleLogout" style="font-size: 0.85rem;">@Lang.Text("🔒 Đăng xuất Quản trị", "🔒 Admin Logout")</button>
                 </div>
-                <p style="margin-top: 0.5rem;">
-                    @if (Lang.IsVietnamese)
-                    {
-                        <span>Sau khi chỉnh sửa xong, bấm nút <strong>Tải về file profile.json</strong> để ghi đè vào file <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> trong dự án và Push Git!</span>
-                    }
-                    else
-                    {
-                        <span>After editing, click the <strong>Download profile.json</strong> button to overwrite <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> in the project and Push Git!</span>
-                    }
+                <p style="margin-top: 0.5rem; color: #a0a6b0; font-size: 0.95rem;">
+                    @Lang.Text("Nhập GitHub Personal Access Token (PAT) để Commit & Push file profile.json tự động lên repo linhnq0520/Friday. GitHub Action sẽ tự động deploy trang mới!", "Enter a GitHub Personal Access Token (PAT) to automatically Commit & Push profile.json to repo linhnq0520/Friday. GitHub Action will auto-deploy the site!")
                 </p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-                    <button class="btn btn-primary" @onclick="DownloadJson">@Lang.Text("📥 Tải về file profile.json", "📥 Download profile.json")</button>
-                    <button class="btn btn-ghost" @onclick="CopyJsonToClipboard">@Lang.Text("📋 Copy mã JSON", "📋 Copy JSON Code")</button>
-                    <button class="btn btn-ghost" @onclick="ApplyPreview">@Lang.Text("🔄 Cập nhật xem trước Web", "🔄 Update Web Preview")</button>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.08);">
+                    <label style="display: block; font-weight: 600; margin-bottom: 6px;">
+                        🔑 @Lang.Text("GitHub Personal Access Token (PAT):", "GitHub Personal Access Token (PAT):")
+                    </label>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <input type="password" @bind="githubPat" placeholder="github_pat_..." style="flex: 1; min-width: 260px; padding: 8px 12px; border-radius: 6px; border: 1px solid #3a3f48; background: #0f1217; color: #fff;" />
+                        <button class="btn btn-ghost" @onclick="SavePat" style="font-size: 0.85rem;">💾 @Lang.Text("Lưu Token", "Save Token")</button>
+                        @if (!string.IsNullOrEmpty(githubPat))
+                        {
+                            <button class="btn btn-ghost" @onclick="ClearPat" style="font-size: 0.85rem; color: #ff4d4f;">🗑️ @Lang.Text("Xoá Token", "Clear Token")</button>
+                        }
+                    </div>
                 </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem; align-items: center;">
+                    <button class="btn btn-primary" @onclick="PushToGitHub" disabled="@isPushingToGitHub" style="background: #238636; border-color: #2ea043;">
+                        @if (isPushingToGitHub)
+                        {
+                            <span>⏳ @Lang.Text("Đang Push lên GitHub...", "Pushing to GitHub...")</span>
+                        }
+                        else
+                        {
+                            <span>🚀 @Lang.Text("Commit & Push lên GitHub", "Commit & Push to GitHub")</span>
+                        }
+                    </button>
+                    <button class="btn btn-ghost" @onclick="DownloadJson">📥 @Lang.Text("Tải file profile.json", "Download profile.json")</button>
+                    <button class="btn btn-ghost" @onclick="CopyJsonToClipboard">📋 @Lang.Text("Copy mã JSON", "Copy JSON Code")</button>
+                    <button class="btn btn-ghost" @onclick="ApplyPreview">🔄 @Lang.Text("Xem trước Web", "Web Preview")</button>
+                </div>
+
                 @if (!string.IsNullOrEmpty(statusMessage))
                 {
-                    <p style="color: #4cd964; margin-top: 1rem;">@statusMessage</p>
+                    <p style="color: #4cd964; margin-top: 1rem; font-weight: 500;">@((MarkupString)statusMessage)</p>
+                }
+                @if (!string.IsNullOrEmpty(githubErrorMessage))
+                {
+                    <p style="color: #ff4d4f; margin-top: 1rem; word-break: break-word;">@githubErrorMessage</p>
                 }
             </div>
 
@@ -174,6 +199,9 @@ else
     private string inputPassword = string.Empty;
     private string errorMessage = string.Empty;
     private string statusMessage = string.Empty;
+    private string githubErrorMessage = string.Empty;
+    private string githubPat = string.Empty;
+    private bool isPushingToGitHub;
 
     protected override async Task OnInitializedAsync()
     {
@@ -182,6 +210,7 @@ else
         if (isAuthenticated)
         {
             model = await ProfileService.GetProfileAsync();
+            githubPat = await GitHubApi.GetTokenAsync() ?? string.Empty;
         }
     }
 
@@ -198,6 +227,7 @@ else
         {
             isAuthenticated = true;
             model = await ProfileService.GetProfileAsync();
+            githubPat = await GitHubApi.GetTokenAsync() ?? string.Empty;
         }
         else
         {
@@ -209,6 +239,65 @@ else
     {
         await AuthService.LogoutAsync();
         isAuthenticated = false;
+    }
+
+    private async Task SavePat()
+    {
+        if (!string.IsNullOrWhiteSpace(githubPat))
+        {
+            await GitHubApi.SetTokenAsync(githubPat);
+            statusMessage = Lang.Text("💾 Đã lưu GitHub PAT vào trình duyệt thành công!", "💾 Saved GitHub PAT to browser successfully!");
+            githubErrorMessage = string.Empty;
+        }
+    }
+
+    private async Task ClearPat()
+    {
+        await GitHubApi.ClearTokenAsync();
+        githubPat = string.Empty;
+        statusMessage = Lang.Text("🗑️ Đã xoá GitHub PAT khỏi trình duyệt.", "🗑️ Cleared GitHub PAT from browser.");
+        githubErrorMessage = string.Empty;
+    }
+
+    private async Task PushToGitHub()
+    {
+        statusMessage = string.Empty;
+        githubErrorMessage = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(githubPat))
+        {
+            githubErrorMessage = Lang.Text("⚠️ Vui lòng nhập GitHub Personal Access Token (PAT) trước khi Push!", "⚠️ Please enter a GitHub Personal Access Token (PAT) before pushing!");
+            return;
+        }
+
+        isPushingToGitHub = true;
+        try
+        {
+            ApplyPreview();
+            await GitHubApi.SetTokenAsync(githubPat);
+            var json = ProfileService.ExportToJson();
+
+            var (success, commitUrl, err) = await GitHubApi.CommitProfileJsonAsync(json, githubPat);
+
+            if (success)
+            {
+                var commitLinkHtml = !string.IsNullOrEmpty(commitUrl)
+                    ? $"<a href='{commitUrl}' target='_blank' style='color: #58a6ff; text-decoration: underline;'>{Lang.Text("Xem commit trên GitHub", "View commit on GitHub")}</a>"
+                    : string.Empty;
+
+                statusMessage = Lang.Text(
+                    $"🚀 Đã Commit & Push file profile.json thành công lên GitHub! {commitLinkHtml}. GitHub Actions đang tự động deploy bản mới.",
+                    $"🚀 Successfully Committed & Pushed profile.json to GitHub! {commitLinkHtml}. GitHub Actions is auto-deploying the new release.");
+            }
+            else
+            {
+                githubErrorMessage = Lang.Text($"❌ Push thất bại: {err}", $"❌ Push failed: {err}");
+            }
+        }
+        finally
+        {
+            isPushingToGitHub = false;
+        }
     }
 
     private void ApplyPreview()

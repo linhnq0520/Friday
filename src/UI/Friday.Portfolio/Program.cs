@@ -15,5 +15,6 @@ builder.Services.AddScoped<MarkdownContentService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<AdminAuthService>();
 builder.Services.AddScoped<LanguageService>();
+builder.Services.AddScoped<GitHubApiService>();
 
 await builder.Build().RunAsync();
