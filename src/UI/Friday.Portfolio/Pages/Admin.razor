@@ -1,18 +1,20 @@
 @page "/admin"
 @page "/editor"
+@implements IDisposable
 @using Friday.Portfolio.Models
 @using Friday.Portfolio.Services
 @inject ProfileService ProfileService
 @inject AdminAuthService AuthService
+@inject LanguageService Lang
 @inject IJSRuntime JS
 
-<PageTitle>Quản Trị &amp; Chỉnh Sửa Profile — CV Editor</PageTitle>
+<PageTitle>@Lang.Text("Quản Trị & Chỉnh Sửa Profile — CV Editor", "Admin & Profile Editor — CV Editor")</PageTitle>
 
 <section class="section page-hero">
     <div class="section-inner">
-        <p class="section-label">⚡ Admin / CMS Editor</p>
-        <h1>Chỉnh Sửa Thông Tin Profile &amp; CV Online</h1>
-        <p class="section-lead">Chỉnh sửa trực tiếp thông tin cá nhân, kinh nghiệm làm việc, kỹ năng và xuất file JSON mới.</p>
+        <p class="section-label">@Lang.Text("⚡ Quản trị / Trình biên tập CMS", "⚡ Admin / CMS Editor")</p>
+        <h1>@Lang.Text("Chỉnh Sửa Thông Tin Profile & CV Online", "Edit Online Profile & CV Information")</h1>
+        <p class="section-lead">@Lang.Text("Chỉnh sửa trực tiếp thông tin cá nhân, kinh nghiệm làm việc, kỹ năng và xuất file JSON mới.", "Directly edit personal information, work experience, skills and export a new JSON file.")</p>
     </div>
 </section>
 
@@ -20,13 +22,13 @@
 {
     <section class="section">
         <div class="section-inner" style="max-width: 480px; margin: 0 auto; background: var(--card-bg, #1a1e24); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color, #2a2f38);">
-            <h2 style="margin-top: 0;">🔒 Xác Thực Quản Trị</h2>
-            <p>Vui lòng nhập mật khẩu quản trị để chỉnh sửa thông tin Profile &amp; CV:</p>
+            <h2 style="margin-top: 0;">@Lang.Text("🔒 Xác Thực Quản Trị", "🔒 Admin Authentication")</h2>
+            <p>@Lang.Text("Vui lòng nhập mật khẩu quản trị để chỉnh sửa thông tin Profile & CV:", "Please enter the admin password to edit Profile & CV information:")</p>
 
             <form @onsubmit="HandleLogin">
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 6px;">Mật khẩu Admin:</label>
-                    <input type="password" @bind="inputPassword" placeholder="Nhập mật khẩu Admin..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a3f48; background: #0f1217; color: #fff;" />
+                    <label style="display: block; margin-bottom: 6px;">@Lang.Text("Mật khẩu Admin:", "Admin Password:")</label>
+                    <input type="password" @bind="inputPassword" placeholder="@Lang.Text("Nhập mật khẩu Admin...", "Enter Admin password...")" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a3f48; background: #0f1217; color: #fff;" />
                 </div>
 
                 @if (!string.IsNullOrEmpty(errorMessage))
@@ -35,7 +37,7 @@
                 }
 
                 <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Đăng Nhập Quản Trị</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">@Lang.Text("Đăng Nhập Quản Trị", "Admin Login")</button>
                 </div>
             </form>
         </div>
@@ -45,7 +47,7 @@ else if (model == null)
 {
     <section class="section">
         <div class="section-inner">
-            <p>Đang tải dữ liệu...</p>
+            <p>@Lang.Text("Đang tải dữ liệu...", "Loading data...")</p>
         </div>
     </section>
 }
@@ -55,14 +57,23 @@ else
         <div class="section-inner">
             <div style="background: var(--card-bg, #1a1e24); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border-color, #2a2f38);">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <h3 style="margin: 0;">📤 Xuất dữ liệu JSON</h3>
-                    <button class="btn btn-ghost" @onclick="HandleLogout" style="font-size: 0.85rem;">🔒 Đăng xuất Quản trị</button>
+                    <h3 style="margin: 0;">@Lang.Text("📤 Xuất dữ liệu JSON", "📤 Export JSON Data")</h3>
+                    <button class="btn btn-ghost" @onclick="HandleLogout" style="font-size: 0.85rem;">@Lang.Text("🔒 Đăng xuất Quản trị", "🔒 Admin Logout")</button>
                 </div>
-                <p style="margin-top: 0.5rem;">Sau khi chỉnh sửa xong, bấm nút <strong>Tải về file profile.json</strong> để ghi đè vào file <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> trong dự án và Push Git!</p>
+                <p style="margin-top: 0.5rem;">
+                    @if (Lang.IsVietnamese)
+                    {
+                        <span>Sau khi chỉnh sửa xong, bấm nút <strong>Tải về file profile.json</strong> để ghi đè vào file <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> trong dự án và Push Git!</span>
+                    }
+                    else
+                    {
+                        <span>After editing, click the <strong>Download profile.json</strong> button to overwrite <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> in the project and Push Git!</span>
+                    }
+                </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-                    <button class="btn btn-primary" @onclick="DownloadJson">📥 Tải về file profile.json</button>
-                    <button class="btn btn-ghost" @onclick="CopyJsonToClipboard">📋 Copy mã JSON</button>
-                    <button class="btn btn-ghost" @onclick="ApplyPreview">🔄 Cập nhật xem trước Web</button>
+                    <button class="btn btn-primary" @onclick="DownloadJson">@Lang.Text("📥 Tải về file profile.json", "📥 Download profile.json")</button>
+                    <button class="btn btn-ghost" @onclick="CopyJsonToClipboard">@Lang.Text("📋 Copy mã JSON", "📋 Copy JSON Code")</button>
+                    <button class="btn btn-ghost" @onclick="ApplyPreview">@Lang.Text("🔄 Cập nhật xem trước Web", "🔄 Update Web Preview")</button>
                 </div>
                 @if (!string.IsNullOrEmpty(statusMessage))
                 {
@@ -71,86 +82,86 @@ else
             </div>
 
             <form @onsubmit:preventDefault>
-                <h2>1. Thông tin chung</h2>
+                <h2>@Lang.Text("1. Thông tin chung", "1. General Information")</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
                     <div>
-                        <label>Họ và tên:</label>
+                        <label>@Lang.Text("Họ và tên:", "Full Name:")</label>
                         <input class="form-control" @bind="model.FullName" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Biệt danh (Nickname):</label>
+                        <label>@Lang.Text("Biệt danh (Nickname):", "Nickname:")</label>
                         <input class="form-control" @bind="model.Nickname" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Chức danh (Title):</label>
+                        <label>@Lang.Text("Chức danh (Title):", "Job Title:")</label>
                         <input class="form-control" @bind="model.Title" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Địa điểm (Location):</label>
+                        <label>@Lang.Text("Địa điểm (Location):", "Location:")</label>
                         <input class="form-control" @bind="model.Location" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Email:</label>
+                        <label>@Lang.Text("Email:", "Email:")</label>
                         <input class="form-control" @bind="model.Email" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Số điện thoại:</label>
+                        <label>@Lang.Text("Số điện thoại:", "Phone Number:")</label>
                         <input class="form-control" @bind="model.Phone" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Ngày sinh (DOB):</label>
+                        <label>@Lang.Text("Ngày sinh (DOB):", "Date of Birth (DOB):")</label>
                         <input class="form-control" @bind="model.DateOfBirth" placeholder="20/05/1999" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Website URL (Tự chọn):</label>
-                        <input class="form-control" @bind="model.WebsiteUrl" placeholder="Để trống sẽ tự lấy link web hiện tại" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                        <label>@Lang.Text("Website URL (Tự chọn):", "Website URL (Optional):")</label>
+                        <input class="form-control" @bind="model.WebsiteUrl" placeholder="@Lang.Text("Để trống sẽ tự lấy link web hiện tại", "Leave blank to use current web URL")" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Link LinkedIn:</label>
+                        <label>@Lang.Text("Link LinkedIn:", "LinkedIn Link:")</label>
                         <input class="form-control" @bind="model.LinkedIn" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                     <div>
-                        <label>Link NuGet:</label>
+                        <label>@Lang.Text("Link NuGet:", "NuGet Link:")</label>
                         <input class="form-control" @bind="model.NuGet" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
                     </div>
                 </div>
 
                 <div style="margin-bottom: 2rem;">
-                    <label>Tóm tắt bản thân (Summary):</label>
+                    <label>@Lang.Text("Tóm tắt bản thân (Summary):", "Summary:")</label>
                     <textarea @bind="model.Summary" rows="4" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;"></textarea>
                 </div>
 
                 <div style="margin-bottom: 2rem;">
-                    <label>Mục tiêu nghề nghiệp (Objective):</label>
+                    <label>@Lang.Text("Mục tiêu nghề nghiệp (Objective):", "Career Objective:")</label>
                     <textarea @bind="model.Objective" rows="3" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;"></textarea>
                 </div>
 
-                <h2>2. Kinh nghiệm làm việc</h2>
+                <h2>@Lang.Text("2. Kinh nghiệm làm việc", "2. Work Experience")</h2>
                 @foreach (var exp in model.Experiences)
                 {
                     <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem;">
                             <div>
-                                <label>Công ty / Tổ chức:</label>
+                                <label>@Lang.Text("Công ty / Tổ chức:", "Company / Organization:")</label>
                                 <input @bind="exp.Company" style="width: 100%; padding: 6px;" />
                             </div>
                             <div>
-                                <label>Vị trí / Role:</label>
+                                <label>@Lang.Text("Vị trí / Role:", "Position / Role:")</label>
                                 <input @bind="exp.Role" style="width: 100%; padding: 6px;" />
                             </div>
                             <div>
-                                <label>Thời gian:</label>
+                                <label>@Lang.Text("Thời gian:", "Period / Duration:")</label>
                                 <input @bind="exp.Period" style="width: 100%; padding: 6px;" />
                             </div>
                             <div>
-                                <label>Địa điểm:</label>
+                                <label>@Lang.Text("Địa điểm:", "Location:")</label>
                                 <input @bind="exp.Location" style="width: 100%; padding: 6px;" />
                             </div>
                         </div>
                     </div>
                 }
 
-                <h2>3. Xem trước Mã JSON xuất ra</h2>
+                <h2>@Lang.Text("3. Xem trước Mã JSON xuất ra", "3. Preview Exported JSON Code")</h2>
                 <textarea readonly rows="12" style="width: 100%; font-family: monospace; padding: 12px; border-radius: 8px; background: #0d1117; color: #58a6ff;">@ProfileService.ExportToJson()</textarea>
             </form>
         </div>
@@ -166,11 +177,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnLanguageChanged += StateHasChanged;
         isAuthenticated = await AuthService.IsAuthenticatedAsync();
         if (isAuthenticated)
         {
             model = await ProfileService.GetProfileAsync();
         }
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= StateHasChanged;
     }
 
     private async Task HandleLogin()
@@ -184,7 +201,7 @@ else
         }
         else
         {
-            errorMessage = "Mật khẩu không chính xác. Vui lòng thử lại.";
+            errorMessage = Lang.Text("Mật khẩu không chính xác. Vui lòng thử lại.", "Incorrect password. Please try again.");
         }
     }
 
@@ -199,7 +216,7 @@ else
         if (model != null)
         {
             ProfileService.UpdateProfileInMemory(model);
-            statusMessage = "✅ Đã cập nhật xem trước trong phiên làm việc hiện tại!";
+            statusMessage = Lang.Text("✅ Đã cập nhật xem trước trong phiên làm việc hiện tại!", "✅ Web preview updated for current session!");
         }
     }
 
@@ -208,7 +225,7 @@ else
         ApplyPreview();
         var json = ProfileService.ExportToJson();
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", json);
-        statusMessage = "📋 Đã copy toàn bộ mã JSON vào Clipboard của bạn!";
+        statusMessage = Lang.Text("📋 Đã copy toàn bộ mã JSON vào Clipboard của bạn!", "📋 Copied all JSON code to Clipboard!");
     }
 
     private async Task DownloadJson()
@@ -219,6 +236,6 @@ else
         var base64 = Convert.ToBase64String(bytes);
         var url = $"data:application/json;base64,{base64}";
         await JS.InvokeVoidAsync("open", url, "_blank");
-        statusMessage = "📥 Đã tạo liên kết tải file profile.json!";
+        statusMessage = Lang.Text("📥 Đã tạo liên kết tải file profile.json!", "📥 Created download link for profile.json!");
     }
 }
