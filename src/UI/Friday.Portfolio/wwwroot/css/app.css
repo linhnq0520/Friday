@@ -799,18 +799,17 @@ img {
     gap: 1.5rem;
 }
 
-@media (min-width: 860px) {
-    .publish-grid,
-    .audience-grid {
-        grid-template-columns: repeat(3, 1fr);
+@media (min-width: 768px) {
+    .publish-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
-
     .audience-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (min-width: 1100px) {
+    .publish-grid,
     .audience-grid {
         grid-template-columns: repeat(4, 1fr);
     }
