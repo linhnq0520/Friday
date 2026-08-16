@@ -14,6 +14,8 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
     public const string DefaultRepo = "Friday";
     public const string TargetFilePath = "src/UI/Friday.Portfolio/wwwroot/data/profile.json";
 
+    public const string DefaultBranch = "feature/quoclinh-web";
+
     public async Task<string?> GetTokenAsync()
     {
         try
@@ -59,7 +61,8 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
         string token,
         string owner = DefaultOwner,
         string repo = DefaultRepo,
-        string path = TargetFilePath
+        string path = TargetFilePath,
+        string branch = DefaultBranch
     )
     {
         if (string.IsNullOrWhiteSpace(token))
@@ -71,9 +74,10 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
         {
             var apiUrl = $"https://api.github.com/repos/{owner}/{repo}/contents/{path}";
 
-            // Step 1: Get current file SHA if it exists
+            // Step 1: Get current file SHA if it exists on the specified branch
             string? fileSha = null;
-            using (var getReq = new HttpRequestMessage(HttpMethod.Get, apiUrl))
+            var getUrl = $"{apiUrl}?ref={Uri.EscapeDataString(branch)}";
+            using (var getReq = new HttpRequestMessage(HttpMethod.Get, getUrl))
             {
                 getReq.Headers.UserAgent.ParseAdd("Friday-Portfolio-CMS");
                 getReq.Headers.Authorization = new AuthenticationHeaderValue(
@@ -95,14 +99,14 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
             // Step 2: Base64 encode the new JSON content
             var base64Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(content));
 
-            // Step 3: Put updated content
+            // Step 3: Put updated content on target branch
             var payload = new GitHubPutPayload
             {
                 Message =
                     $"docs(cms): update profile.json via Admin Editor [{DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC]",
                 Content = base64Content,
                 Sha = fileSha,
-                Branch = "feature/quoclinh-web",
+                Branch = branch,
             };
 
             using var putReq = new HttpRequestMessage(HttpMethod.Put, apiUrl);
@@ -119,7 +123,7 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
             {
                 var result = await putResp.Content.ReadFromJsonAsync<GitHubCommitResponse>();
                 var commitHtmlUrl =
-                    result?.Commit?.HtmlUrl ?? $"https://github.com/{owner}/{repo}/commits/main";
+                    result?.Commit?.HtmlUrl ?? $"https://github.com/{owner}/{repo}/commits/{branch}";
                 return (true, commitHtmlUrl, null);
             }
             else
