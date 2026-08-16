@@ -50,12 +50,17 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
         }
     }
 
-    public async Task<(bool Success, string? CommitUrl, string? ErrorMessage)> CommitProfileJsonAsync(
+    public async Task<(
+        bool Success,
+        string? CommitUrl,
+        string? ErrorMessage
+    )> CommitProfileJsonAsync(
         string content,
         string token,
         string owner = DefaultOwner,
         string repo = DefaultRepo,
-        string path = TargetFilePath)
+        string path = TargetFilePath
+    )
     {
         if (string.IsNullOrWhiteSpace(token))
         {
@@ -71,8 +76,13 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
             using (var getReq = new HttpRequestMessage(HttpMethod.Get, apiUrl))
             {
                 getReq.Headers.UserAgent.ParseAdd("Friday-Portfolio-CMS");
-                getReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Trim());
-                getReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+                getReq.Headers.Authorization = new AuthenticationHeaderValue(
+                    "Bearer",
+                    token.Trim()
+                );
+                getReq.Headers.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/vnd.github+json")
+                );
 
                 var getResp = await http.SendAsync(getReq);
                 if (getResp.IsSuccessStatusCode)
@@ -88,16 +98,19 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
             // Step 3: Put updated content
             var payload = new GitHubPutPayload
             {
-                Message = $"docs(cms): update profile.json via Admin Editor [{DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC]",
+                Message =
+                    $"docs(cms): update profile.json via Admin Editor [{DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC]",
                 Content = base64Content,
                 Sha = fileSha,
-                Branch = "main"
+                Branch = "feature/quoclinh-web",
             };
 
             using var putReq = new HttpRequestMessage(HttpMethod.Put, apiUrl);
             putReq.Headers.UserAgent.ParseAdd("Friday-Portfolio-CMS");
             putReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Trim());
-            putReq.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            putReq.Headers.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/vnd.github+json")
+            );
             putReq.Content = JsonContent.Create(payload);
 
             var putResp = await http.SendAsync(putReq);
@@ -105,7 +118,8 @@ public sealed class GitHubApiService(HttpClient http, IJSRuntime js)
             if (putResp.IsSuccessStatusCode)
             {
                 var result = await putResp.Content.ReadFromJsonAsync<GitHubCommitResponse>();
-                var commitHtmlUrl = result?.Commit?.HtmlUrl ?? $"https://github.com/{owner}/{repo}/commits/main";
+                var commitHtmlUrl =
+                    result?.Commit?.HtmlUrl ?? $"https://github.com/{owner}/{repo}/commits/main";
                 return (true, commitHtmlUrl, null);
             }
             else
