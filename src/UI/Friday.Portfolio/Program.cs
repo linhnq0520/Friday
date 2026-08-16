@@ -12,5 +12,8 @@ builder.Services.AddScoped(_ => new HttpClient
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
 });
 builder.Services.AddScoped<MarkdownContentService>();
+builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<AdminAuthService>();
+builder.Services.AddScoped<LanguageService>();
 
 await builder.Build().RunAsync();

@@ -1,24 +1,37 @@
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
+
 <section id="contact" class="section contact">
     <div class="section-inner contact-inner">
         <header class="section-head">
-            <p class="section-label">Contact</p>
-            <h2>Let's talk systems</h2>
-            <p class="section-lead">Open to Technical Lead opportunities and international onsite collaboration.</p>
+            <p class="section-label">@Lang.Text("Liên hệ", "Contact")</p>
+            <h2>@Lang.Text("Kết nối & Hợp tác", "Let's Connect & Collaborate")</h2>
+            <p class="section-lead">@Lang.Text("Sẵn sàng trao đổi về vị trí Technical Lead và các cơ hội hợp tác onsite / remote quốc tế.", "Open to Technical Lead opportunities and international onsite collaboration.")</p>
         </header>
 
         <ul class="contact-list">
             <li>
                 <span>Email</span>
-                <a href="mailto:@ProfileData.Email">@ProfileData.Email</a>
+                <a href="mailto:@Model?.Email">@(Model?.Email ?? "zquoclinh@gmail.com")</a>
             </li>
             <li>
-                <span>Phone</span>
-                <a href="tel:@ProfileData.Phone.Replace(" ", "")">@ProfileData.Phone</a>
+                <span>@Lang.Text("Điện thoại", "Phone")</span>
+                <a href="tel:@(Model?.Phone.Replace(" ", "") ?? "")">@(Model?.Phone ?? "+84 943 894 177")</a>
             </li>
             <li>
                 <span>LinkedIn</span>
-                <a href="@ProfileData.LinkedIn" target="_blank" rel="noopener noreferrer">@ProfileData.LinkedInDisplay</a>
+                <a href="@Model?.LinkedIn" target="_blank" rel="noopener noreferrer">@(Model?.LinkedInDisplay ?? "linkedin.com/in/quoclinh0520")</a>
             </li>
         </ul>
     </div>
 </section>
+
+@code {
+    [Parameter] public ProfileModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+}

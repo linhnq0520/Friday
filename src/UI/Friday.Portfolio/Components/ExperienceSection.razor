@@ -1,31 +1,47 @@
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
+
 <section id="experience" class="section experience">
     <div class="section-inner">
         <header class="section-head">
-            <p class="section-label">Experience</p>
-            <h2>Where I have shipped</h2>
+            <p class="section-label">@Lang.Text("Kinh nghiệm làm việc", "Work Experience")</p>
+            <h2>@Lang.Text("Quá trình Công tác & Dự án", "Professional Experience & Projects")</h2>
         </header>
 
         <ol class="timeline">
-            @foreach (var job in ProfileData.Experiences)
+            @if (Model?.Experiences != null)
             {
-                <li class="timeline-item">
-                    <div class="timeline-meta">
-                        <time>@job.Period</time>
-                        <span>@job.Location</span>
-                    </div>
-                    <div class="timeline-body">
-                        <h3>@job.Role</h3>
-                        <p class="timeline-company">@job.Company</p>
-                        <ul>
-                            @foreach (var highlight in job.Highlights)
-                            {
-                                <li>@highlight</li>
-                            }
-                        </ul>
-                        <p class="tech-line">@string.Join(" · ", job.Tech)</p>
-                    </div>
-                </li>
+                @foreach (var job in Model.Experiences)
+                {
+                    <li class="timeline-item">
+                        <div class="timeline-meta">
+                            <time>@job.Period</time>
+                            <span>@job.Location</span>
+                        </div>
+                        <div class="timeline-body">
+                            <h3>@job.Role</h3>
+                            <p class="timeline-company">@job.Company</p>
+                            <ul>
+                                @foreach (var highlight in job.Bullets)
+                                {
+                                    <li>@highlight</li>
+                                }
+                            </ul>
+                            <p class="tech-line">@string.Join(" · ", job.Tags)</p>
+                        </div>
+                    </li>
+                }
             }
         </ol>
     </div>
 </section>
+
+@code {
+    [Parameter] public ProfileModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+}

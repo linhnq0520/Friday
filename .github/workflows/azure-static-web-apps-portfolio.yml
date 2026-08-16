@@ -7,9 +7,7 @@ name: Portfolio — Azure Static Web Apps
 on:
   push:
     branches:
-      - main
-      - develop
-      - feature/personal-portfolio
+      - feature/quoclinh-web
     paths:
       - "src/UI/Friday.Portfolio/**"
       - "src/Directory.Packages.props"
@@ -18,8 +16,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
-      - develop
+      - feature/quoclinh-web
     paths:
       - "src/UI/Friday.Portfolio/**"
       - "src/Directory.Packages.props"

@@ -1,19 +1,35 @@
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
+
 <section id="education" class="section education">
     <div class="section-inner">
         <header class="section-head">
-            <p class="section-label">Education</p>
-            <h2>Learning path</h2>
+            <p class="section-label">@Lang.Text("Học vấn", "Education")</p>
+            <h2>@Lang.Text("Học vấn & Chứng chỉ", "Academic Background & Certifications")</h2>
         </header>
 
         <ul class="edu-list">
-            @foreach (var item in ProfileData.Education)
+            @if (Model?.Education != null)
             {
-                <li>
-                    <h3>@item.School</h3>
-                    <p>@item.Degree</p>
-                    <time>@item.Period</time>
-                </li>
+                @foreach (var item in Model.Education)
+                {
+                    <li>
+                        <h3>@item.Institution</h3>
+                        <p>@item.Degree</p>
+                        <time>@item.Period</time>
+                    </li>
+                }
             }
         </ul>
     </div>
 </section>
+
+@code {
+    [Parameter] public ProfileModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+}

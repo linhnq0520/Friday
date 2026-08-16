@@ -1081,3 +1081,225 @@ img {
         animation: none !important;
     }
 }
+
+/* Screen mode hides print resume document */
+@media screen {
+    .print-resume-document {
+        display: none !important;
+    }
+}
+
+/* Executive Resume Print Document (A4 PDF Job Application - 100% Matching Original CV) */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 10mm 15mm 10mm 15mm;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #111111 !important;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-size: 9.8pt !important;
+        line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide Web Elements and Web Views */
+    .site-header,
+    .site-footer,
+    .no-print,
+    .page-hero,
+    #cv-web-view,
+    .hero-backdrop,
+    .btn,
+    button {
+        display: none !important;
+    }
+
+    .site, main {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+    }
+
+    /* Display Printable CV Document */
+    .print-resume-document {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Header Matching Original CV */
+    .print-header-shell {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 15px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .print-header-text {
+        flex: 1 !important;
+        text-align: center !important;
+    }
+
+    .print-name {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
+        font-size: 21pt !important;
+        font-weight: 500 !important;
+        color: #111111 !important;
+        margin: 0 0 3px 0 !important;
+        letter-spacing: 0.2px !important;
+    }
+
+    .print-nickname {
+        font-weight: 400 !important;
+        font-size: 17pt !important;
+        color: #222222 !important;
+    }
+
+    .print-title {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
+        font-size: 14pt !important;
+        font-weight: 400 !important;
+        color: #111111 !important;
+        margin: 0 0 6px 0 !important;
+    }
+
+    .print-contact-line {
+        font-family: Arial, sans-serif !important;
+        font-size: 9pt !important;
+        color: #222222 !important;
+        margin: 2px 0 !important;
+    }
+
+    .print-contact-line .sep {
+        color: #555555 !important;
+        margin: 0 4px !important;
+    }
+
+    .print-contact-line .underline {
+        text-decoration: underline !important;
+    }
+
+    .print-header-photo img {
+        width: 110px !important;
+        height: 125px !important;
+        object-fit: cover !important;
+        border-radius: 18px !important;
+        border: 1px solid #cccccc !important;
+    }
+
+    /* Print Sections - Exactly 1 Divider Line ONLY ABOVE each section title */
+    .print-sec {
+        margin-bottom: 14px !important;
+        page-break-inside: auto !important;
+        border-top: 1.5px solid #222222 !important;
+        padding-top: 10px !important;
+        margin-top: 14px !important;
+    }
+
+    .print-sec-head {
+        text-align: center !important;
+        border-bottom: none !important;
+        margin-bottom: 8px !important;
+        padding-bottom: 0 !important;
+    }
+
+    .print-sec-title {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
+        font-size: 13pt !important;
+        font-weight: 500 !important;
+        color: #111111 !important;
+        text-transform: uppercase !important;
+        margin: 0 !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .print-text {
+        font-size: 9.5pt !important;
+        color: #222222 !important;
+        margin: 0 0 4px 0 !important;
+        text-align: justify !important;
+    }
+
+    /* Skills List */
+    .print-skills-list {
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+
+    .print-skills-list li {
+        font-size: 9.5pt !important;
+        color: #222222 !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* Jobs & Experience */
+    .print-job {
+        margin-bottom: 12px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .print-job-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: baseline !important;
+        font-size: 10.5pt !important;
+        color: #111111 !important;
+        margin-bottom: 2px !important;
+    }
+
+    .print-company {
+        font-size: 10.5pt !important;
+        color: #111111 !important;
+    }
+
+    .print-period {
+        font-size: 9pt !important;
+        font-style: italic !important;
+        color: #444444 !important;
+    }
+
+    .print-location {
+        font-size: 8.8pt !important;
+        color: #555555 !important;
+        margin: 0 0 4px 0 !important;
+        font-style: italic !important;
+    }
+
+    .print-bullets {
+        margin: 3px 0 5px 18px !important;
+        padding: 0 !important;
+    }
+
+    .print-bullets li {
+        font-size: 9.2pt !important;
+        color: #222222 !important;
+        margin-bottom: 2.5px !important;
+    }
+
+    .print-tech-line {
+        font-size: 9pt !important;
+        color: #222222 !important;
+        margin: 4px 0 2px 0 !important;
+    }
+
+    .print-project {
+        margin-bottom: 10px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .print-url {
+        font-size: 8.8pt !important;
+        color: #333333 !important;
+        margin-top: 2px !important;
+    }
+
+    .print-edu {
+        margin-bottom: 8px !important;
+        page-break-inside: avoid !important;
+    }
+}

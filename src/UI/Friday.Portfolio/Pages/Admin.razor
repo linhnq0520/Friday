@@ -1,0 +1,224 @@
+@page "/admin"
+@page "/editor"
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject ProfileService ProfileService
+@inject AdminAuthService AuthService
+@inject IJSRuntime JS
+
+<PageTitle>Quản Trị &amp; Chỉnh Sửa Profile — CV Editor</PageTitle>
+
+<section class="section page-hero">
+    <div class="section-inner">
+        <p class="section-label">⚡ Admin / CMS Editor</p>
+        <h1>Chỉnh Sửa Thông Tin Profile &amp; CV Online</h1>
+        <p class="section-lead">Chỉnh sửa trực tiếp thông tin cá nhân, kinh nghiệm làm việc, kỹ năng và xuất file JSON mới.</p>
+    </div>
+</section>
+
+@if (!isAuthenticated)
+{
+    <section class="section">
+        <div class="section-inner" style="max-width: 480px; margin: 0 auto; background: var(--card-bg, #1a1e24); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color, #2a2f38);">
+            <h2 style="margin-top: 0;">🔒 Xác Thực Quản Trị</h2>
+            <p>Vui lòng nhập mật khẩu quản trị để chỉnh sửa thông tin Profile &amp; CV:</p>
+
+            <form @onsubmit="HandleLogin">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 6px;">Mật khẩu Admin:</label>
+                    <input type="password" @bind="inputPassword" placeholder="Nhập mật khẩu Admin..." style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #3a3f48; background: #0f1217; color: #fff;" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p style="color: #ff4d4f; font-size: 0.9rem; margin-bottom: 1rem;">@errorMessage</p>
+                }
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Đăng Nhập Quản Trị</button>
+                </div>
+            </form>
+        </div>
+    </section>
+}
+else if (model == null)
+{
+    <section class="section">
+        <div class="section-inner">
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    </section>
+}
+else
+{
+    <section class="section">
+        <div class="section-inner">
+            <div style="background: var(--card-bg, #1a1e24); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border-color, #2a2f38);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <h3 style="margin: 0;">📤 Xuất dữ liệu JSON</h3>
+                    <button class="btn btn-ghost" @onclick="HandleLogout" style="font-size: 0.85rem;">🔒 Đăng xuất Quản trị</button>
+                </div>
+                <p style="margin-top: 0.5rem;">Sau khi chỉnh sửa xong, bấm nút <strong>Tải về file profile.json</strong> để ghi đè vào file <code>src/UI/Friday.Portfolio/wwwroot/data/profile.json</code> trong dự án và Push Git!</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                    <button class="btn btn-primary" @onclick="DownloadJson">📥 Tải về file profile.json</button>
+                    <button class="btn btn-ghost" @onclick="CopyJsonToClipboard">📋 Copy mã JSON</button>
+                    <button class="btn btn-ghost" @onclick="ApplyPreview">🔄 Cập nhật xem trước Web</button>
+                </div>
+                @if (!string.IsNullOrEmpty(statusMessage))
+                {
+                    <p style="color: #4cd964; margin-top: 1rem;">@statusMessage</p>
+                }
+            </div>
+
+            <form @onsubmit:preventDefault>
+                <h2>1. Thông tin chung</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div>
+                        <label>Họ và tên:</label>
+                        <input class="form-control" @bind="model.FullName" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Biệt danh (Nickname):</label>
+                        <input class="form-control" @bind="model.Nickname" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Chức danh (Title):</label>
+                        <input class="form-control" @bind="model.Title" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Địa điểm (Location):</label>
+                        <input class="form-control" @bind="model.Location" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Email:</label>
+                        <input class="form-control" @bind="model.Email" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Số điện thoại:</label>
+                        <input class="form-control" @bind="model.Phone" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Ngày sinh (DOB):</label>
+                        <input class="form-control" @bind="model.DateOfBirth" placeholder="20/05/1999" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Website URL (Tự chọn):</label>
+                        <input class="form-control" @bind="model.WebsiteUrl" placeholder="Để trống sẽ tự lấy link web hiện tại" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Link LinkedIn:</label>
+                        <input class="form-control" @bind="model.LinkedIn" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label>Link NuGet:</label>
+                        <input class="form-control" @bind="model.NuGet" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label>Tóm tắt bản thân (Summary):</label>
+                    <textarea @bind="model.Summary" rows="4" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <label>Mục tiêu nghề nghiệp (Objective):</label>
+                    <textarea @bind="model.Objective" rows="3" style="width: 100%; padding: 8px; border-radius: 6px; margin-top: 4px;"></textarea>
+                </div>
+
+                <h2>2. Kinh nghiệm làm việc</h2>
+                @foreach (var exp in model.Experiences)
+                {
+                    <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem;">
+                            <div>
+                                <label>Công ty / Tổ chức:</label>
+                                <input @bind="exp.Company" style="width: 100%; padding: 6px;" />
+                            </div>
+                            <div>
+                                <label>Vị trí / Role:</label>
+                                <input @bind="exp.Role" style="width: 100%; padding: 6px;" />
+                            </div>
+                            <div>
+                                <label>Thời gian:</label>
+                                <input @bind="exp.Period" style="width: 100%; padding: 6px;" />
+                            </div>
+                            <div>
+                                <label>Địa điểm:</label>
+                                <input @bind="exp.Location" style="width: 100%; padding: 6px;" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <h2>3. Xem trước Mã JSON xuất ra</h2>
+                <textarea readonly rows="12" style="width: 100%; font-family: monospace; padding: 12px; border-radius: 8px; background: #0d1117; color: #58a6ff;">@ProfileService.ExportToJson()</textarea>
+            </form>
+        </div>
+    </section>
+}
+
+@code {
+    private ProfileModel? model;
+    private bool isAuthenticated;
+    private string inputPassword = string.Empty;
+    private string errorMessage = string.Empty;
+    private string statusMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            model = await ProfileService.GetProfileAsync();
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        errorMessage = string.Empty;
+        var success = await AuthService.LoginAsync(inputPassword);
+        if (success)
+        {
+            isAuthenticated = true;
+            model = await ProfileService.GetProfileAsync();
+        }
+        else
+        {
+            errorMessage = "Mật khẩu không chính xác. Vui lòng thử lại.";
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        isAuthenticated = false;
+    }
+
+    private void ApplyPreview()
+    {
+        if (model != null)
+        {
+            ProfileService.UpdateProfileInMemory(model);
+            statusMessage = "✅ Đã cập nhật xem trước trong phiên làm việc hiện tại!";
+        }
+    }
+
+    private async Task CopyJsonToClipboard()
+    {
+        ApplyPreview();
+        var json = ProfileService.ExportToJson();
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", json);
+        statusMessage = "📋 Đã copy toàn bộ mã JSON vào Clipboard của bạn!";
+    }
+
+    private async Task DownloadJson()
+    {
+        ApplyPreview();
+        var json = ProfileService.ExportToJson();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+        var base64 = Convert.ToBase64String(bytes);
+        var url = $"data:application/json;base64,{base64}";
+        await JS.InvokeVoidAsync("open", url, "_blank");
+        statusMessage = "📥 Đã tạo liên kết tải file profile.json!";
+    }
+}

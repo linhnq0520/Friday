@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
 
 <div class="site">
     <header class="site-header">
@@ -7,13 +9,18 @@
             <span class="brand-text">Quoc Linh</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
-            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
-            <NavLink href="/blog">Blog</NavLink>
-            <NavLink href="/courses">Courses</NavLink>
-            <NavLink href="/about">Profile</NavLink>
-            <NavLink href="/about#contact">Contact</NavLink>
+            <NavLink href="/" Match="NavLinkMatch.All">@Lang.Text("Trang chủ", "Home")</NavLink>
+            <NavLink href="/cv">@Lang.Text("Hồ sơ / CV", "Profile & CV")</NavLink>
+            <NavLink href="/cv#contact">@Lang.Text("Liên hệ", "Contact")</NavLink>
+            <NavLink href="/admin">@Lang.Text("✏️ Sửa CV", "✏️ Edit CV")</NavLink>
         </nav>
-        <a class="header-cta" href="mailto:@ProfileData.Email">Email me</a>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn btn-ghost" @onclick="ToggleLanguage" style="padding: 4px 10px; font-size: 0.85rem; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
+                🌐 @(Lang.IsVietnamese ? "VI | EN" : "EN | VI")
+            </button>
+            <a class="header-cta" href="mailto:@ProfileData.Email">@Lang.Text("Email cho tôi", "Email me")</a>
+        </div>
     </header>
 
     <main>
@@ -27,12 +34,27 @@
                 <p>@ProfileData.Title · @ProfileData.Location</p>
             </div>
             <div class="footer-links">
-                <a href="/blog">Blog</a>
-                <a href="/courses">Courses</a>
-                <a href="/about">Profile</a>
+                <a href="/">@Lang.Text("Trang chủ", "Home")</a>
+                <a href="/cv">@Lang.Text("Hồ sơ / CV", "Profile & CV")</a>
+                <a href="/admin">@Lang.Text("✏️ Quản trị / Sửa CV", "✏️ CMS / Edit CV")</a>
                 <a href="@ProfileData.LinkedIn" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="mailto:@ProfileData.Email">Email</a>
             </div>
         </div>
-        <p class="footer-meta">Built with Blazor WebAssembly · Azure Static Web Apps · GitHub Actions · Learning & research</p>
+        <p class="footer-meta">© @DateTime.Now.Year @ProfileData.FullName · Online CV &amp; Profile Web App</p>
     </footer>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Lang.InitializeAsync();
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+
+    private async Task ToggleLanguage()
+    {
+        var targetLang = Lang.IsVietnamese ? "en" : "vi";
+        await Lang.SetLanguageAsync(targetLang);
+    }
+}

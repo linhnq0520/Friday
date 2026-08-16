@@ -1,115 +1,108 @@
-﻿@page "/"
+@page "/"
 @using Friday.Portfolio.Components
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject ProfileService ProfileService
+@inject LanguageService Lang
 
-<PageTitle>@ProfileData.FullName — @ProfileData.Title</PageTitle>
+<PageTitle>@(profile?.FullName ?? "Nguyen Quoc Linh") — @(profile?.Title ?? "Senior Backend Engineer")</PageTitle>
 
-<section class="hero">
-    <div class="hero-backdrop" aria-hidden="true"></div>
-    <div class="hero-shell">
-        <div class="hero-content">
-            <p class="hero-kicker reveal">@ProfileData.Location · Writing since @ProfileData.WritingSince</p>
-            <h1 class="hero-brand reveal delay-1">@ProfileData.FullName</h1>
-            <p class="hero-title reveal delay-2">@ProfileData.Title</p>
-            <p class="hero-lead reveal delay-3">@ProfileData.Mission</p>
-            <div class="hero-actions reveal delay-4">
-                <a class="btn btn-primary" href="/blog">Read articles</a>
-                <a class="btn btn-ghost" href="/courses">Browse courses</a>
+@if (profile != null)
+{
+    <section class="hero">
+        <div class="hero-backdrop" aria-hidden="true"></div>
+        <div class="hero-shell">
+            <div class="hero-content">
+                <p class="hero-kicker reveal">📍 @profile.Location · @profile.Title</p>
+                <h1 class="hero-brand reveal delay-1">@profile.FullName</h1>
+                <p class="hero-title reveal delay-2">@profile.Title (Fintech &amp; Core Banking)</p>
+                <p class="hero-lead reveal delay-3">@profile.Summary</p>
+                <div class="hero-actions reveal delay-4">
+                    <a class="btn btn-primary" href="/cv">📄 @Lang.Text("Xem Hồ sơ & CV Chi tiết", "View Full Profile & CV")</a>
+                    <a class="btn btn-ghost" href="mailto:@profile.Email">✉️ @Lang.Text("Gửi Email Liên hệ", "Send Email")</a>
+                </div>
+                <p class="hero-meta reveal delay-4">@profile.Tagline</p>
             </div>
-            <p class="hero-meta reveal delay-4">@ProfileData.Tagline</p>
+            <figure class="hero-portrait reveal delay-2">
+                <img src="img/linh.jpg"
+                     alt="@profile.FullName (@profile.Nickname), @profile.Title"
+                     width="720"
+                     height="900"
+                     decoding="async"
+                     fetchpriority="high" />
+            </figure>
         </div>
-        <figure class="hero-portrait reveal delay-2">
-            <img src="img/linh.jpg"
-                 alt="@ProfileData.FullName (@ProfileData.Nickname), @ProfileData.Title"
-                 width="720"
-                 height="900"
-                 decoding="async"
-                 fetchpriority="high" />
-        </figure>
-    </div>
-</section>
+    </section>
 
-<section class="section home-publish">
-    <div class="section-inner">
-        <header class="section-head">
-            <p class="section-label">What I publish</p>
-            <h2>Profile, deep-dives, and structured courses</h2>
-        </header>
-        <div class="publish-grid">
-            <a class="publish-item" href="/blog">
-                <span class="publish-icon">✎</span>
-                <h3>Blog</h3>
-                <p>Tutorials and field notes on ASP.NET Core, messaging, performance, and Azure — written after shipping something real.</p>
-                <span class="publish-cta">Read articles →</span>
-            </a>
-            <a class="publish-item" href="/courses">
-                <span class="publish-icon">◆</span>
-                <h3>Courses</h3>
-                <p>Free learning tracks with clear outcomes. Start from backend fundamentals, then messaging and CI/CD.</p>
-                <span class="publish-cta">Browse courses →</span>
-            </a>
-            <a class="publish-item" href="/about">
-                <span class="publish-icon">◎</span>
-                <h3>Profile</h3>
-                <p>CV, experience at Payoo / JUST-IN-TIME, open-source work (LinKit.Core, Bon), and how to reach me.</p>
-                <span class="publish-cta">View profile →</span>
-            </a>
+    <section class="section home-publish">
+        <div class="section-inner">
+            <header class="section-head">
+                <p class="section-label">@Lang.Text("Điểm nổi bật", "Highlights")</p>
+                <h2>@Lang.Text("Kinh nghiệm & Dấu ấn Nổi bật", "Key Highlights & Experience")</h2>
+            </header>
+            <div class="publish-grid">
+                <div class="publish-item">
+                    <span class="publish-icon">💳</span>
+                    <h3>Fintech &amp; Payment Systems</h3>
+                    <p>@Lang.Text("Phát triển các dịch vụ thanh toán lõi (QRCode, POS, mPOS, Pay4Biz) tại Payoo. Tối ưu API tạo QR từ ~30s xuống ~5s dưới tải trọng lớn.", "Delivered core payment services (QRCode, POS, mPOS, Pay4Biz) at Payoo. Optimized QR code generation API from ~30s to ~5s under high concurrency.")</p>
+                </div>
+                <div class="publish-item">
+                    <span class="publish-icon">🏦</span>
+                    <h3>Core Banking &amp; Security</h3>
+                    <p>@Lang.Text("Kinh nghiệm làm việc tại JUST-IN-TIME (Vietnam / Myanmar), thiết kế hệ thống xác thực OTP, API giao dịch ngân hàng lõi Neptune & Optimal9.", "Onsite core banking experience at JUST-IN-TIME (Vietnam / Myanmar), designing OTP auth and teller transaction APIs for Neptune & Optimal9.")</p>
+                </div>
+                <div class="publish-item">
+                    <span class="publish-icon">📦</span>
+                    <h3>Open Source &amp; Architecture</h3>
+                    <p>@Lang.Text("Tác giả thư viện LinKit.Core trên NuGet và Bon Microservices Framework trên GitHub. Kiến trúc hệ thống với gRPC, RabbitMQ & YARP Proxy.", "Author of LinKit.Core on NuGet and Bon Framework on GitHub. Distributed system design with gRPC, RabbitMQ & YARP Reverse Proxy.")</p>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="section">
-    <div class="section-inner">
-        <header class="section-head row-head">
-            <div>
-                <p class="section-label">Latest</p>
-                <h2>From the desk</h2>
-            </div>
-            <a class="text-link" href="/blog">All articles →</a>
-        </header>
-        <PostList Posts="SiteContent.LatestPosts(3)" />
-    </div>
-</section>
-
-<section class="section">
-    <div class="section-inner">
-        <header class="section-head row-head">
-            <div>
-                <p class="section-label">Courses</p>
-                <h2>Learn by building</h2>
-            </div>
-            <a class="text-link" href="/courses">All courses →</a>
-        </header>
-        <CourseList Courses="SiteContent.Courses.Take(3)" />
-    </div>
-</section>
-
-<section class="section">
-    <div class="section-inner">
-        <header class="section-head">
-            <p class="section-label">Who this is for</p>
-            <h2>Wherever you are in .NET</h2>
-        </header>
-        <div class="audience-grid">
-            @foreach (var item in ProfileData.Audiences)
-            {
+    <section class="section">
+        <div class="section-inner">
+            <header class="section-head row-head">
+                <div>
+                    <p class="section-label">@Lang.Text("Kỹ năng chuyên môn", "Technical Stack")</p>
+                    <h2>@Lang.Text("Công nghệ & Công cụ", "Core Technologies & Tools")</h2>
+                </div>
+                <a class="text-link" href="/cv#skills">@Lang.Text("Chi tiết kỹ năng →", "All Skills →")</a>
+            </header>
+            <div class="audience-grid">
                 <article class="audience-item">
-                    <span>@item.Number</span>
-                    <h3>@item.Title</h3>
-                    <p>@item.Description</p>
+                    <span>01</span>
+                    <h3>Languages &amp; Frameworks</h3>
+                    <p>@string.Join(" · ", profile.Languages.Concat(profile.Frameworks))</p>
                 </article>
-            }
+                <article class="audience-item">
+                    <span>02</span>
+                    <h3>Databases &amp; Tools</h3>
+                    <p>@string.Join(" · ", profile.Databases.Concat(profile.Tools))</p>
+                </article>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="section author-note">
-    <div class="section-inner author-inner">
-        <p class="section-label">A note from the author</p>
-        <h2>@ProfileData.Nickname · @ProfileData.Title</h2>
-        <blockquote>@ProfileData.AuthorNote</blockquote>
-        <div class="hero-actions">
-            <a class="btn btn-primary" href="mailto:@ProfileData.Email">Get in touch</a>
-            <a class="btn btn-ghost" href="/about">Full profile</a>
+    <section class="section author-note">
+        <div class="section-inner author-inner">
+            <p class="section-label">@Lang.Text("Thông tin liên hệ", "Get in Touch")</p>
+            <h2>@profile.FullName (@profile.Nickname)</h2>
+            <blockquote>@profile.Objective</blockquote>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="/cv">@Lang.Text("Xem toàn bộ CV Online", "View Full Online CV")</a>
+                <a class="btn btn-ghost" href="mailto:@profile.Email">@profile.Email</a>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+}
+
+@code {
+    private ProfileModel? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+        profile = await ProfileService.GetProfileAsync();
+    }
+}

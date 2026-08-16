@@ -1,20 +1,193 @@
 @page "/about"
+@page "/cv"
 @using Friday.Portfolio.Components
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject ProfileService ProfileService
+@inject LanguageService Lang
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
 
-<PageTitle>Profile — @ProfileData.FullName</PageTitle>
+<PageTitle>@Lang.Text("Hồ sơ & CV", "Profile & CV") — @(profile?.FullName ?? "Nguyen Quoc Linh")</PageTitle>
 
-<section class="section page-hero">
-    <div class="section-inner">
-        <p class="section-label">Profile</p>
-        <h1>@ProfileData.FullName <span class="thin">(@ProfileData.Nickname)</span></h1>
-        <p class="section-lead">@ProfileData.Summary</p>
-        <p class="section-lead muted">@ProfileData.Objective</p>
+@if (profile == null)
+{
+    <section class="section page-hero">
+        <div class="section-inner">
+            <p>@Lang.Text("Đang tải dữ liệu hồ sơ...", "Loading profile data...")</p>
+        </div>
+    </section>
+}
+else
+{
+    <section class="section page-hero">
+        <div class="section-inner">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <p class="section-label">@Lang.Text("Hồ sơ cá nhân / Online CV", "Personal Profile / Online CV")</p>
+                    <h1>@profile.FullName <span class="thin">(@profile.Nickname)</span></h1>
+                </div>
+                <div class="no-print" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" @onclick="PrintPdf" style="font-size: 0.9rem;">
+                        📥 @Lang.Text("Xuất CV Ứng Tuyển (PDF)", "Export Resume (PDF)")
+                    </button>
+                    <a class="btn btn-ghost" href="/admin" style="font-size: 0.9rem;">
+                        ✏️ @Lang.Text("Chỉnh sửa CV", "Edit CV")
+                    </a>
+                </div>
+            </div>
+            <p class="section-lead">@profile.Summary</p>
+            <p class="section-lead muted">@profile.Objective</p>
+        </div>
+    </section>
+
+    <!-- Giao diện Web hiển thị bình thường -->
+    <div id="cv-web-view">
+        <AboutSection Model="profile" />
+        <ExperienceSection Model="profile" />
+        <ProjectsSection Model="profile" />
+        <SkillsSection Model="profile" />
+        <EducationSection Model="profile" />
+        <ContactSection Model="profile" />
     </div>
-</section>
 
-<AboutSection />
-<ExperienceSection />
-<ProjectsSection />
-<SkillsSection />
-<EducationSection />
-<ContactSection />
+    <!-- Mẫu CV Executive Printable Khổ A4 Chuẩn Tuyển Dụng (Chỉ hiển thị khi In/Xuất PDF) -->
+    <div class="print-resume-document">
+        <!-- Header -->
+        <div class="print-header-shell">
+            <div class="print-header-text">
+                <h1 class="print-name">@profile.FullName <span class="print-nickname">(@profile.Nickname)</span></h1>
+                <p class="print-title">@profile.Title</p>
+
+                <p class="print-contact-line">
+                    <span>Phone: <strong>@profile.Phone</strong></span>
+                    <span class="sep">/</span>
+                    <span>Email: <strong>@profile.Email</strong></span>
+                    @if (!string.IsNullOrWhiteSpace(profile.DateOfBirth))
+                    {
+                        <span class="sep">/</span>
+                        <span>DOB: <strong>@profile.DateOfBirth</strong></span>
+                    }
+                </p>
+
+                <p class="print-contact-line">
+                    <span>LinkedIn: <span class="underline">@profile.LinkedInDisplay</span></span>
+                    <span class="sep">/</span>
+                    <span>Website: <span class="underline">@(string.IsNullOrWhiteSpace(profile.WebsiteUrl) ? Navigation.BaseUri.TrimEnd('/') : profile.WebsiteUrl)</span></span>
+                </p>
+            </div>
+
+            <div class="print-header-photo">
+                <img src="img/linh.jpg" alt="@profile.FullName (@profile.Nickname)" />
+            </div>
+        </div>
+
+        <!-- SUMMARY SECTION -->
+        <div class="print-sec">
+            <div class="print-sec-head">
+                <h2 class="print-sec-title">SUMMARY</h2>
+            </div>
+            <p class="print-text">@profile.Summary</p>
+            <p class="print-text" style="margin-top: 6px;">@profile.Objective</p>
+        </div>
+
+        <!-- TECHNICAL SKILLS SECTION -->
+        <div class="print-sec">
+            <div class="print-sec-head">
+                <h2 class="print-sec-title">TECHNICAL SKILLS</h2>
+            </div>
+            <ul class="print-skills-list">
+                <li><strong>Programming Languages:</strong> @string.Join(", ", profile.Languages)</li>
+                <li><strong>Frameworks/Platforms:</strong> @string.Join(", ", profile.Frameworks)</li>
+                <li><strong>Database Management Systems:</strong> @string.Join(", ", profile.Databases)</li>
+                <li><strong>Tools and Technologies:</strong> @string.Join(", ", profile.Tools)</li>
+            </ul>
+        </div>
+
+        <!-- PROFESSIONAL EXPERIENCE SECTION -->
+        <div class="print-sec">
+            <div class="print-sec-head">
+                <h2 class="print-sec-title">PROFESSIONAL EXPERIENCE</h2>
+            </div>
+            @foreach (var exp in profile.Experiences)
+            {
+                <div class="print-job">
+                    <div class="print-job-header">
+                        <span class="print-company"><strong>@exp.Company</strong> – <em>@exp.Role</em></span>
+                        <span class="print-period">@exp.Period</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(exp.Location))
+                    {
+                        <p class="print-location">@exp.Location</p>
+                    }
+                    <ul class="print-bullets">
+                        @foreach (var bullet in exp.Bullets)
+                        {
+                            <li>@bullet</li>
+                        }
+                    </ul>
+                    @if (exp.Tags.Count > 0)
+                    {
+                        <p class="print-tech-line"><strong>Technologies:</strong> @string.Join(", ", exp.Tags)</p>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- PERSONAL PROJECTS SECTION -->
+        @if (profile.Projects.Count > 0)
+        {
+            <div class="print-sec">
+                <div class="print-sec-head">
+                    <h2 class="print-sec-title">PERSONAL PROJECTS</h2>
+                </div>
+                @foreach (var proj in profile.Projects)
+                {
+                    <div class="print-project">
+                        <div class="print-job-header">
+                            <span class="print-company">Project: <strong>@proj.Title</strong></span>
+                        </div>
+                        <p class="print-text">@proj.Description</p>
+                        <p class="print-tech-line"><strong>Technologies:</strong> @string.Join(", ", proj.TechStack)</p>
+                        @if (!string.IsNullOrWhiteSpace(proj.Url))
+                        {
+                            <p class="print-url"><strong>@proj.UrlLabel:</strong> <span class="underline">@proj.Url</span></p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- EDUCATION SECTION -->
+        <div class="print-sec">
+            <div class="print-sec-head">
+                <h2 class="print-sec-title">EDUCATION</h2>
+            </div>
+            @foreach (var edu in profile.Education)
+            {
+                <div class="print-edu">
+                    <div class="print-job-header">
+                        <span class="print-company"><strong>@edu.Institution</strong></span>
+                        <span class="print-period">@edu.Period</span>
+                    </div>
+                    <p class="print-text">@edu.Degree</p>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private ProfileModel? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+        profile = await ProfileService.GetProfileAsync();
+    }
+
+    private async Task PrintPdf()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+}

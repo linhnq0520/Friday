@@ -1,27 +1,40 @@
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
+
 <section id="skills" class="section skills">
     <div class="section-inner">
         <header class="section-head">
-            <p class="section-label">Skills</p>
-            <h2>Toolbox</h2>
+            <p class="section-label">@Lang.Text("Kỹ năng", "Skills")</p>
+            <h2>@Lang.Text("Công nghệ & Công cụ", "Toolbox & Technologies")</h2>
         </header>
 
         <div class="skill-groups">
             <div class="skill-group">
-                <h3>Languages</h3>
-                <p>@string.Join(" · ", ProfileData.Languages)</p>
+                <h3>@Lang.Text("Ngôn ngữ lập trình", "Languages")</h3>
+                <p>@string.Join(" · ", Model?.Languages ?? [])</p>
             </div>
             <div class="skill-group">
                 <h3>Frameworks</h3>
-                <p>@string.Join(" · ", ProfileData.Frameworks)</p>
+                <p>@string.Join(" · ", Model?.Frameworks ?? [])</p>
             </div>
             <div class="skill-group">
-                <h3>Databases</h3>
-                <p>@string.Join(" · ", ProfileData.Databases)</p>
+                <h3>@Lang.Text("Cơ sở dữ liệu", "Databases")</h3>
+                <p>@string.Join(" · ", Model?.Databases ?? [])</p>
             </div>
             <div class="skill-group">
-                <h3>Tools &amp; platforms</h3>
-                <p>@string.Join(" · ", ProfileData.Tools)</p>
+                <h3>@Lang.Text("Công cụ & Nền tảng", "Tools & Platforms")</h3>
+                <p>@string.Join(" · ", Model?.Tools ?? [])</p>
             </div>
         </div>
     </div>
 </section>
+
+@code {
+    [Parameter] public ProfileModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+}

@@ -1,17 +1,30 @@
+@using Friday.Portfolio.Models
+@using Friday.Portfolio.Services
+@inject LanguageService Lang
+
 <section id="about" class="section about">
     <div class="section-inner">
         <header class="section-head">
-            <p class="section-label">About</p>
-            <h2>Building reliable systems for money movement</h2>
+            <p class="section-label">@Lang.Text("Giới thiệu", "About")</p>
+            <h2>@Lang.Text("Xây dựng hệ thống Backend tin cậy cho Fintech & Banking", "Building reliable backend systems for Fintech & Banking")</h2>
         </header>
         <div class="about-body">
-            <p class="about-summary">@ProfileData.Summary</p>
-            <p class="about-objective">@ProfileData.Objective</p>
+            <p class="about-summary">@(Model?.Summary ?? string.Empty)</p>
+            <p class="about-objective">@(Model?.Objective ?? string.Empty)</p>
             <ul class="about-points">
-                <li>Clean architecture &amp; SOLID in high-throughput transactional environments</li>
-                <li>High-availability designs with gRPC, RabbitMQ, and API Gateway patterns</li>
-                <li>Legacy modernization from .NET Framework / WCF to ASP.NET Core</li>
+                <li>@Lang.Text("Clean Architecture & SOLID trong môi trường giao dịch mật độ cao", "Clean Architecture & SOLID principles in high-throughput transactional environments")</li>
+                <li>@Lang.Text("Hệ thống sẵn sàng cao với gRPC, RabbitMQ và API Gateway patterns", "High-availability system design with gRPC, RabbitMQ, and API Gateway patterns")</li>
+                <li>@Lang.Text("Hiện đại hóa ứng dụng legacy từ .NET Framework / WCF lên ASP.NET Core", "Legacy modernization from .NET Framework / WCF to modern ASP.NET Core")</li>
             </ul>
         </div>
     </div>
 </section>
+
+@code {
+    [Parameter] public ProfileModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Lang.OnLanguageChanged += StateHasChanged;
+    }
+}
