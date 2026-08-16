@@ -1,30 +1,55 @@
 {
   "fullName": "Nguyen Quoc Linh",
   "nickname": "Thomas",
-  "title": "Software Developer",
+  "title": "Senior Software Engineer",
+  "tagline": "Fintech \u0026 core banking \u00B7 distributed systems \u00B7 ASP.NET Core",
+  "mission": "I write field notes from shipping payment and core-banking systems \u2014 the modernization paths, messaging trade-offs, and Azure deploy habits that hold up under load.",
   "dateOfBirth": "20/05/1999",
-  "tagline": "Fintech & core banking · distributed systems · ASP.NET Core",
-  "mission": "I write field notes from shipping payment and core-banking systems — the modernization paths, messaging trade-offs, and Azure deploy habits that hold up under load.",
-  "phone": "+84 943 894 177",
+  "phone": "\u002B84 943 894 177",
   "email": "zquoclinh@gmail.com",
   "linkedIn": "https://linkedin.com/in/quoclinh0520",
   "linkedInDisplay": "linkedin.com/in/quoclinh0520",
+  "websiteUrl": "",
   "nuGet": "https://www.nuget.org/packages/LinKit.Core",
   "bonGitHub": "https://github.com/linhnq0520/Bon",
   "location": "Ho Chi Minh City, Vietnam",
   "writingSince": "2026",
   "summary": "Backend Engineer with 4 years of experience in fintech and core banking systems, specializing in distributed architectures and microservices-based solutions. Proven track record in modernizing legacy .NET Framework applications to ASP.NET Core, improving system scalability, performance, and maintainability.",
-  "objective": "Career objective: transition into a Technical Lead role — leverage enterprise system design while mentoring teams to deliver scalable, high-performance solutions. Open to onsite work with international clients.",
+  "objective": "Career objective: transition into a Technical Lead role \u2014 leverage enterprise system design while mentoring teams to deliver scalable, high-performance solutions. Open to onsite work with international clients.",
   "authorNote": "I started this site as a learning lab: publish what I actually ship in fintech/.NET, keep a public trail of deep-dives, and turn recurring topics into structured courses.",
-  "languages": ["C#", "SQL", "TypeScript", "Java", "JavaScript"],
-  "frameworks": ["ASP.NET Core", "Entity Framework", "React Native", "React"],
-  "databases": ["MS SQL Server", "Oracle", "PostgreSQL"],
-  "tools": ["RabbitMQ", "gRPC", "Redis", "Docker", "YARP", "GitHub/GitLab", "IIS", "JMeter"],
+  "languages": [
+    "C#",
+    "SQL",
+    "TypeScript",
+    "Java",
+    "JavaScript"
+  ],
+  "frameworks": [
+    "ASP.NET Core",
+    "Entity Framework",
+    "React Native",
+    "React"
+  ],
+  "databases": [
+    "MS SQL Server",
+    "Oracle",
+    "PostgreSQL"
+  ],
+  "tools": [
+    "RabbitMQ",
+    "gRPC",
+    "Redis",
+    "Docker",
+    "YARP",
+    "GitHub/GitLab",
+    "IIS",
+    "JMeter"
+  ],
   "experiences": [
     {
       "company": "VietUnion Online Services Corporation (Payoo)",
       "role": ".NET Developer",
-      "period": "Apr 2025 – Present",
+      "period": "Apr 2025 \u2013 Present",
       "location": "Ho Chi Minh City",
       "bullets": [
         "Delivered backlog features for core payment services (QRCode, POS, mPOS, Pay4Biz).",
@@ -33,12 +58,16 @@
         "Optimized QR code generation API under high-concurrency load testing (JMeter), reducing average response time from ~30s to ~5s.",
         "Conducted code reviews and enforced coding standards."
       ],
-      "tags": ["C#", ".NET Framework", "ASP.NET Core"]
+      "tags": [
+        "C#",
+        ".NET Framework",
+        "ASP.NET Core"
+      ]
     },
     {
       "company": "JUST-IN-TIME Solutions",
       "role": "Software Developer",
-      "period": "Oct 2022 – Apr 2025",
+      "period": "Oct 2022 \u2013 Apr 2025",
       "location": "Vietnam / Myanmar (onsite)",
       "bullets": [
         "Onsite technical support in Myanmar for deployment and production issue resolution.",
@@ -48,12 +77,20 @@
         "Maintained Optimal9 legacy core banking (Java, Oracle, VB.NET) and resolved production issues.",
         "Onboarded new team members and supported operational stability."
       ],
-      "tags": ["ASP.NET Core", "React Native", "SQL Server", "RabbitMQ", "Redis", "gRPC", "Docker"]
+      "tags": [
+        "ASP.NET Core",
+        "React Native",
+        "SQL Server",
+        "RabbitMQ",
+        "Redis",
+        "gRPC",
+        "Docker"
+      ]
     },
     {
-      "company": "Freelance — Microservice Orchestration Platform",
+      "company": "Freelance \u2014 Microservice Orchestration Platform",
       "role": "System Architect",
-      "period": "2025 – Present",
+      "period": "2025 \u2013 Present",
       "location": "Remote",
       "bullets": [
         "Architected orchestration flow for distributed services (routing, workflow, communication).",
@@ -61,35 +98,52 @@
         "Built API gateway layer using YARP Reverse Proxy.",
         "Implemented compile-time optimizations using C# Source Generators."
       ],
-      "tags": ["ASP.NET Core", "gRPC", "RabbitMQ", "YARP", "Source Generators", "Docker"]
+      "tags": [
+        "ASP.NET Core",
+        "gRPC",
+        "RabbitMQ",
+        "YARP",
+        "Source Generators",
+        "Docker"
+      ]
     }
   ],
   "projects": [
     {
       "title": "LinKit.Core",
       "description": "Lightweight utility and core abstraction library for .NET. Published as a public NuGet package.",
-      "techStack": ["C#", ".NET Standard", "NuGet", "LINQ", "Expression Trees"],
+      "techStack": [
+        "C#",
+        ".NET Standard",
+        "NuGet",
+        "LINQ",
+        "Expression Trees"
+      ],
       "url": "https://www.nuget.org/packages/LinKit.Core",
       "urlLabel": "NuGet"
     },
     {
       "title": "Bon Framework",
-      "description": "Microservices framework built with .NET — EF Core data access, DI service resolution, and RabbitMQ messaging.",
-      "techStack": ["ASP.NET Core", "EF Core", "RabbitMQ"],
+      "description": "Microservices framework built with .NET \u2014 EF Core data access, DI service resolution, and RabbitMQ messaging.",
+      "techStack": [
+        "ASP.NET Core",
+        "EF Core",
+        "RabbitMQ"
+      ],
       "url": "https://github.com/linhnq0520/Bon",
       "urlLabel": "GitHub"
     }
   ],
   "education": [
     {
-      "institution": "University of Science — VNUHCM",
+      "institution": "University of Science \u2014 VNUHCM",
       "degree": "Java programming certification",
-      "period": "5/2022 – 11/2022"
+      "period": "5/2022 \u2013 11/2022"
     },
     {
       "institution": "University of Economics Ho Chi Minh City",
       "degree": "Bachelor of Commercial Business",
-      "period": "7/2017 – 5/2021"
+      "period": "7/2017 \u2013 5/2021"
     }
   ]
 }
