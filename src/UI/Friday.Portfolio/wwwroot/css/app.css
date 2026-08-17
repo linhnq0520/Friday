@@ -1078,6 +1078,7 @@ img {
     .hero-portrait,
     .hero-scroll span {
         animation: none !important;
+    }
 }
 
 /* Floating Scroll To Top Button */
