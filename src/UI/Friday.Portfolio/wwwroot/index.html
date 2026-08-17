@@ -31,7 +31,26 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">Dismiss</span>
     </div>
+    <script>
+        window.scrollToTop = function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        window.initScrollToTop = function (buttonId) {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            const toggleVisible = () => {
+                if (window.scrollY > 300) {
+                    btn.classList.add('visible');
+                } else {
+                    btn.classList.remove('visible');
+                }
+            };
+            window.addEventListener('scroll', toggleVisible, { passive: true });
+            toggleVisible();
+        };
+    </script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
 
 </html>
+
