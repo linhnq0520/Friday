@@ -1,35 +1,190 @@
-@model IReadOnlyList<Friday.Modules.Salon.Application.Models.PromotionDto>
+@model Friday.Modules.Salon.Application.Models.BlogListResultDto
+@{
+    var featured = Model.CurrentPage == 1 && string.IsNullOrWhiteSpace(Model.SearchQuery) && string.IsNullOrWhiteSpace(Model.SelectedCategory)
+        ? Model.Items.FirstOrDefault(x => x.IsFeatured)
+        : null;
 
-<section class="page-hero">
+    var gridItems = featured != null
+        ? Model.Items.Where(x => x.Id != featured.Id).ToList()
+        : Model.Items;
+}
+
+<section class="page-hero blog-hero">
     <div class="container">
-        <h1>@Localizer["News_Title"]</h1>
+        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">@Localizer["News_BreadcrumbCurrent"]</span>
+        </nav>
+        <h1 class="page-hero-title">@Localizer["News_HeroTitle"]</h1>
+        <p class="page-hero-subtitle">@Localizer["News_HeroLead"]</p>
     </div>
 </section>
 
-<section class="section">
-    <div class="container promo-list">
-        @foreach (var item in Model)
-        {
-            <article class="promo-item">
-                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+<section class="section blog-section">
+    <div class="container">
+        <!-- Category Filter & Search Bar -->
+        <div class="blog-filter-bar">
+            <div class="blog-categories-pills">
+                <a href="@Url.Action("Index", "News")" class="category-pill @(string.IsNullOrEmpty(Model.SelectedCategory) ? "is-active" : "")">
+                    @Localizer["News_CategoryAll"]
+                </a>
+                @foreach (var cat in Model.Categories)
                 {
-                    <div class="promo-item-image">
-                        <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
-                    </div>
+                    <a href="@Url.Action("Index", "News", new { category = cat })" 
+                       class="category-pill @(string.Equals(Model.SelectedCategory, cat, StringComparison.OrdinalIgnoreCase) ? "is-active" : "")">
+                        @cat
+                    </a>
                 }
-                <div class="promo-item-body">
-                    <h2>@item.Title</h2>
-                    <p class="muted">@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy"))</p>
-                    @if (!string.IsNullOrWhiteSpace(item.Summary))
-                    {
-                        <p>@item.Summary</p>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(item.Content))
-                    {
-                        <p>@item.Content</p>
-                    }
+            </div>
+
+            <form method="get" asp-action="Index" class="blog-search-form">
+                @if (!string.IsNullOrWhiteSpace(Model.SelectedCategory))
+                {
+                    <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                }
+                <div class="search-input-wrapper">
+                    <input type="text" name="q" value="@Model.SearchQuery" placeholder="@Localizer["News_SearchPlaceholder"]" class="search-input" />
+                    <button type="submit" class="search-btn" aria-label="Search">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
                 </div>
-            </article>
+            </form>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.SearchQuery) || !string.IsNullOrWhiteSpace(Model.SelectedCategory))
+        {
+            <div class="active-filter-badge">
+                <span>@Localizer["News_FilterShowing"] 
+                    @if (!string.IsNullOrWhiteSpace(Model.SelectedCategory))
+                    {
+                        <strong>@string.Format(Localizer["News_FilterCategory"].Value, Model.SelectedCategory)</strong>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+                    {
+                        <strong>@string.Format(Localizer["News_FilterKeyword"].Value, Model.SearchQuery)</strong>
+                    }
+                </span>
+                <a href="@Url.Action("Index", "News")" class="clear-filter-btn">@Localizer["News_FilterClear"]</a>
+            </div>
+        }
+
+        <!-- Featured Post Banner (if applicable) -->
+        @if (featured != null)
+        {
+            <div class="blog-featured-card">
+                <div class="featured-image-col">
+                    <a href="/tin-tuc/@featured.Slug" class="featured-image-link image-hover-frame">
+                        <img src="@(featured.ThumbnailUrl ?? "/resources/dich_vu/nhuom_thiet_ke.jpg")" alt="@featured.Title" loading="eager" />
+                        <span class="badge-featured">@Localizer["News_BadgeFeatured"]</span>
+                    </a>
+                </div>
+                <div class="featured-content-col">
+                    <div class="blog-meta-top">
+                        <span class="blog-category-tag">@featured.Category</span>
+                        <span class="blog-date">@(featured.PublishedAt?.ToString("dd/MM/yyyy"))</span>
+                    </div>
+                    <h2 class="featured-title">
+                        <a href="/tin-tuc/@featured.Slug">@featured.Title</a>
+                    </h2>
+                    @if (!string.IsNullOrWhiteSpace(featured.Summary))
+                    {
+                        <p class="featured-summary">@featured.Summary</p>
+                    }
+                    <div class="featured-footer">
+                        <span class="blog-author"><i class="author-icon">✍</i> @featured.AuthorName</span>
+                        <a href="/tin-tuc/@featured.Slug" class="btn-read-more">
+                            @Localizer["News_ReadPost"] <span class="arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Articles Grid -->
+        @if (gridItems.Count > 0)
+        {
+            <div class="blog-grid">
+                @foreach (var post in gridItems)
+                {
+                    <article class="blog-card">
+                        <div class="blog-card-media image-hover-frame">
+                            <a href="/tin-tuc/@post.Slug" aria-label="@post.Title">
+                                <img src="@(post.ThumbnailUrl ?? "/resources/dich_vu/cat_toc.jpg")" alt="@post.Title" loading="lazy" />
+                            </a>
+                            <span class="blog-category-badge">@post.Category</span>
+                        </div>
+                        <div class="blog-card-body">
+                            <div class="blog-card-meta">
+                                <span class="blog-card-date">@(post.PublishedAt?.ToString("dd/MM/yyyy"))</span>
+                                @if (post.ViewCount > 0)
+                                {
+                                    <span class="blog-card-views">👁 @string.Format(Localizer["News_Views"].Value, post.ViewCount)</span>
+                                }
+                            </div>
+                            <h3 class="blog-card-title">
+                                <a href="/tin-tuc/@post.Slug">@post.Title</a>
+                            </h3>
+                            @if (!string.IsNullOrWhiteSpace(post.Summary))
+                            {
+                                <p class="blog-card-excerpt">@post.Summary</p>
+                            }
+                            <div class="blog-card-footer">
+                                <span class="blog-card-author">@post.AuthorName</span>
+                                <a href="/tin-tuc/@post.Slug" class="blog-card-link">
+                                    @Localizer["Common_SeeMore"]
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="blog-pagination" aria-label="Pagination">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <a href="@Url.Action("Index", "News", new { category = Model.SelectedCategory, q = Model.SearchQuery, page = Model.CurrentPage - 1 })" class="pagination-arrow" aria-label="Previous page">
+                            &larr;
+                        </a>
+                    }
+                    <div class="pagination-numbers">
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            if (i == Model.CurrentPage)
+                            {
+                                <span class="pagination-number is-current" aria-current="page">@i</span>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Index", "News", new { category = Model.SelectedCategory, q = Model.SearchQuery, page = i })" class="pagination-number">
+                                    @i
+                                </a>
+                            }
+                        }
+                    </div>
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <a href="@Url.Action("Index", "News", new { category = Model.SelectedCategory, q = Model.SearchQuery, page = Model.CurrentPage + 1 })" class="pagination-arrow" aria-label="Next page">
+                            &rarr;
+                        </a>
+                    }
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="blog-empty-state">
+                <div class="empty-icon">📰</div>
+                <h3>@Localizer["News_EmptyTitle"]</h3>
+                <p>@Localizer["News_EmptyLead"]</p>
+                <a href="@Url.Action("Index", "News")" class="btn btn-primary">@Localizer["Common_ViewAll"]</a>
+            </div>
         }
     </div>
 </section>

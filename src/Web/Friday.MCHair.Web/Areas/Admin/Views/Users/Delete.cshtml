@@ -1,0 +1,46 @@
+@model Friday.Modules.Salon.Application.Models.AdminUserDto
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Xác nhận xóa tài khoản";
+    bool isCurrent = string.Equals(Model.Username, User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2 style="color: #b91c1c;">⚠️ Xác Nhận Xóa Tài Khoản: @Model.Username</h2>
+        <p class="admin-subtitle">Hành động này không thể hoàn tác. Người dùng này sẽ mất toàn bộ quyền đăng nhập.</p>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 600px; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #fee2e2; margin-top: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    @if (isCurrent)
+    {
+        <div class="alert error" style="margin-bottom: 1.25rem;">
+            ⛔ Bạn không thể xóa tài khoản bạn đang đăng nhập (@Model.Username).
+        </div>
+        <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+    }
+    else
+    {
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <p style="color: #991b1b; font-weight: 600; margin-top: 0; margin-bottom: 0.75rem;">
+                Bạn có chắc chắn muốn xóa tài khoản sau đây không?
+            </p>
+            <ul style="color: #7f1d1d; margin: 0; padding-left: 1.25rem; font-size: 0.95rem;">
+                <li><strong>Tên đăng nhập:</strong> @Model.Username</li>
+                <li><strong>Tên hiển thị:</strong> @Model.DisplayName</li>
+                <li><strong>Vai trò:</strong> @(Model.Role == AdminRole.Admin ? "👑 Quản trị viên" : "✂️ Stylist / Staff")</li>
+                <li><strong>Trạng thái:</strong> @(Model.IsActive ? "🟢 Đang hoạt động" : "🔴 Đã khóa")</li>
+            </ul>
+        </div>
+
+        <form asp-action="Delete" method="post" style="display: flex; gap: 1rem; align-items: center;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger" style="background: #dc2626; color: #fff; padding: 0.6rem 1.25rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                🗑️ Xác nhận Xóa vĩnh viễn
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+        </form>
+    }
+</div>

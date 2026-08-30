@@ -3,15 +3,66 @@
     ViewData["Title"] = Model.Id == 0 ? "Thêm khuyến mãi" : "Sửa khuyến mãi";
 }
 
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2>@(Model.Id == 0 ? "Tạo chương trình khuyến mãi mới" : "Chỉnh sửa khuyến mãi")</h2>
+        <p class="admin-subtitle">Cấu hình thông tin ưu đãi, thời hạn bắt đầu & kết thúc để hệ thống tự động gắn nhãn trạng thái.</p>
+    </div>
+    <div class="admin-header-actions">
+        <a asp-action="Index" class="btn btn-secondary">← Quay lại danh sách</a>
+    </div>
+</div>
+
 <form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="ModelOnly" class="alert error"></div>
     <input type="hidden" asp-for="Id" />
-    <div class="form-group"><label>Tiêu đề</label><input asp-for="Title" required /></div>
-    <div class="form-group"><label>Tóm tắt</label><textarea asp-for="Summary"></textarea></div>
-    <div class="form-group"><label>Nội dung</label><textarea asp-for="Content" rows="5"></textarea></div>
-    @await Html.PartialAsync("_ImageUploadField", Model.ImageUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Ảnh khuyến mãi" } })
-    <div class="form-group"><label>Ngày đăng (UTC)</label><input asp-for="PublishedAt" type="datetime-local" value="@(Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm"))" /></div>
-    <label><input asp-for="IsPublished" type="checkbox" /> Hiển thị</label>
-    <button type="submit" class="btn btn-primary">Lưu</button>
+    
+    <div class="form-group">
+        <label>Tiêu đề chương trình <span class="text-danger">*</span></label>
+        <input asp-for="Title" required placeholder="Ví dụ: GIẢM 50% DỊCH VỤ HÓA CHẤT / COMBO UỐN NHUỘM" />
+    </div>
+
+    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div class="form-group">
+            <label>⏰ Thời gian bắt đầu áp dụng</label>
+            <input asp-for="StartDate" type="datetime-local" value="@(Model.StartDate?.ToString("yyyy-MM-ddTHH:mm") ?? Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+            <small class="form-hint" style="color: #888; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Trước thời gian này, ưu đãi sẽ hiện nhãn 🟡 <strong>Sắp diễn ra</strong>.</small>
+        </div>
+
+        <div class="form-group">
+            <label>🏁 Thời gian kết thúc ưu đãi</label>
+            <input asp-for="EndDate" type="datetime-local" value="@(Model.EndDate?.ToString("yyyy-MM-ddTHH:mm"))" />
+            <small class="form-hint" style="color: #888; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Sau thời gian này, ưu đãi sẽ hiện nhãn 🔴 <strong>Đã kết thúc</strong>. (Để trống nếu áp dụng dài hạn).</small>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Tóm tắt ngắn gọn</label>
+        <textarea asp-for="Summary" rows="2" placeholder="Tóm tắt ngắn ưu đãi hiển thị trên thẻ khuyến mãi..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Nội dung chi tiết & Điều khoản áp dụng</label>
+        <textarea asp-for="Content" rows="6" placeholder="Nhập chi tiết điều kiện áp dụng, khung giờ vàng, các dịch vụ bao gồm trong combo... (Hỗ trợ định dạng **in đậm** và xuống dòng)"></textarea>
+    </div>
+
+    @await Html.PartialAsync("_ImageUploadField", Model.ImageUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Ảnh banner / Poster khuyến mãi" } })
+
+    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1rem; align-items: center;">
+        <div class="form-group">
+            <label>Ngày xuất bản bài viết</label>
+            <input asp-for="PublishedAt" type="datetime-local" value="@(Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+        </div>
+        <div class="form-group" style="padding-top: 1.5rem;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                <input asp-for="IsPublished" type="checkbox" style="width: 1.2rem; height: 1.2rem;" /> 
+                <span>Công khai hiển thị trên Website</span>
+            </label>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-weight: 700;">💾 Lưu chương trình khuyến mãi</button>
+    </div>
 </form>

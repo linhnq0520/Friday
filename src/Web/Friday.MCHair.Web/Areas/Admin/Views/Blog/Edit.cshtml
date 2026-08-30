@@ -1,0 +1,1645 @@
+@model Friday.Modules.Salon.Domain.Entities.BlogPost
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Viết bài mới" : $"Sửa bài viết: {Model.Title}";
+}
+
+<div class="blog-edit-wrapper">
+    <!-- Top Action & Mode Switcher Bar -->
+    <div class="edit-top-header">
+        <div class="mode-tabs">
+            <button type="button" class="mode-tab is-active" id="tabEditMode">
+                <span>✏️ Soạn thảo</span>
+            </button>
+            <button type="button" class="mode-tab" id="tabPreviewMode">
+                <span>👁️ Xem trước bài viết</span>
+            </button>
+        </div>
+
+        <div class="top-actions">
+            @if (Model.Id > 0 && !string.IsNullOrWhiteSpace(Model.Slug))
+            {
+                <a href="/tin-tuc/@Model.Slug" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+                    ↗ Xem trên Website
+                </a>
+            }
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('blogForm').requestSubmit()">
+                💾 Lưu bài viết
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN FORM -->
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form-wide" id="blogForm">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="alert error"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <!-- EDIT VIEW PANEL -->
+        <div id="panelEditView" class="view-panel is-active">
+            <div class="form-grid-2">
+                <!-- Main Content Column (Expands Full Width) -->
+                <div class="form-col-main">
+                    <div class="admin-card form-box-main">
+                        <div class="form-group">
+                            <label asp-for="Title" class="form-label-prominent">
+                                <strong>Tiêu đề bài viết <span class="required">*</span></strong>
+                            </label>
+                            <input asp-for="Title" id="blogTitle" required 
+                                   placeholder="Ví dụ: Top 5 xu hướng màu nhuộm Balayage & Highlight đẹp nhất 2026" 
+                                   class="form-control input-title-lg" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group slug-form-group">
+                            <label asp-for="Slug">
+                                <strong>Đường dẫn SEO (Slug) <span class="required">*</span></strong>
+                                <button type="button" class="btn-text-action" id="btnAutoSlug">🔄 Tự sinh từ tiêu đề</button>
+                            </label>
+                            <div class="input-prefix-group">
+                                <span class="input-prefix">https://mchair.vn/tin-tuc/</span>
+                                <input asp-for="Slug" id="blogSlug" required placeholder="top-5-xu-huong-mau-nhuom" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Summary"><strong>Tóm tắt ngắn (Excerpt / Mô tả hiển thị ở thẻ bài viết)</strong></label>
+                            <textarea asp-for="Summary" id="blogSummary" rows="3" 
+                                      placeholder="Đoạn văn ngắn 1-2 câu tóm tắt nội dung hấp dẫn để khách hàng đọc lướt..." 
+                                      class="form-control"></textarea>
+                        </div>
+
+                        <div class="form-group editor-group">
+                            <label><strong>Nội dung chi tiết bài viết <span class="required">*</span></strong></label>
+                            
+                            <!-- WYSIWYG Editor Toolbar -->
+                            <div class="editor-toolbar" id="editorToolbar">
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="h2" title="Tiêu đề H2"><b>H2</b></button>
+                                    <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="h3" title="Tiêu đề H3"><b>H3</b></button>
+                                    <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="p" title="Đoạn văn thường">P</button>
+                                </div>
+                                <span class="toolbar-divider"></span>
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-cmd="bold" title="In đậm (Ctrl+B)"><b>B</b></button>
+                                    <button type="button" class="toolbar-btn" data-cmd="italic" title="In nghiêng (Ctrl+I)"><i>I</i></button>
+                                    <button type="button" class="toolbar-btn" data-cmd="underline" title="Gạch chân (Ctrl+U)"><u>U</u></button>
+                                </div>
+                                <span class="toolbar-divider"></span>
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" data-cmd="insertUnorderedList" title="Danh sách chấm">• Danh sách</button>
+                                    <button type="button" class="toolbar-btn" data-cmd="insertOrderedList" title="Danh sách số">1. Số</button>
+                                    <button type="button" class="toolbar-btn" data-cmd="formatBlock" data-val="blockquote" title="Khối trích dẫn">“ Trích dẫn</button>
+                                </div>
+                                <span class="toolbar-divider"></span>
+                                <div class="toolbar-group">
+                                    <button type="button" class="toolbar-btn" id="btnInsertLink" title="Chèn liên kết">🔗 Link</button>
+                                    <button type="button" class="toolbar-btn toolbar-btn-highlight" id="btnOpenImageModal" title="Chèn ảnh vào vị trí con trỏ chuột">
+                                        📷 Chèn hình ảnh...
+                                    </button>
+                                    <button type="button" class="toolbar-btn" id="btnToggleHtml" title="Chuyển chế độ xem mã nguồn HTML">HTML</button>
+                                </div>
+                            </div>
+
+                            <!-- Visual Editable Container with Drag-and-Drop & Paste -->
+                            <div class="editor-wrapper">
+                                <div id="visualEditor" class="visual-editor" contenteditable="true" spellcheck="false">
+                                    @Html.Raw(Model.Content)
+                                </div>
+
+                                <!-- Floating Mini Toolbar for Selected Image -->
+                                <div id="imageControlToolbar" class="image-control-toolbar" style="display:none;">
+                                    <span class="img-tb-label">Ảnh:</span>
+                                    <button type="button" class="img-tb-btn" data-size="100%">100% Rộng</button>
+                                    <button type="button" class="img-tb-btn" data-size="75%">75% Vừa</button>
+                                    <button type="button" class="img-tb-btn" data-size="50%">50% Nhỏ</button>
+                                    <span class="toolbar-divider"></span>
+                                    <button type="button" class="img-tb-btn" data-align="left" title="Căn trái">⬅ Trái</button>
+                                    <button type="button" class="img-tb-btn" data-align="center" title="Căn giữa">⏺ Giữa</button>
+                                    <button type="button" class="img-tb-btn" data-align="right" title="Căn phải">➡ Phải</button>
+                                    <span class="toolbar-divider"></span>
+                                    <button type="button" class="img-tb-btn btn-danger-tb" id="btnDeleteSelectedImage" title="Xóa ảnh này">🗑 Xóa ảnh</button>
+                                </div>
+                            </div>
+
+                            <p class="editor-hint">
+                                💡 <strong>Mẹo:</strong> Nhấp con trỏ vào vị trí muốn chèn ảnh $\rightarrow$ Bấm nút <strong>"📷 Chèn hình ảnh..."</strong> (hỗ trợ cả chọn file từ máy tính và link ảnh từ Google Drive / Web). Bạn cũng có thể <strong>kéo thả ảnh trực tiếp</strong> vào bài hoặc nhấn <strong>Ctrl + V</strong> để dán ảnh.
+                            </p>
+
+                            <!-- Hidden textarea that syncs on submit -->
+                            <textarea asp-for="Content" id="blogContentHidden" style="display:none;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column (Settings & SEO) -->
+                <div class="form-col-sidebar">
+                    <!-- Publishing Box -->
+                    <div class="admin-card sidebar-box">
+                        <h3 class="box-title">Đăng bài &amp; Trạng thái</h3>
+
+                        <div class="form-group">
+                            <label asp-for="Category"><strong>Chuyên mục</strong></label>
+                            <input asp-for="Category" id="blogCategory" list="categoryOptions" class="form-control" placeholder="Chọn hoặc nhập chuyên mục..." />
+                            <datalist id="categoryOptions">
+                                <option value="Xu hướng tóc" />
+                                <option value="Chăm sóc &amp; Phục hồi" />
+                                <option value="Màu nhuộm &amp; Kỹ thuật" />
+                                <option value="Kiến thức tóc" />
+                                <option value="Tin tức Salon" />
+                            </datalist>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="AuthorName"><strong>Tác giả</strong></label>
+                            <input asp-for="AuthorName" id="blogAuthor" class="form-control" placeholder="Ví dụ: Master Ken, MC Hair Team" />
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PublishedAt"><strong>Ngày đăng (Giờ Việt Nam)</strong></label>
+                            <input asp-for="PublishedAt" id="blogPublishedAt" type="datetime-local" 
+                                   value="@(Model.PublishedAt?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))" 
+                                   class="form-control" />
+                        </div>
+
+                        <div class="checkboxes-wrapper">
+                            <label class="custom-checkbox-label">
+                                <input asp-for="IsPublished" id="blogIsPublished" type="checkbox" /> 
+                                <span>Xuất bản công khai</span>
+                            </label>
+                            <label class="custom-checkbox-label">
+                                <input asp-for="IsFeatured" id="blogIsFeatured" type="checkbox" /> 
+                                <span>Đặt làm Bài viết Nổi bật</span>
+                            </label>
+                        </div>
+
+                        <div class="sidebar-action-buttons">
+                            <button type="submit" class="btn btn-primary btn-block">💾 Lưu bài viết</button>
+                            <a asp-action="Index" class="btn btn-outline btn-block">Hủy bỏ</a>
+                        </div>
+                    </div>
+
+                    <!-- Thumbnail Box -->
+                    <div class="admin-card sidebar-box">
+                        <h3 class="box-title">Ảnh bìa / Thumbnail</h3>
+                        @await Html.PartialAsync("_ImageUploadField", Model.ThumbnailUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Chọn ảnh bìa đại diện" }, { "ImageFieldName", "ThumbnailUrl" } })
+                    </div>
+
+                    <!-- SEO Box -->
+                    <div class="admin-card sidebar-box">
+                        <h3 class="box-title">Cấu hình SEO Google</h3>
+                        <div class="form-group">
+                            <label asp-for="MetaTitle">Tiêu đề SEO (Meta Title)</label>
+                            <input asp-for="MetaTitle" placeholder="Để trống nếu lấy theo Tiêu đề" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="MetaDescription">Mô tả SEO (Meta Description)</label>
+                            <textarea asp-for="MetaDescription" rows="2" placeholder="Để trống nếu lấy theo Tóm tắt" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="MetaKeywords">Từ khóa SEO (Keywords)</label>
+                            <input asp-for="MetaKeywords" placeholder="nhuộm balayage, phục hồi olaplex..." class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- LIVE PREVIEW PANEL (FULL SCREEN PREVIEW) -->
+    <div id="panelPreviewView" class="view-panel">
+        <div class="preview-toolbar">
+            <div class="preview-device-switch">
+                <button type="button" class="device-btn is-active" data-device="desktop">💻 Màn hình lớn (Desktop)</button>
+                <button type="button" class="device-btn" data-device="mobile">📱 Điện thoại (Mobile)</button>
+            </div>
+            <div class="preview-notice">
+                <span class="pulse-dot"></span> Đang xem trước theo thời gian thực (Live Preview)
+            </div>
+        </div>
+
+        <div class="preview-frame-container" id="previewFrameContainer">
+            <div class="preview-window">
+                <article class="article-detail-page preview-article-root">
+                    <header class="article-header">
+                        <div class="container article-container">
+                            <nav class="breadcrumb-nav">
+                                <span>Trang chủ</span>
+                                <span class="breadcrumb-separator">/</span>
+                                <span>Tin tức &amp; Blog</span>
+                                <span class="breadcrumb-separator">/</span>
+                                <span id="pvCategoryBreadcrumb">Xu hướng tóc</span>
+                                <span class="breadcrumb-separator">/</span>
+                                <span class="breadcrumb-current" id="pvTitleBreadcrumb">Tiêu đề bài viết</span>
+                            </nav>
+
+                            <div class="article-meta-badge">
+                                <span class="category-tag" id="pvCategoryTag">Xu hướng tóc</span>
+                                <span class="featured-tag" id="pvFeaturedTag" style="display:none;">★ Nổi bật</span>
+                            </div>
+
+                            <h1 class="article-title" id="pvTitle">Tiêu đề bài viết</h1>
+
+                            <div class="article-info-bar">
+                                <div class="author-badge">
+                                    <span class="author-avatar">✂</span>
+                                    <span class="author-name" id="pvAuthor">MC Hair Team</span>
+                                </div>
+                                <span class="info-dot">•</span>
+                                <time class="publish-time" id="pvDate">Hôm nay</time>
+                                <span class="info-dot">•</span>
+                                <span class="view-count">👁 1 lượt xem</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class="container article-container" id="pvCoverWrapper">
+                        <figure class="article-featured-image">
+                            <img id="pvCoverImage" src="/resources/dich_vu/nhuom_thiet_ke.jpg" alt="Preview Cover" />
+                        </figure>
+                    </div>
+
+                    <div class="container article-container article-layout">
+                        <div class="article-main-content">
+                            <div class="article-summary-lead" id="pvSummaryWrapper">
+                                <p id="pvSummary">Tóm tắt bài viết...</p>
+                            </div>
+
+                            <div class="article-rich-body" id="pvContent">
+                                <!-- Rich content will be injected here -->
+                            </div>
+
+                            <!-- Salon CTA Booking Banner Inside Post -->
+                            <div class="article-cta-box">
+                                <div class="cta-inner">
+                                    <div class="cta-copy">
+                                        <h3>Bạn muốn thay đổi kiểu tóc hoặc phục hồi mái tóc hư tổn?</h3>
+                                        <p>Đến với MC Hair Salon để được Master Stylist khám chất tóc và tư vấn kiểu tóc tôn nét đẹp riêng của bạn hoàn toàn miễn phí.</p>
+                                    </div>
+                                    <div class="cta-actions">
+                                        <button type="button" class="btn btn-primary btn-cta-book">Đặt lịch hẹn ngay</button>
+                                        <a href="tel:0988305371" class="btn btn-outline btn-cta-call">
+                                            📞 Hotline: 0988 305 371
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Share Bar -->
+                            <div class="article-share-bar">
+                                <span class="share-label">Chia sẻ bài viết:</span>
+                                <div class="share-buttons">
+                                    <span class="share-btn share-fb">Facebook</span>
+                                    <span class="share-btn share-copy">📋 Sao chép link</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL CHÈN ẢNH (HỖ TRỢ CẢ TẢI TỪ MÁY TÍNH & LINK GOOGLE DRIVE / URL)
+     ========================================================================= -->
+<div id="imageInsertModal" class="img-modal-backdrop" style="display:none;">
+    <div class="img-modal-dialog">
+        <div class="img-modal-header">
+            <h3 class="img-modal-title">📷 Chèn hình ảnh vào bài viết</h3>
+            <button type="button" class="img-modal-close" id="btnCloseImageModal">&times;</button>
+        </div>
+
+        <!-- Modal Tabs -->
+        <div class="img-modal-tabs">
+            <button type="button" class="img-tab-btn is-active" data-tab="uploadTab">
+                💻 Tải ảnh từ máy tính
+            </button>
+            <button type="button" class="img-tab-btn" data-tab="urlTab">
+                🌐 Link ảnh / Google Drive
+            </button>
+        </div>
+
+        <div class="img-modal-body">
+            <!-- TAB 1: UPLOAD FROM COMPUTER -->
+            <div id="uploadTab" class="img-tab-content is-active">
+                <div class="upload-dropzone" id="modalDropzone">
+                    <div class="dropzone-icon">📁</div>
+                    <h4>Kéo &amp; thả file ảnh vào đây</h4>
+                    <p>Hoặc bấm nút bên dưới để chọn file từ máy tính (JPG, PNG, WEBP, GIF)</p>
+                    <label class="btn btn-primary btn-file-picker">
+                        Chọn file ảnh từ máy
+                        <input type="file" id="modalFileInput" accept="image/*" style="display:none;" />
+                    </label>
+                </div>
+                <div id="uploadStatusMsg" class="upload-status-msg" style="display:none;"></div>
+            </div>
+
+            <!-- TAB 2: URL & GOOGLE DRIVE -->
+            <div id="urlTab" class="img-tab-content">
+                <div class="form-group">
+                    <label><strong>Đường dẫn hình ảnh (URL) hoặc Link chia sẻ Google Drive:</strong></label>
+                    <input type="text" id="inputImageUrl" class="form-control" 
+                           placeholder="https://drive.google.com/file/d/... hoặc https://example.com/anh.jpg" />
+                    <p class="field-hint">
+                        💡 <strong>Google Drive:</strong> Bạn chỉ cần copy link chia sẻ (Bật quyền <em>Bất kỳ ai có liên kết đều có thể xem</em>) rồi dán vào đây, hệ thống sẽ tự động nhận diện và tải ảnh!
+                    </p>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="custom-checkbox-label">
+                        <input type="checkbox" id="chkDownloadToSalon" checked />
+                        <span>Tải ảnh về lưu trữ trên máy chủ Salon (Khuyên dùng để load siêu tốc &amp; không lo hỏng link)</span>
+                    </label>
+                </div>
+
+                <div class="url-preview-box" id="urlPreviewBox" style="display:none;">
+                    <span class="preview-label">Xem trước hình ảnh:</span>
+                    <img id="imgUrlPreview" src="" alt="Preview" />
+                </div>
+
+                <div id="urlStatusMsg" class="upload-status-msg" style="display:none;"></div>
+            </div>
+        </div>
+
+        <div class="img-modal-footer">
+            <button type="button" class="btn btn-outline" id="btnCancelImageModal">Hủy bỏ</button>
+            <button type="button" class="btn btn-primary" id="btnConfirmInsertImage" style="display:none;">Chèn ảnh vào bài viết</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Layout Container: Expands 100% full width */
+.blog-edit-wrapper {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Top Action & Mode Switcher Bar */
+.edit-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.mode-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.mode-tab {
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-alt);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-tab:hover {
+    background: #e8ded2;
+}
+
+.mode-tab.is-active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+    box-shadow: 0 4px 12px rgba(92, 64, 51, 0.25);
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* View Panels */
+.view-panel {
+    display: none;
+}
+.view-panel.is-active {
+    display: block;
+}
+
+/* Form Grid: Main Column (1fr full width) + Sidebar (340px) */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.75rem;
+    width: 100%;
+    align-items: start;
+}
+
+.form-box-main {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.sidebar-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.box-title {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    font-size: 1.05rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.65rem;
+    color: var(--brand);
+    font-weight: 700;
+}
+
+/* Inputs */
+.form-label-prominent {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.input-title-lg {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    border: 2px solid var(--border) !important;
+    border-radius: 8px !important;
+    color: var(--brand) !important;
+}
+
+.input-title-lg:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-soft) !important;
+}
+
+.input-prefix-group {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.input-prefix {
+    background: var(--bg-alt);
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.input-prefix-group input {
+    border: none !important;
+    outline: none !important;
+    flex: 1;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.95rem;
+}
+
+.btn-text-action {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: 0.75rem;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.btn-text-action:hover {
+    color: var(--accent-dark);
+}
+
+/* Editor Toolbar */
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 0.85rem;
+    background: #f5efe8;
+    border: 1px solid #dcd4c8;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.toolbar-divider {
+    display: inline-block;
+    width: 1px;
+    height: 22px;
+    background: #d0c5b6;
+    margin: 0 6px;
+}
+
+.toolbar-btn {
+    background: #fff;
+    border: 1px solid #d0c5b6;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: #3a2e25;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.toolbar-btn:hover {
+    background: #ebe0d3;
+    border-color: var(--brand);
+}
+
+.toolbar-btn-highlight {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent) !important;
+    font-weight: 600;
+}
+.toolbar-btn-highlight:hover {
+    background: var(--accent-dark) !important;
+}
+
+.editor-wrapper {
+    position: relative;
+}
+
+.visual-editor {
+    min-height: 480px;
+    max-height: 800px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dcd4c8;
+    border-radius: 0 0 8px 8px;
+    padding: 1.75rem;
+    font-family: inherit;
+    line-height: 1.85;
+    font-size: 1.05rem;
+    color: var(--text);
+    transition: border-color 0.2s;
+}
+
+.visual-editor.is-dragover {
+    border: 2px dashed var(--accent) !important;
+    background: #fffbf7;
+}
+
+.visual-editor:focus {
+    outline: 2px solid var(--accent);
+}
+
+.visual-editor h2 {
+    font-size: 1.55rem;
+    color: var(--brand);
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--accent-soft);
+}
+
+.visual-editor h3 {
+    font-size: 1.25rem;
+    color: var(--brand);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.visual-editor p {
+    margin: 0 0 1.25rem;
+}
+
+.visual-editor img {
+    max-width: 100%;
+    max-height: 480px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    margin: 1.25rem auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: outline 0.15s;
+}
+
+.visual-editor img.is-selected {
+    outline: 3px solid var(--accent);
+}
+
+.visual-editor img.align-left {
+    float: left;
+    margin: 0.5rem 1.25rem 1rem 0;
+    max-width: 50%;
+}
+
+.visual-editor img.align-right {
+    float: right;
+    margin: 0.5rem 0 1rem 1.25rem;
+    max-width: 50%;
+}
+
+.visual-editor img.size-50 {
+    max-width: 50%;
+}
+.visual-editor img.size-75 {
+    max-width: 75%;
+}
+
+.visual-editor blockquote {
+    border-left: 4px solid var(--accent);
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.25rem;
+    background: #fbf8f4;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #4a3b32;
+}
+
+.img-cursor-marker {
+    display: inline;
+    width: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+
+.image-upload-placeholder {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #fff3e0;
+    border: 1px dashed #ff9800;
+    border-radius: 6px;
+    color: #e65100;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+/* Floating Image Toolbar */
+.image-control-toolbar {
+    position: absolute;
+    background: #2a2118;
+    color: #fff;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    z-index: 100;
+    font-size: 0.82rem;
+}
+
+.img-tb-label {
+    color: #dfcfc2;
+    font-weight: 600;
+    margin-right: 0.2rem;
+}
+
+.img-tb-btn {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.img-tb-btn:hover {
+    background: var(--accent);
+}
+
+.btn-danger-tb {
+    background: #b71c1c;
+    border-color: #b71c1c;
+}
+.btn-danger-tb:hover {
+    background: #d32f2f;
+}
+
+.editor-hint {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* Sidebar Checkboxes & Buttons */
+.checkboxes-wrapper {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    padding: 1rem;
+    background: var(--bg-alt);
+    border-radius: 8px;
+}
+
+.custom-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.custom-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.sidebar-action-buttons {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: 600;
+}
+
+/* LIVE PREVIEW CONTAINER */
+.preview-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--brand);
+    color: #fff;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.preview-device-switch {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.device-btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.device-btn.is-active {
+    background: #fff;
+    color: var(--brand);
+    font-weight: 700;
+}
+
+.preview-notice {
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255,255,255,0.85);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #4caf50;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    animation: pulseDot 1.5s infinite;
+}
+
+@@keyframes pulseDot {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+.preview-frame-container {
+    background: #e5ddd3;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+.preview-window {
+    background: #faf7f2;
+    width: 100%;
+    max-width: 960px;
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+    padding: 2rem 2.5rem;
+    transition: max-width 0.3s ease;
+}
+
+.preview-window.is-mobile {
+    max-width: 420px;
+    padding: 1.5rem 1rem;
+}
+
+/* =========================================================================
+   MODAL STYLING
+   ========================================================================= */
+.img-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 1rem;
+}
+
+.img-modal-dialog {
+    background: #fff;
+    width: 100%;
+    max-width: 580px;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.img-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    background: #f7f3ee;
+    border-bottom: 1px solid var(--border);
+}
+
+.img-modal-title {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--brand);
+    font-weight: 700;
+}
+
+.img-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+    padding: 0;
+}
+
+.img-modal-close:hover {
+    color: #000;
+}
+
+.img-modal-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: #faf7f2;
+}
+
+.img-tab-btn {
+    flex: 1;
+    padding: 0.85rem;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.img-tab-btn.is-active {
+    color: var(--brand);
+    background: #fff;
+    border-bottom-color: var(--accent);
+}
+
+.img-modal-body {
+    padding: 1.5rem;
+}
+
+.img-tab-content {
+    display: none;
+}
+.img-tab-content.is-active {
+    display: block;
+}
+
+.upload-dropzone {
+    border: 2px dashed #c0b5a8;
+    border-radius: 10px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    background: #faf7f2;
+    transition: all 0.2s;
+}
+
+.upload-dropzone.is-dragover {
+    border-color: var(--accent);
+    background: #fffbf7;
+}
+
+.dropzone-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-dropzone h4 {
+    margin: 0 0 0.4rem;
+    font-size: 1.1rem;
+    color: var(--brand);
+}
+
+.upload-dropzone p {
+    margin: 0 0 1.25rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.btn-file-picker {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.4rem;
+}
+
+.field-hint {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.url-preview-box {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #faf7f2;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.url-preview-box .preview-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.url-preview-box img {
+    max-height: 180px;
+    max-width: 100%;
+    border-radius: 6px;
+    object-fit: contain;
+}
+
+.upload-status-msg {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.upload-status-msg.is-loading {
+    background: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffe0b2;
+}
+
+.upload-status-msg.is-error {
+    background: #fde8e4;
+    color: #b71c1c;
+    border: 1px solid #f5c6cb;
+}
+
+.img-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #f7f3ee;
+    border-top: 1px solid var(--border);
+}
+
+.required { color: #d32f2f; }
+
+@@media (max-width: 1100px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const blogTitle = document.getElementById('blogTitle');
+    const blogSlug = document.getElementById('blogSlug');
+    const btnAutoSlug = document.getElementById('btnAutoSlug');
+    const blogSummary = document.getElementById('blogSummary');
+    const blogCategory = document.getElementById('blogCategory');
+    const blogAuthor = document.getElementById('blogAuthor');
+    const blogPublishedAt = document.getElementById('blogPublishedAt');
+    const blogIsFeatured = document.getElementById('blogIsFeatured');
+    const visualEditor = document.getElementById('visualEditor');
+    const blogContentHidden = document.getElementById('blogContentHidden');
+    const blogForm = document.getElementById('blogForm');
+    const editorToolbar = document.getElementById('editorToolbar');
+    const imageControlToolbar = document.getElementById('imageControlToolbar');
+    const btnDeleteSelectedImage = document.getElementById('btnDeleteSelectedImage');
+
+    // Modal elements
+    const btnOpenImageModal = document.getElementById('btnOpenImageModal');
+    const imageInsertModal = document.getElementById('imageInsertModal');
+    const btnCloseImageModal = document.getElementById('btnCloseImageModal');
+    const btnCancelImageModal = document.getElementById('btnCancelImageModal');
+    const modalFileInput = document.getElementById('modalFileInput');
+    const modalDropzone = document.getElementById('modalDropzone');
+    const uploadStatusMsg = document.getElementById('uploadStatusMsg');
+    const inputImageUrl = document.getElementById('inputImageUrl');
+    const chkDownloadToSalon = document.getElementById('chkDownloadToSalon');
+    const urlPreviewBox = document.getElementById('urlPreviewBox');
+    const imgUrlPreview = document.getElementById('imgUrlPreview');
+    const urlStatusMsg = document.getElementById('urlStatusMsg');
+    const btnConfirmInsertImage = document.getElementById('btnConfirmInsertImage');
+
+    // Tabs & Preview
+    const tabEditMode = document.getElementById('tabEditMode');
+    const tabPreviewMode = document.getElementById('tabPreviewMode');
+    const panelEditView = document.getElementById('panelEditView');
+    const panelPreviewView = document.getElementById('panelPreviewView');
+
+    // Preview elements
+    const pvTitle = document.getElementById('pvTitle');
+    const pvTitleBreadcrumb = document.getElementById('pvTitleBreadcrumb');
+    const pvCategoryBreadcrumb = document.getElementById('pvCategoryBreadcrumb');
+    const pvCategoryTag = document.getElementById('pvCategoryTag');
+    const pvFeaturedTag = document.getElementById('pvFeaturedTag');
+    const pvAuthor = document.getElementById('pvAuthor');
+    const pvDate = document.getElementById('pvDate');
+    const pvCoverImage = document.getElementById('pvCoverImage');
+    const pvCoverWrapper = document.getElementById('pvCoverWrapper');
+    const pvSummary = document.getElementById('pvSummary');
+    const pvSummaryWrapper = document.getElementById('pvSummaryWrapper');
+    const pvContent = document.getElementById('pvContent');
+    const previewWindow = document.querySelector('.preview-window');
+
+    let currentlySelectedImg = null;
+
+    // --- BULLETPROOF CURSOR DOM MARKER SYSTEM ---
+    function placeCursorMarker() {
+        // Remove any existing marker
+        const oldMarker = document.getElementById('blog-img-cursor-marker');
+        if (oldMarker) oldMarker.remove();
+
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            if (visualEditor.contains(range.commonAncestorContainer) || range.commonAncestorContainer === visualEditor) {
+                const marker = document.createElement('span');
+                marker.id = 'blog-img-cursor-marker';
+                marker.className = 'img-cursor-marker';
+                marker.innerHTML = '&#8203;';
+                range.insertNode(marker);
+                return true;
+            }
+        }
+
+        // If no selection inside editor, place marker at the end
+        const marker = document.createElement('span');
+        marker.id = 'blog-img-cursor-marker';
+        marker.className = 'img-cursor-marker';
+        marker.innerHTML = '&#8203;';
+        visualEditor.appendChild(marker);
+        return true;
+    }
+
+    function removeCursorMarker() {
+        const marker = document.getElementById('blog-img-cursor-marker');
+        if (marker) marker.remove();
+    }
+
+    function insertImageAtMarker(imageUrl) {
+        const marker = document.getElementById('blog-img-cursor-marker');
+
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = 'Hình ảnh bài viết';
+        img.className = 'blog-content-img';
+
+        const p = document.createElement('p');
+        p.appendChild(img);
+
+        if (marker && marker.parentNode) {
+            marker.parentNode.insertBefore(p, marker);
+            marker.remove();
+        } else {
+            visualEditor.appendChild(p);
+        }
+
+        attachImageClickHandler(img);
+        selectImage(img);
+        p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Modal Opening & Closing
+    function openImageModal() {
+        placeCursorMarker();
+        imageInsertModal.style.display = 'flex';
+        inputImageUrl.value = '';
+        urlPreviewBox.style.display = 'none';
+        uploadStatusMsg.style.display = 'none';
+        urlStatusMsg.style.display = 'none';
+        btnConfirmInsertImage.style.display = 'none';
+    }
+
+    function closeImageModal() {
+        removeCursorMarker();
+        imageInsertModal.style.display = 'none';
+        uploadStatusMsg.style.display = 'none';
+        urlStatusMsg.style.display = 'none';
+    }
+
+    if (btnOpenImageModal) {
+        btnOpenImageModal.addEventListener('click', openImageModal);
+    }
+    if (btnCloseImageModal) {
+        btnCloseImageModal.addEventListener('click', closeImageModal);
+    }
+    if (btnCancelImageModal) {
+        btnCancelImageModal.addEventListener('click', closeImageModal);
+    }
+
+    // Modal Tab Switcher
+    document.querySelectorAll('.img-tab-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.img-tab-btn').forEach(b => b.classList.remove('is-active'));
+            document.querySelectorAll('.img-tab-content').forEach(c => c.classList.remove('is-active'));
+            this.classList.add('is-active');
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('is-active');
+
+            if (tabId === 'urlTab' && inputImageUrl.value.trim()) {
+                btnConfirmInsertImage.style.display = 'inline-block';
+            } else {
+                btnConfirmInsertImage.style.display = tabId === 'urlTab' ? 'inline-block' : 'none';
+            }
+        });
+    });
+
+    // Upload from file
+    async function handleFileUpload(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            uploadStatusMsg.textContent = 'Vui lòng chọn file hình ảnh (jpg, png, webp, gif).';
+            uploadStatusMsg.className = 'upload-status-msg is-error';
+            uploadStatusMsg.style.display = 'block';
+            return;
+        }
+
+        uploadStatusMsg.textContent = '⏳ Đang tải ảnh lên máy chủ salon...';
+        uploadStatusMsg.className = 'upload-status-msg is-loading';
+        uploadStatusMsg.style.display = 'block';
+
+        const formData = new FormData();
+        formData.append('upload', file);
+
+        try {
+            const res = await fetch('/Admin/Blog/UploadContentImage', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.url) {
+                insertImageAtMarker(data.url);
+                closeImageModal();
+            } else {
+                uploadStatusMsg.textContent = 'Lỗi tải ảnh: ' + (data.error || 'Không thể upload.');
+                uploadStatusMsg.className = 'upload-status-msg is-error';
+            }
+        } catch (err) {
+            uploadStatusMsg.textContent = 'Lỗi kết nối khi tải ảnh lên máy chủ.';
+            uploadStatusMsg.className = 'upload-status-msg is-error';
+        }
+    }
+
+    if (modalFileInput) {
+        modalFileInput.addEventListener('change', async function () {
+            if (this.files && this.files.length > 0) {
+                await handleFileUpload(this.files[0]);
+                this.value = '';
+            }
+        });
+    }
+
+    // Modal Dropzone
+    if (modalDropzone) {
+        modalDropzone.addEventListener('dragover', e => {
+            e.preventDefault();
+            modalDropzone.classList.add('is-dragover');
+        });
+        modalDropzone.addEventListener('dragleave', () => {
+            modalDropzone.classList.remove('is-dragover');
+        });
+        modalDropzone.addEventListener('drop', async e => {
+            e.preventDefault();
+            modalDropzone.classList.remove('is-dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                await handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+    }
+
+    // URL & Google Drive Image handling
+    function convertGoogleDriveUrl(url) {
+        if (!url) return '';
+        const match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                      url.match(/drive\.google\.com\/.*[?&]id=([a-zA-Z0-9_-]+)/);
+        if (match) {
+            return `https://lh3.googleusercontent.com/d/${match[1]}`;
+        }
+        return url.trim();
+    }
+
+    if (inputImageUrl) {
+        inputImageUrl.addEventListener('input', function () {
+            const rawUrl = this.value.trim();
+            if (rawUrl) {
+                btnConfirmInsertImage.style.display = 'inline-block';
+                const directUrl = convertGoogleDriveUrl(rawUrl);
+                imgUrlPreview.src = directUrl;
+                urlPreviewBox.style.display = 'block';
+            } else {
+                urlPreviewBox.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnConfirmInsertImage) {
+        btnConfirmInsertImage.addEventListener('click', async function () {
+            const urlVal = inputImageUrl.value.trim();
+            if (!urlVal) {
+                alert('Vui lòng nhập đường dẫn hình ảnh.');
+                return;
+            }
+
+            urlStatusMsg.textContent = '⏳ Đang xử lý & nạp hình ảnh...';
+            urlStatusMsg.className = 'upload-status-msg is-loading';
+            urlStatusMsg.style.display = 'block';
+            btnConfirmInsertImage.disabled = true;
+
+            const shouldDownload = chkDownloadToSalon.checked;
+
+            try {
+                const res = await fetch('/Admin/Blog/InsertImageByUrl', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlVal, downloadToSalon: shouldDownload })
+                });
+                const data = await res.json();
+
+                if (data.url) {
+                    insertImageAtMarker(data.url);
+                    closeImageModal();
+                } else {
+                    urlStatusMsg.textContent = 'Lỗi nạp ảnh: ' + (data.error || 'Không thể nạp link ảnh.');
+                    urlStatusMsg.className = 'upload-status-msg is-error';
+                }
+            } catch (err) {
+                // Fallback direct URL on error
+                const directUrl = convertGoogleDriveUrl(urlVal);
+                insertImageAtMarker(directUrl);
+                closeImageModal();
+            } finally {
+                btnConfirmInsertImage.disabled = false;
+            }
+        });
+    }
+
+    // --- DIRECT DRAG & DROP ONTO EDITOR ---
+    visualEditor.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        visualEditor.classList.add('is-dragover');
+    });
+
+    visualEditor.addEventListener('dragleave', function () {
+        visualEditor.classList.remove('is-dragover');
+    });
+
+    visualEditor.addEventListener('drop', async function (e) {
+        e.preventDefault();
+        visualEditor.classList.remove('is-dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            const file = e.dataTransfer.files[0];
+            if (file.type.startsWith('image/')) {
+                if (document.caretRangeFromPoint) {
+                    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                    if (range) {
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                }
+                placeCursorMarker();
+                await handleFileUpload(file);
+            }
+        }
+    });
+
+    // --- DIRECT CLIPBOARD PASTE (Ctrl + V) ---
+    visualEditor.addEventListener('paste', async function (e) {
+        const items = (e.clipboardData || window.clipboardData).items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    e.preventDefault();
+                    placeCursorMarker();
+                    await handleFileUpload(file);
+                    break;
+                }
+            }
+        }
+    });
+
+    // --- AUTO SLUG GENERATOR ---
+    function generateSlug(text) {
+        if (!text) return '';
+        let str = text.trim().toLowerCase();
+        str = str.replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a');
+        str = str.replace(/[éèẻẽẹêếềểễệ]/g, 'e');
+        str = str.replace(/[iíìỉĩị]/g, 'i');
+        str = str.replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o');
+        str = str.replace(/[úùủũụưứừửữự]/g, 'u');
+        str = str.replace(/[ýỳỷỹỵ]/g, 'y');
+        str = str.replace(/[đ]/g, 'd');
+        str = str.replace(/[^a-z0-9\s-]/g, '');
+        str = str.replace(/\s+/g, '-');
+        str = str.replace(/-+/g, '-');
+        return str.replace(/^-+|-+$/g, '');
+    }
+
+    if (btnAutoSlug) {
+        btnAutoSlug.addEventListener('click', function () {
+            if (blogTitle.value) {
+                blogSlug.value = generateSlug(blogTitle.value);
+            }
+        });
+    }
+
+    if (blogTitle && !blogSlug.value) {
+        blogTitle.addEventListener('blur', function () {
+            if (!blogSlug.value && blogTitle.value) {
+                blogSlug.value = generateSlug(blogTitle.value);
+            }
+        });
+    }
+
+    // Formatting commands
+    editorToolbar.querySelectorAll('.toolbar-btn[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const cmd = this.getAttribute('data-cmd');
+            const val = this.getAttribute('data-val') || null;
+            document.execCommand(cmd, false, val);
+            visualEditor.focus();
+        });
+    });
+
+    // Insert Link
+    const btnInsertLink = document.getElementById('btnInsertLink');
+    if (btnInsertLink) {
+        btnInsertLink.addEventListener('click', function () {
+            const url = prompt('Nhập địa chỉ liên kết (URL):', 'https://');
+            if (url) {
+                document.execCommand('createLink', false, url);
+                visualEditor.focus();
+            }
+        });
+    }
+
+    // --- IMAGE CLICK & FLOATING TOOLBAR ---
+    function attachImageClickHandler(img) {
+        img.addEventListener('click', function (e) {
+            e.stopPropagation();
+            selectImage(img);
+        });
+    }
+
+    function selectImage(img) {
+        deselectAllImages();
+        currentlySelectedImg = img;
+        img.classList.add('is-selected');
+
+        const topPos = img.offsetTop - 45;
+        const leftPos = Math.max(10, img.offsetLeft);
+
+        imageControlToolbar.style.top = (topPos > 0 ? topPos : img.offsetTop + 10) + 'px';
+        imageControlToolbar.style.left = leftPos + 'px';
+        imageControlToolbar.style.display = 'flex';
+    }
+
+    function deselectAllImages() {
+        visualEditor.querySelectorAll('img.is-selected').forEach(el => el.classList.remove('is-selected'));
+        currentlySelectedImg = null;
+        imageControlToolbar.style.display = 'none';
+    }
+
+    visualEditor.querySelectorAll('img').forEach(attachImageClickHandler);
+
+    document.addEventListener('click', function (e) {
+        if (!imageControlToolbar.contains(e.target) && e.target.tagName !== 'IMG') {
+            deselectAllImages();
+        }
+    });
+
+    imageControlToolbar.querySelectorAll('.img-tb-btn[data-size]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (!currentlySelectedImg) return;
+            const size = this.getAttribute('data-size');
+            currentlySelectedImg.classList.remove('size-50', 'size-75');
+            if (size === '50%') currentlySelectedImg.classList.add('size-50');
+            else if (size === '75%') currentlySelectedImg.classList.add('size-75');
+        });
+    });
+
+    imageControlToolbar.querySelectorAll('.img-tb-btn[data-align]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (!currentlySelectedImg) return;
+            const align = this.getAttribute('data-align');
+            currentlySelectedImg.classList.remove('align-left', 'align-right');
+            if (align === 'left') currentlySelectedImg.classList.add('align-left');
+            else if (align === 'right') currentlySelectedImg.classList.add('align-right');
+        });
+    });
+
+    if (btnDeleteSelectedImage) {
+        btnDeleteSelectedImage.addEventListener('click', function () {
+            if (currentlySelectedImg) {
+                currentlySelectedImg.remove();
+                deselectAllImages();
+            }
+        });
+    }
+
+    // HTML Source Mode toggle
+    let isHtmlMode = false;
+    const btnToggleHtml = document.getElementById('btnToggleHtml');
+    if (btnToggleHtml) {
+        btnToggleHtml.addEventListener('click', function () {
+            isHtmlMode = !isHtmlMode;
+            if (isHtmlMode) {
+                deselectAllImages();
+                visualEditor.innerText = visualEditor.innerHTML;
+                this.textContent = 'Trực quan (WYSIWYG)';
+                this.style.background = '#ffd8a8';
+            } else {
+                visualEditor.innerHTML = visualEditor.innerText;
+                visualEditor.querySelectorAll('img').forEach(attachImageClickHandler);
+                this.textContent = 'HTML';
+                this.style.background = '';
+            }
+        });
+    }
+
+    // Live Preview Synchronization Function
+    function syncLivePreview() {
+        const titleVal = blogTitle.value.trim() || 'Tiêu đề bài viết';
+        const catVal = blogCategory.value.trim() || 'Xu hướng tóc';
+        const authorVal = blogAuthor.value.trim() || 'MC Hair Team';
+        const summaryVal = blogSummary.value.trim();
+        
+        let contentHtml = visualEditor.innerHTML;
+        if (isHtmlMode) {
+            contentHtml = visualEditor.innerText;
+        }
+
+        pvTitle.textContent = titleVal;
+        pvTitleBreadcrumb.textContent = titleVal;
+        pvCategoryBreadcrumb.textContent = catVal;
+        pvCategoryTag.textContent = catVal;
+        pvAuthor.textContent = authorVal;
+
+        if (blogIsFeatured && blogIsFeatured.checked) {
+            pvFeaturedTag.style.display = 'inline-block';
+        } else {
+            pvFeaturedTag.style.display = 'none';
+        }
+
+        if (blogPublishedAt && blogPublishedAt.value) {
+            const d = new Date(blogPublishedAt.value);
+            pvDate.textContent = isNaN(d) ? 'Hôm nay' : d.toLocaleDateString('vi-VN');
+        }
+
+        const imgInput = document.querySelector('input[name="ThumbnailUrl"]');
+        const imgPreview = document.querySelector('.image-upload-field .image-preview');
+        if (imgPreview && imgPreview.src) {
+            pvCoverImage.src = imgPreview.src;
+            pvCoverWrapper.style.display = 'block';
+        } else if (imgInput && imgInput.value.trim()) {
+            pvCoverImage.src = imgInput.value.trim();
+            pvCoverWrapper.style.display = 'block';
+        } else {
+            pvCoverWrapper.style.display = 'none';
+        }
+
+        if (summaryVal) {
+            pvSummary.textContent = summaryVal;
+            pvSummaryWrapper.style.display = 'block';
+        } else {
+            pvSummaryWrapper.style.display = 'none';
+        }
+
+        pvContent.innerHTML = contentHtml || '<p style="color:#999; font-style:italic;">(Nội dung bài viết chưa có văn bản nào)</p>';
+    }
+
+    // Tab switcher events
+    tabEditMode.addEventListener('click', function () {
+        tabEditMode.classList.add('is-active');
+        tabPreviewMode.classList.remove('is-active');
+        panelEditView.classList.add('is-active');
+        panelPreviewView.classList.remove('is-active');
+    });
+
+    tabPreviewMode.addEventListener('click', function () {
+        syncLivePreview();
+        tabPreviewMode.classList.add('is-active');
+        tabEditMode.classList.remove('is-active');
+        panelPreviewView.classList.add('is-active');
+        panelEditView.classList.remove('is-active');
+    });
+
+    // Device switch buttons in preview mode
+    document.querySelectorAll('.device-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('is-active'));
+            this.classList.add('is-active');
+            const dev = this.getAttribute('data-device');
+            if (dev === 'mobile') {
+                previewWindow.classList.add('is-mobile');
+            } else {
+                previewWindow.classList.remove('is-mobile');
+            }
+        });
+    });
+
+    // Sync content to hidden textarea on form submit
+    if (blogForm) {
+        blogForm.addEventListener('submit', function () {
+            deselectAllImages();
+            removeCursorMarker();
+            if (isHtmlMode) {
+                visualEditor.innerHTML = visualEditor.innerText;
+            }
+            blogContentHidden.value = visualEditor.innerHTML;
+        });
+    }
+});
+</script>

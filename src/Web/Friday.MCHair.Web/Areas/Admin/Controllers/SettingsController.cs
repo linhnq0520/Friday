@@ -1,8 +1,10 @@
 using Friday.Modules.Salon.Domain.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Areas.Admin.Controllers;
 
+[Authorize(Roles = "Admin")]
 public sealed class SettingsController(ISalonRepository repository) : AdminControllerBase
 {
     private static readonly string[] Keys =

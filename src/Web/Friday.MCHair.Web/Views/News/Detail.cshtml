@@ -1,0 +1,186 @@
+@model Friday.Modules.Salon.Application.Models.BlogPostDetailDto
+@{
+    string fullUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+    string ogImage = !string.IsNullOrWhiteSpace(Model.ThumbnailUrl)
+        ? (Model.ThumbnailUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) 
+            ? Model.ThumbnailUrl 
+            : $"{Context.Request.Scheme}://{Context.Request.Host}{Model.ThumbnailUrl}")
+        : $"{Context.Request.Scheme}://{Context.Request.Host}/resources/logo.jpg";
+}
+
+@section Head {
+    <!-- OpenGraph & SEO Meta Tags -->
+    <meta property="og:title" content="@(Model.MetaTitle ?? Model.Title)" />
+    <meta property="og:description" content="@(Model.MetaDescription ?? Model.Summary ?? Model.Title)" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="@fullUrl" />
+    <meta property="og:image" content="@ogImage" />
+    <meta name="author" content="@Model.AuthorName" />
+    <link rel="canonical" href="@fullUrl" />
+
+    <!-- Schema.org BlogPosting Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "BlogPosting",
+      "mainEntityOfPage": {
+        "@@type": "WebPage",
+        "@@id": "@fullUrl"
+      },
+      "headline": "@Model.Title",
+      "description": "@(Model.MetaDescription ?? Model.Summary)",
+      "image": "@ogImage",
+      "author": {
+        "@@type": "Person",
+        "name": "@Model.AuthorName"
+      },
+      "publisher": {
+        "@@type": "Organization",
+        "name": "MC Hair Salon",
+        "logo": {
+          "@@type": "ImageObject",
+          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/resources/logo.jpg")"
+        }
+      },
+      "datePublished": "@(Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm:sszzz") ?? DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz"))",
+      "dateModified": "@(Model.PublishedAt?.ToString("yyyy-MM-ddTHH:mm:sszzz") ?? DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz"))"
+    }
+    </script>
+}
+
+<article class="article-detail-page">
+    <header class="article-header">
+        <div class="container article-container">
+            <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+                <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
+                <span class="breadcrumb-separator">/</span>
+                <a asp-controller="News" asp-action="Index">@Localizer["News_BreadcrumbCurrent"]</a>
+                <span class="breadcrumb-separator">/</span>
+                <a asp-controller="News" asp-action="Index" asp-route-category="@Model.Category">@Model.Category</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">@Model.Title</span>
+            </nav>
+
+            <div class="article-meta-badge">
+                <span class="category-tag">@Model.Category</span>
+                @if (Model.IsFeatured)
+                {
+                    <span class="featured-tag">@Localizer["News_BadgeFeatured"]</span>
+                }
+            </div>
+
+            <h1 class="article-title">@Model.Title</h1>
+
+            <div class="article-info-bar">
+                <div class="author-badge">
+                    <span class="author-avatar">✂</span>
+                    <span class="author-name">@Model.AuthorName</span>
+                </div>
+                <span class="info-dot">•</span>
+                <time class="publish-time" datetime="@(Model.PublishedAt?.ToString("yyyy-MM-dd"))">
+                    @(Model.PublishedAt?.ToString("dd/MM/yyyy"))
+                </time>
+                @if (Model.ViewCount > 0)
+                {
+                    <span class="info-dot">•</span>
+                    <span class="view-count">👁 @string.Format(Localizer["News_Views"].Value, Model.ViewCount)</span>
+                }
+            </div>
+        </div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ThumbnailUrl))
+    {
+        <div class="container article-container">
+            <figure class="article-featured-image">
+                <img src="@Model.ThumbnailUrl" alt="@Model.Title" loading="eager" />
+            </figure>
+        </div>
+    }
+
+    <div class="container article-container article-layout">
+        <div class="article-main-content">
+            @if (!string.IsNullOrWhiteSpace(Model.Summary))
+            {
+                <div class="article-summary-lead">
+                    <p>@Model.Summary</p>
+                </div>
+            }
+
+            <div class="article-rich-body">
+                @Html.Raw(Model.Content)
+            </div>
+
+            <!-- Salon CTA Booking Banner Inside Post -->
+            <div class="article-cta-box">
+                <div class="cta-inner">
+                    <div class="cta-copy">
+                        <h3>@Localizer["News_DetailCtaTitle"]</h3>
+                        <p>@Localizer["News_DetailCtaLead"]</p>
+                    </div>
+                    <div class="cta-actions">
+                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-cta-book", label = Localizer["News_DetailCtaBook"].Value })
+                        <a href="tel:0988305371" class="btn btn-outline btn-cta-call">
+                            @Localizer["Common_Hotline"] 0988 305 371
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Share Bar -->
+            <div class="article-share-bar">
+                <span class="share-label">@Localizer["News_DetailShare"]</span>
+                <div class="share-buttons">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(fullUrl)" 
+                       target="_blank" rel="noopener noreferrer" class="share-btn share-fb">
+                        Facebook
+                    </a>
+                    <button type="button" class="share-btn share-copy" onclick="navigator.clipboard.writeText(window.location.href); alert('@Localizer["News_DetailLinkCopied"]');">
+                        @Localizer["News_DetailCopyLink"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Articles Section -->
+    @if (Model.RelatedPosts.Count > 0)
+    {
+        <section class="section section-related-posts">
+            <div class="container article-container">
+                <div class="section-head">
+                    <h2>@Localizer["News_DetailRelated"]</h2>
+                    <p>@Localizer["News_DetailRelatedLead"]</p>
+                </div>
+                <div class="related-posts-grid">
+                    @foreach (var related in Model.RelatedPosts)
+                    {
+                        <article class="blog-card related-card">
+                            <div class="blog-card-media image-hover-frame">
+                                <a href="/tin-tuc/@related.Slug">
+                                    <img src="@(related.ThumbnailUrl ?? "/resources/dich_vu/cat_toc.jpg")" alt="@related.Title" loading="lazy" />
+                                </a>
+                                <span class="blog-category-badge">@related.Category</span>
+                            </div>
+                            <div class="blog-card-body">
+                                <span class="blog-card-date">@(related.PublishedAt?.ToString("dd/MM/yyyy"))</span>
+                                <h3 class="blog-card-title">
+                                    <a href="/tin-tuc/@related.Slug">@related.Title</a>
+                                </h3>
+                                @if (!string.IsNullOrWhiteSpace(related.Summary))
+                                {
+                                    <p class="blog-card-excerpt">@related.Summary</p>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+                <div class="center-cta" style="margin-top: 2rem; text-align: center;">
+                    <a asp-controller="News" asp-action="Index" class="btn btn-outline">
+                        @Localizer["News_DetailAllPosts"]
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
+</article>

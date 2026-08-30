@@ -166,6 +166,14 @@
     box-shadow: var(--shadow);
 }
 
+.admin-form-wide {
+    max-width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
 .admin-form .btn-primary { margin-top: 0.5rem; }
 
 .admin-body .btn-sm {
@@ -436,6 +444,60 @@
     font-size: 0.82rem;
 }
 .btn-danger:hover { background: #922f24; }
+
+/* Admin Toolbar & Table Actions */
+.admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.admin-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.admin-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.admin-filter-form select,
+.admin-filter-form input {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.9rem;
+}
+.actions-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+.action-link {
+    color: var(--accent);
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: underline;
+}
+.action-btn-danger {
+    background: none;
+    border: none;
+    color: #b33a2c;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0;
+    text-decoration: underline;
+}
+.action-btn-danger:hover {
+    color: #831f13;
+}
 
 @media (max-width: 900px) {
     .price-list-columns {

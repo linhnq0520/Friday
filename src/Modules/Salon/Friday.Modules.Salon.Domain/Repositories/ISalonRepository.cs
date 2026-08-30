@@ -80,7 +80,42 @@ public interface ISalonRepository
         CancellationToken cancellationToken = default
     );
 
+    Task<IReadOnlyList<AdminUser>> GetAllAdminUsersAsync(CancellationToken cancellationToken = default);
+    Task<AdminUser?> GetAdminUserByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<AdminUser?> GetAdminByUsernameAsync(string username, CancellationToken cancellationToken = default);
     Task<bool> AnyAdminUsersAsync(CancellationToken cancellationToken = default);
     Task AddAdminUserAsync(AdminUser user, CancellationToken cancellationToken = default);
+    Task DeleteAdminUserAsync(AdminUser user, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<BlogPost>> GetPublishedBlogPostsAsync(
+        string? category = null,
+        int page = 1,
+        int pageSize = 10,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    );
+    Task<int> CountPublishedBlogPostsAsync(
+        string? category = null,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    );
+    Task<BlogPost?> GetBlogPostBySlugAsync(string slug, CancellationToken cancellationToken = default);
+    Task<BlogPost?> GetBlogPostByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BlogPost>> GetAllBlogPostsAsync(
+        string? category = null,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    );
+    Task<IReadOnlyList<BlogPost>> GetLatestBlogPostsAsync(int count, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BlogPost>> GetFeaturedBlogPostsAsync(int count, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<BlogPost>> GetRelatedBlogPostsAsync(
+        int currentId,
+        string category,
+        int count = 3,
+        CancellationToken cancellationToken = default
+    );
+    Task<IReadOnlyList<string>> GetDistinctCategoriesAsync(CancellationToken cancellationToken = default);
+    Task AddBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default);
+    Task DeleteBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default);
+    Task IncrementBlogPostViewAsync(int id, CancellationToken cancellationToken = default);
 }

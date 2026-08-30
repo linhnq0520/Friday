@@ -1,0 +1,69 @@
+@using Friday.Modules.Salon.Domain.Entities
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Thêm người dùng mới";
+    var stylists = ViewBag.Stylists as IReadOnlyList<Stylist> ?? [];
+}
+
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2>➕ Thêm Tài Khoản Người Dùng Mới</h2>
+        <p class="admin-subtitle">Tạo tài khoản quản trị hoặc nhân viên stylist để đăng nhập vào trang quản lý.</p>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 650px; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 1.5rem;">
+    @if (ViewBag.Error is string err)
+    {
+        <div class="alert error" style="margin-bottom: 1.25rem;">@err</div>
+    }
+
+    <form asp-action="Create" method="post" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label style="font-weight: 600;">Tên đăng nhập (Username) <span class="text-danger">*</span></label>
+            <input type="text" name="username" required placeholder="Ví dụ: stylist_ken, minh_hair, admin_hn..." autocomplete="off" />
+            <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Dùng để đăng nhập, viết liền không dấu.</small>
+        </div>
+
+        <div class="form-group">
+            <label style="font-weight: 600;">Tên hiển thị <span class="text-danger">*</span></label>
+            <input type="text" name="displayName" required placeholder="Ví dụ: Stylist Lê Đình Ken, Quản Lý Thu Ngân..." />
+        </div>
+
+        <div class="form-group">
+            <label style="font-weight: 600;">Mật khẩu ban đầu <span class="text-danger">*</span></label>
+            <input type="password" name="password" required placeholder="Tối thiểu 6 ký tự..." autocomplete="new-password" minlength="6" />
+            <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Người dùng có thể tự đổi lại mật khẩu sau khi đăng nhập.</small>
+        </div>
+
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+            <div class="form-group">
+                <label style="font-weight: 600;">Vai trò phân quyền <span class="text-danger">*</span></label>
+                <select name="role" required id="roleSelect" onchange="toggleStylistField()">
+                    <option value="@((int)AdminRole.Admin)">👑 Quản trị viên (Admin Toàn quyền)</option>
+                    <option value="@((int)AdminRole.Stylist)" selected>✂️ Stylist / Nhân viên (Hạn chế)</option>
+                </select>
+                <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Stylist không thể truy cập Quản lý tài khoản và Cài đặt.</small>
+            </div>
+
+            <div class="form-group" id="stylistGroup">
+                <label style="font-weight: 600;">Liên kết Hồ sơ Thợ (Tùy chọn)</label>
+                <select name="stylistId">
+                    <option value="">-- Không liên kết --</option>
+                    @foreach (var s in stylists)
+                    {
+                        <option value="@s.Id">💇‍♂️ @s.Name</option>
+                    }
+                </select>
+                <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Liên kết với hồ sơ Stylist trong hệ thống.</small>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.75rem;">
+            <button type="submit" class="btn btn-primary">💾 Tạo tài khoản</button>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+    </form>
+</div>

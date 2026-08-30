@@ -245,6 +245,8 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
                 target.Summary = source.Summary;
                 target.Content = source.Content;
                 target.ImageUrl = source.ImageUrl;
+                target.StartDate = source.StartDate;
+                target.EndDate = source.EndDate;
                 target.PublishedAt = source.PublishedAt;
                 target.IsPublished = source.IsPublished;
             },
@@ -438,6 +440,15 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         return await query.OrderBy(x => x.ScheduledAt).ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<AdminUser>> GetAllAdminUsersAsync(CancellationToken cancellationToken = default) =>
+        await dbContext
+            .Set<AdminUser>()
+            .OrderBy(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+    public Task<AdminUser?> GetAdminUserByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<AdminUser>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
     public Task<AdminUser?> GetAdminByUsernameAsync(
         string username,
         CancellationToken cancellationToken = default
@@ -446,7 +457,7 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         string normalized = username.Trim().ToUpperInvariant();
         return dbContext
             .Set<AdminUser>()
-            .FirstOrDefaultAsync(x => x.Username.ToUpper() == normalized && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Username.ToUpper() == normalized, cancellationToken);
     }
 
     public Task<bool> AnyAdminUsersAsync(CancellationToken cancellationToken = default) =>
@@ -460,10 +471,220 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
                 target.Username = source.Username;
                 target.PasswordHash = source.PasswordHash;
                 target.DisplayName = source.DisplayName;
+                target.Role = source.Role;
+                target.StylistId = source.StylistId;
                 target.IsActive = source.IsActive;
             },
             cancellationToken
         );
+
+    public Task DeleteAdminUserAsync(AdminUser user, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<AdminUser>(user.Id, cancellationToken);
+
+    public async Task<IReadOnlyList<BlogPost>> GetPublishedBlogPostsAsync(
+        string? category = null,
+        int page = 1,
+        int pageSize = 10,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<BlogPost> query = dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished);
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(x => x.Category == category);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            string s = search.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(s)
+                || (x.Summary != null && x.Summary.ToLower().Contains(s))
+                || (x.Content != null && x.Content.ToLower().Contains(s))
+            );
+        }
+
+        return await query
+            .OrderByDescending(x => x.IsFeatured)
+            .ThenByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .Skip((Math.Max(1, page) - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountPublishedBlogPostsAsync(
+        string? category = null,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<BlogPost> query = dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished);
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(x => x.Category == category);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            string s = search.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(s)
+                || (x.Summary != null && x.Summary.ToLower().Contains(s))
+                || (x.Content != null && x.Content.ToLower().Contains(s))
+            );
+        }
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public Task<BlogPost?> GetBlogPostBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
+        dbContext
+            .Set<BlogPost>()
+            .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+
+    public Task<BlogPost?> GetBlogPostByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        dbContext.Set<BlogPost>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+    public async Task<IReadOnlyList<BlogPost>> GetAllBlogPostsAsync(
+        string? category = null,
+        string? search = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IQueryable<BlogPost> query = dbContext.Set<BlogPost>().AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(x => x.Category == category);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            string s = search.Trim().ToLower();
+            query = query.Where(x =>
+                x.Title.ToLower().Contains(s)
+                || (x.Summary != null && x.Summary.ToLower().Contains(s))
+            );
+        }
+
+        return await query
+            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .ThenByDescending(x => x.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<BlogPost>> GetLatestBlogPostsAsync(
+        int count,
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished)
+            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<BlogPost>> GetFeaturedBlogPostsAsync(
+        int count,
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished && x.IsFeatured)
+            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<BlogPost>> GetRelatedBlogPostsAsync(
+        int currentId,
+        string category,
+        int count = 3,
+        CancellationToken cancellationToken = default
+    )
+    {
+        IReadOnlyList<BlogPost> sameCategory = await dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished && x.Id != currentId && x.Category == category)
+            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+
+        if (sameCategory.Count >= count)
+        {
+            return sameCategory;
+        }
+
+        int remaining = count - sameCategory.Count;
+        List<int> excludedIds = sameCategory.Select(x => x.Id).Concat([currentId]).ToList();
+
+        List<BlogPost> additional = await dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished && !excludedIds.Contains(x.Id))
+            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .Take(remaining)
+            .ToListAsync(cancellationToken);
+
+        return sameCategory.Concat(additional).ToList();
+    }
+
+    public async Task<IReadOnlyList<string>> GetDistinctCategoriesAsync(
+        CancellationToken cancellationToken = default
+    ) =>
+        await dbContext
+            .Set<BlogPost>()
+            .AsNoTracking()
+            .Where(x => x.IsPublished && !string.IsNullOrEmpty(x.Category))
+            .Select(x => x.Category)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync(cancellationToken);
+
+    public Task AddBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default) =>
+        UpsertAsync(
+            post,
+            static (source, target) =>
+            {
+                target.Title = source.Title;
+                target.Slug = source.Slug;
+                target.Summary = source.Summary;
+                target.Content = source.Content;
+                target.ThumbnailUrl = source.ThumbnailUrl;
+                target.Category = source.Category;
+                target.AuthorName = source.AuthorName;
+                target.PublishedAt = source.PublishedAt;
+                target.IsPublished = source.IsPublished;
+                target.IsFeatured = source.IsFeatured;
+                target.MetaTitle = source.MetaTitle;
+                target.MetaDescription = source.MetaDescription;
+                target.MetaKeywords = source.MetaKeywords;
+            },
+            cancellationToken
+        );
+
+    public Task DeleteBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default) =>
+        DeleteByIdAsync<BlogPost>(post.Id, cancellationToken);
+
+    public async Task IncrementBlogPostViewAsync(int id, CancellationToken cancellationToken = default)
+    {
+        BlogPost? post = await dbContext.Set<BlogPost>().FindAsync([id], cancellationToken);
+        if (post is not null)
+        {
+            post.ViewCount++;
+        }
+    }
 
     private async Task UpsertAsync<TEntity>(
         TEntity incoming,

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <!-- Google Tag Manager -->
@@ -53,6 +53,7 @@
                 <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
                 <a asp-controller="Services" asp-action="Index">@Localizer["Nav_Services"]</a>
                 <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
+                <a asp-controller="Promotions" asp-action="Index">@Localizer["Nav_Promotions"]</a>
                 <a asp-controller="News" asp-action="Index">@Localizer["Nav_News"]</a>
                 <a asp-controller="Warranty" asp-action="Index">@Localizer["Nav_Warranty"]</a>
                 @await Component.InvokeAsync("BookingLink", new { cssClass = "btn-book", label = Localizer["Nav_Booking"].Value })
@@ -83,6 +84,8 @@
                 <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
                 <a asp-controller="Services" asp-action="Index">@Localizer["Footer_PriceList"]</a>
                 <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
+                <a asp-controller="Promotions" asp-action="Index">@Localizer["Nav_Promotions"]</a>
+                <a asp-controller="News" asp-action="Index">@Localizer["Nav_News"]</a>
                 <a asp-controller="Warranty" asp-action="Index">@Localizer["Footer_WarrantyPolicy"]</a>
                 @await Component.InvokeAsync("BookingLink", new { label = Localizer["Nav_BookingOnline"].Value })
                 <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">@Localizer["Footer_Facebook"]</a>

@@ -1,0 +1,177 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.PromotionDto>
+@{
+    var now = GetVietnamNow();
+}
+
+@functions {
+    public static DateTime GetVietnamNow()
+    {
+        try
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+        }
+        catch
+        {
+            return DateTime.UtcNow.AddHours(7);
+        }
+    }
+
+    public static string FormatPromoContent(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return string.Empty;
+        var encoded = System.Net.WebUtility.HtmlEncode(content);
+        var formatted = System.Text.RegularExpressions.Regex.Replace(encoded, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+        return formatted.Replace("\r\n", "<br />").Replace("\n", "<br />");
+    }
+}
+
+<!-- PROMOTIONS HERO BANNER -->
+<section class="promo-hero-section">
+    <div class="container promo-hero-container">
+        <span class="promo-badge-pill">@Localizer["Promotions_BadgePill"]</span>
+        <h1 class="promo-hero-title">@Localizer["Promotions_HeroTitle"]</h1>
+        <p class="promo-hero-subtitle">
+            @Localizer["Promotions_HeroSubtitle"]
+        </p>
+    </div>
+</section>
+
+<!-- PROMOTIONS LIST -->
+<section class="promo-list-section">
+    <div class="container promo-list-container">
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="promo-empty-state">
+                <div class="empty-icon">🎁</div>
+                <h3>@Localizer["Promotions_EmptyTitle"]</h3>
+                <p>@Localizer["Promotions_EmptyLead"]</p>
+                <div class="empty-actions">
+                    <a asp-controller="Services" asp-action="Index" class="btn btn-primary">@Localizer["Promotions_ViewPriceList"]</a>
+                    <a href="tel:0988305371" class="btn btn-outline">@string.Format(Localizer["Promotions_CallHotline"].Value, "0988 305 371")</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="promo-cards-grid">
+                @foreach (var promo in Model)
+                {
+                    var isUpcoming = promo.StartDate.HasValue && promo.StartDate.Value > now;
+                    var isExpired = promo.EndDate.HasValue && promo.EndDate.Value < now;
+                    var isActive = !isUpcoming && !isExpired;
+
+                    int? daysLeft = null;
+                    if (isActive && promo.EndDate.HasValue)
+                    {
+                        var span = promo.EndDate.Value - now;
+                        daysLeft = (int)Math.Ceiling(span.TotalDays);
+                    }
+
+                    <article class="promo-card @(isExpired ? "promo-card-expired" : (isUpcoming ? "promo-card-upcoming" : "promo-card-active"))">
+                        <div class="promo-card-image-col">
+                            @if (!string.IsNullOrWhiteSpace(promo.ImageUrl))
+                            {
+                                <img src="@promo.ImageUrl" alt="@promo.Title" class="promo-img" loading="lazy" />
+                            }
+                            else
+                            {
+                                <img src="/resources/dich_vu/nhuom_thiet_ke.jpg" alt="@promo.Title" class="promo-img" loading="lazy" />
+                            }
+                            
+                            @if (isUpcoming)
+                            {
+                                <span class="promo-status-badge promo-badge-upcoming">@Localizer["Promotions_BadgeUpcoming"]</span>
+                            }
+                            else if (isExpired)
+                            {
+                                <span class="promo-status-badge promo-badge-expired">@Localizer["Promotions_BadgeExpired"]</span>
+                            }
+                            else
+                            {
+                                <span class="promo-status-badge promo-badge-active">@Localizer["Promotions_BadgeActive"]</span>
+                            }
+                        </div>
+
+                        <div class="promo-card-content-col">
+                            <div class="promo-meta-bar">
+                                <span class="promo-tag">@Localizer["Promotions_Tag"]</span>
+
+                                @if (promo.StartDate.HasValue && promo.EndDate.HasValue)
+                                {
+                                    <span class="promo-date">📅 @promo.StartDate.Value.ToString("dd/MM/yyyy") – @promo.EndDate.Value.ToString("dd/MM/yyyy")</span>
+                                }
+                                else if (promo.StartDate.HasValue)
+                                {
+                                    <span class="promo-date">@string.Format(Localizer["Promotions_DateAppliedFrom"].Value, promo.StartDate.Value.ToString("dd/MM/yyyy"))</span>
+                                }
+                                else if (promo.PublishedAt.HasValue)
+                                {
+                                    <span class="promo-date">@string.Format(Localizer["Promotions_DateUpdated"].Value, promo.PublishedAt.Value.ToString("dd/MM/yyyy"))</span>
+                                }
+
+                                @if (daysLeft.HasValue && daysLeft.Value <= 3 && daysLeft.Value > 0)
+                                {
+                                    <span class="promo-urgent-tag">@string.Format(Localizer["Promotions_DaysLeft"].Value, daysLeft.Value)</span>
+                                }
+                            </div>
+
+                            <h2 class="promo-title">@promo.Title</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(promo.Summary))
+                            {
+                                <div class="promo-summary">
+                                    <p>@promo.Summary</p>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(promo.Content))
+                            {
+                                <div class="promo-details">
+                                    @Html.Raw(FormatPromoContent(promo.Content))
+                                </div>
+                            }
+
+                            <div class="promo-card-actions">
+                                @if (isActive)
+                                {
+                                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-promo-book", label = Localizer["Promotions_BookNow"].Value })
+                                }
+                                else if (isUpcoming)
+                                {
+                                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-promo-book", label = Localizer["Promotions_BookEarly"].Value })
+                                }
+                                else
+                                {
+                                    <span class="btn btn-secondary btn-promo-disabled" style="opacity: 0.7; cursor: not-allowed;">@Localizer["Promotions_Ended"]</span>
+                                }
+
+                                <a href="tel:0988305371" class="btn btn-outline btn-promo-call">
+                                    @Localizer["Common_Hotline"] 0988 305 371
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+<!-- BOTTOM CTA SECTION -->
+<section class="promo-bottom-cta">
+    <div class="container">
+        <div class="promo-cta-box">
+            <div class="promo-cta-text">
+                <h3>@Localizer["Promotions_CtaTitle"]</h3>
+                <p>@Localizer["Promotions_CtaLead"]</p>
+            </div>
+            <div class="promo-cta-btns">
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-lg", label = Localizer["Promotions_CtaBook"].Value })
+                <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-lg">
+                    @Localizer["Promotions_CtaFacebook"]
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -40,6 +40,8 @@ public sealed record PromotionDto(
     string? Summary,
     string? Content,
     string? ImageUrl,
+    DateTime? StartDate,
+    DateTime? EndDate,
     DateTime? PublishedAt
 );
 
@@ -93,10 +95,78 @@ public sealed record HomePageDto(
     IReadOnlyList<ShowcaseItemDto> FeedbackShowcase,
     IReadOnlyList<ShowcaseItemDto> BeforeAfterShowcase,
     IReadOnlyList<StylistDto> Stylists,
-    IReadOnlyList<PartnerDto> Partners
+    IReadOnlyList<PartnerDto> Partners,
+    IReadOnlyList<BlogPostDto> BlogPosts
 );
 
-public sealed record AdminLoginResult(bool Success, string? DisplayName, string? ErrorMessage);
+public sealed record BlogPostDto(
+    int Id,
+    string Title,
+    string Slug,
+    string? Summary,
+    string? ThumbnailUrl,
+    string Category,
+    string AuthorName,
+    DateTime? PublishedAt,
+    bool IsFeatured,
+    int ViewCount
+);
+
+public sealed record BlogPostDetailDto(
+    int Id,
+    string Title,
+    string Slug,
+    string? Summary,
+    string? Content,
+    string? ThumbnailUrl,
+    string Category,
+    string AuthorName,
+    DateTime? PublishedAt,
+    bool IsFeatured,
+    int ViewCount,
+    string? MetaTitle,
+    string? MetaDescription,
+    string? MetaKeywords,
+    IReadOnlyList<BlogPostDto> RelatedPosts
+);
+
+public sealed record BlogListResultDto(
+    IReadOnlyList<BlogPostDto> Items,
+    IReadOnlyList<string> Categories,
+    string? SelectedCategory,
+    string? SearchQuery,
+    int CurrentPage,
+    int PageSize,
+    int TotalItems,
+    int TotalPages
+);
+
+public sealed record AdminUserDto(
+    int Id,
+    string Username,
+    string DisplayName,
+    AdminRole Role,
+    bool IsActive,
+    int? StylistId,
+    DateTime CreatedOnUtc
+);
+
+public sealed record AdminLoginResult(
+    bool Success,
+    string? DisplayName,
+    AdminRole? Role,
+    string? ErrorMessage
+);
+
+public sealed record ChangePasswordResult(bool Success, string? ErrorMessage);
+
+public sealed record CreateAdminUserResult(
+    bool Success,
+    int? Id,
+    string? ErrorMessage
+);
+
+public sealed record UpdateAdminUserResult(bool Success, string? ErrorMessage);
 
 public sealed record CreateAppointmentResult(
     bool Success,

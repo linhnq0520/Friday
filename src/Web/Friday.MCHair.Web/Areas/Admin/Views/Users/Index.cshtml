@@ -1,0 +1,102 @@
+@model IReadOnlyList<Friday.Modules.Salon.Application.Models.AdminUserDto>
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Quản lý Người dùng & Phân quyền";
+    var stylistsDict = ViewBag.Stylists as Dictionary<int, string> ?? new();
+}
+
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2>👥 Quản lý Người dùng &amp; Phân quyền</h2>
+        <p class="admin-subtitle">Danh sách các tài khoản quản trị và nhân viên/stylist có quyền truy cập hệ thống.</p>
+    </div>
+    <div class="admin-header-actions">
+        <a class="btn btn-primary" asp-action="Create">➕ Thêm người dùng mới</a>
+    </div>
+</div>
+
+<div class="admin-table-wrapper" style="background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; margin-top: 1.5rem;">
+    <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; text-align: left;">
+                <th style="padding: 0.85rem 1rem; width: 60px;">ID</th>
+                <th style="padding: 0.85rem 1rem;">Tài khoản (Username)</th>
+                <th style="padding: 0.85rem 1rem;">Tên hiển thị</th>
+                <th style="padding: 0.85rem 1rem; width: 140px;">Vai trò</th>
+                <th style="padding: 0.85rem 1rem;">Liên kết Thợ (Stylist)</th>
+                <th style="padding: 0.85rem 1rem; width: 130px;">Trạng thái</th>
+                <th style="padding: 0.85rem 1rem; width: 140px; text-align: right;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: #6b7280;">
+                        Chưa có người dùng nào.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var user in Model)
+                {
+                    bool isCurrent = string.Equals(user.Username, User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 0.85rem 1rem; color: #6b7280; font-size: 0.85rem;">#@user.Id</td>
+                        <td style="padding: 0.85rem 1rem; font-weight: 700; color: #111827;">
+                            @user.Username
+                            @if (isCurrent)
+                            {
+                                <span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 0.15rem 0.45rem; border-radius: 4px; margin-left: 0.4rem; font-weight: normal;">(Bạn)</span>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem; color: #374151;">@user.DisplayName</td>
+                        <td style="padding: 0.85rem 1rem;">
+                            @if (user.Role == AdminRole.Admin)
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; background: #fef3c7; color: #92400e;">👑 Quản trị viên</span>
+                            }
+                            else
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; background: #e0e7ff; color: #3730a3;">✂️ Stylist / Staff</span>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem; color: #4b5563; font-size: 0.88rem;">
+                            @if (user.StylistId.HasValue && stylistsDict.TryGetValue(user.StylistId.Value, out var stylistName))
+                            {
+                                <span>💇‍♂️ @stylistName</span>
+                            }
+                            else
+                            {
+                                <span style="color: #9ca3af;">—</span>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem;">
+                            @if (user.IsActive)
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #dcfce7; color: #166534;">🟢 Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #fee2e2; color: #991b1b;">🔴 Đã khóa</span>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem; text-align: right; white-space: nowrap;">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.85rem; margin-right: 0.25rem;">Sửa</a>
+                            @if (!isCurrent)
+                            {
+                                <form asp-action="Delete" method="post" style="display: inline-block; margin: 0; padding: 0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger" style="padding: 0.25rem 0.6rem; font-size: 0.85rem; background: #dc2626; color: #fff; border: none; border-radius: 4px; cursor: pointer;" onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản @user.Username?');">Xóa</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

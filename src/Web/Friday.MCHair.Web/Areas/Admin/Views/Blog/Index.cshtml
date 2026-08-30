@@ -1,0 +1,108 @@
+@model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.BlogPost>
+@{
+    ViewData["Title"] = "Quản lý Bài viết & Blog";
+    var categories = ViewBag.Categories as IReadOnlyList<string> ?? [];
+    string? selectedCat = ViewBag.SelectedCategory as string;
+    string? searchQuery = ViewBag.SearchQuery as string;
+}
+
+<div class="admin-toolbar">
+    <div class="admin-toolbar-left">
+        <a class="btn btn-primary" asp-action="Edit">+ Viết bài mới</a>
+    </div>
+    <div class="admin-toolbar-right">
+        <form method="get" asp-action="Index" class="admin-filter-form">
+            <select name="category" onchange="this.form.submit()">
+                <option value="">-- Tất cả chuyên mục --</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat" selected="@(string.Equals(selectedCat, cat, StringComparison.OrdinalIgnoreCase))">@cat</option>
+                }
+            </select>
+            <input type="text" name="search" value="@searchQuery" placeholder="Tìm tiêu đề..." />
+            <button type="submit" class="btn btn-sm">Tìm</button>
+            @if (!string.IsNullOrWhiteSpace(selectedCat) || !string.IsNullOrWhiteSpace(searchQuery))
+            {
+                <a asp-action="Index" class="btn btn-sm btn-outline">Xóa lọc</a>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="admin-card">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 70px;">Ảnh</th>
+                <th>Tiêu đề &amp; Đường dẫn (Slug)</th>
+                <th>Chuyên mục</th>
+                <th>Tác giả</th>
+                <th>Ngày đăng</th>
+                <th>Lượt xem</th>
+                <th>Trạng thái</th>
+                <th style="width: 140px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count > 0)
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(item.ThumbnailUrl))
+                            {
+                                <img src="@item.ThumbnailUrl" alt="@item.Title" class="admin-thumb-sm" style="width: 60px; height: 45px; object-fit: cover; border-radius: 6px;" />
+                            }
+                            else
+                            {
+                                <span class="badge muted">Không ảnh</span>
+                            }
+                        </td>
+                        <td>
+                            <strong>@item.Title</strong>
+                            <div class="admin-slug-hint" style="font-size: 0.8rem; color: #888;">
+                                <code>/tin-tuc/@item.Slug</code>
+                            </div>
+                        </td>
+                        <td><span class="badge">@item.Category</span></td>
+                        <td>@item.AuthorName</td>
+                        <td>@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                        <td><strong>@item.ViewCount</strong></td>
+                        <td>
+                            @if (item.IsPublished)
+                            {
+                                <span class="badge badge-success" style="background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">Đã xuất bản</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning" style="background:#ed6c02; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">Bản nháp</span>
+                            }
+                            @if (item.IsFeatured)
+                            {
+                                <span class="badge badge-info" style="background:#0288d1; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-top:3px; display:inline-block;">★ Nổi bật</span>
+                            }
+                        </td>
+                        <td class="actions-cell">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="action-link">Sửa</a>
+                            <a href="/tin-tuc/@item.Slug" target="_blank" rel="noopener" class="action-link" title="Xem trên website">Xem ↗</a>
+                            <form asp-action="Delete" method="post" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="action-btn-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem; color: #888;">
+                        Chưa có bài viết nào. Hãy bấm "+ Viết bài mới" để tạo bài viết đầu tiên!
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -32,8 +32,10 @@ public static class DependencyInjection
         }
 
         services.AddDbContext<SalonDbContext>(options =>
-            RelationalDbContextConfigurer.Configure(options, connectionString, dbSettings.Provider)
-        );
+        {
+            RelationalDbContextConfigurer.Configure(options, connectionString, dbSettings.Provider);
+            options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        });
 
         services.AddScoped<IUnitOfWork, SalonUnitOfWork>();
         services.AddScoped<ISalonRepository, SalonRepository>();

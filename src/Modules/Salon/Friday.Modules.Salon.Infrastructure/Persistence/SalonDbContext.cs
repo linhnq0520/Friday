@@ -17,6 +17,7 @@ public sealed class SalonDbContext(DbContextOptions<SalonDbContext> options) : D
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

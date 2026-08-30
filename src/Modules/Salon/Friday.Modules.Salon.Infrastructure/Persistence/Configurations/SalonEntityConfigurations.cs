@@ -168,7 +168,32 @@ public sealed class AdminUserConfiguration : IEntityTypeConfiguration<AdminUser>
         builder.Property(x => x.Username).HasMaxLength(100).IsRequired();
         builder.Property(x => x.PasswordHash).HasMaxLength(500).IsRequired();
         builder.Property(x => x.DisplayName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.Role).HasConversion<int>().IsRequired();
         builder.HasIndex(x => x.Username).IsUnique();
+        builder.Ignore(x => x.DomainEvents);
+    }
+}
+
+public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
+{
+    public void Configure(EntityTypeBuilder<BlogPost> builder)
+    {
+        builder.ToTable($"{SalonTable.Prefix}blog_posts");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Title).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.Slug).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.Summary).HasMaxLength(1000);
+        builder.Property(x => x.ThumbnailUrl).HasMaxLength(500);
+        builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.AuthorName).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.MetaTitle).HasMaxLength(300);
+        builder.Property(x => x.MetaDescription).HasMaxLength(500);
+        builder.Property(x => x.MetaKeywords).HasMaxLength(500);
+        builder.HasIndex(x => x.Slug).IsUnique();
+        builder.HasIndex(x => x.Category);
+        builder.HasIndex(x => x.IsPublished);
+        builder.HasIndex(x => x.PublishedAt);
+        builder.HasIndex(x => x.IsFeatured);
         builder.Ignore(x => x.DomainEvents);
     }
 }

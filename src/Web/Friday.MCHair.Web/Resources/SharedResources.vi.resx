@@ -8,7 +8,8 @@
   <data name="Nav_About" xml:space="preserve"><value>Giới thiệu</value></data>
   <data name="Nav_Services" xml:space="preserve"><value>Dịch vụ</value></data>
   <data name="Nav_Gallery" xml:space="preserve"><value>Bộ sưu tập</value></data>
-  <data name="Nav_News" xml:space="preserve"><value>Tin tức</value></data>
+  <data name="Nav_News" xml:space="preserve"><value>Bài viết</value></data>
+  <data name="Nav_Promotions" xml:space="preserve"><value>Khuyến mãi</value></data>
   <data name="Nav_Warranty" xml:space="preserve"><value>Bảo hành</value></data>
   <data name="Nav_Booking" xml:space="preserve"><value>Đặt lịch</value></data>
   <data name="Nav_BookingOnline" xml:space="preserve"><value>Đặt lịch online</value></data>
@@ -100,4 +101,51 @@
   <data name="Gallery_HairRecovery" xml:space="preserve"><value>Phục hồi hư tổn</value></data>
   <data name="Gallery_HairExtensions" xml:space="preserve"><value>Nối tóc</value></data>
   <data name="Gallery_BeforeAfter" xml:space="preserve"><value>Before &amp; After</value></data>
+  <data name="Meta_Promotions" xml:space="preserve"><value>Chương Trình Khuyến Mãi &amp; Ưu Đãi Đặc Quyền | MC Hair Salon</value></data>
+  <data name="Meta_PromotionsDescription" xml:space="preserve"><value>Tổng hợp các chương trình ưu đãi làm tóc, giảm giá uốn nhuộm, tặng hấp phục hồi và combo làm đẹp tóc mới nhất tại MC Hair Salon TP.HCM.</value></data>
+  <data name="Meta_NewsDescription" xml:space="preserve"><value>Cập nhật các xu hướng tạo mẫu tóc mới nhất, bí quyết phục hồi tóc hư tổn và kiến thức chăm sóc tóc chuẩn chuyên gia tại MC Hair Salon.</value></data>
+  <data name="Promotions_BadgePill" xml:space="preserve"><value>🔥 Ưu Đãi Đặc Quyền</value></data>
+  <data name="Promotions_HeroTitle" xml:space="preserve"><value>Chương Trình Khuyến Mãi &amp; Tri Ân Khách Hàng</value></data>
+  <data name="Promotions_HeroSubtitle" xml:space="preserve"><value>MC Hair Salon luôn mang đến những ưu đãi hấp dẫn giúp bạn trải nghiệm các dịch vụ cắt, uốn, nhuộm và phục hồi tóc cao cấp với chi phí tối ưu nhất.</value></data>
+  <data name="Promotions_BadgeActive" xml:space="preserve"><value>🟢 ĐANG ÁP DỤNG</value></data>
+  <data name="Promotions_BadgeUpcoming" xml:space="preserve"><value>⏳ SẮP DIỄN RA</value></data>
+  <data name="Promotions_BadgeExpired" xml:space="preserve"><value>⛔ ĐÃ KẾT THÚC</value></data>
+  <data name="Promotions_DaysLeft" xml:space="preserve"><value>⚡ Chỉ còn {0} ngày!</value></data>
+  <data name="Promotions_Tag" xml:space="preserve"><value>🎁 Ưu đãi Salon</value></data>
+  <data name="Promotions_DateAppliedFrom" xml:space="preserve"><value>📅 Áp dụng từ: {0}</value></data>
+  <data name="Promotions_DateUpdated" xml:space="preserve"><value>📅 Cập nhật: {0}</value></data>
+  <data name="Promotions_BookNow" xml:space="preserve"><value>Đặt lịch nhận ưu đãi ngay</value></data>
+  <data name="Promotions_BookEarly" xml:space="preserve"><value>Đặt lịch giữ chỗ sớm</value></data>
+  <data name="Promotions_Ended" xml:space="preserve"><value>Chương trình đã kết thúc</value></data>
+  <data name="Promotions_EmptyTitle" xml:space="preserve"><value>Hiện tại chưa có chương trình khuyến mãi mới</value></data>
+  <data name="Promotions_EmptyLead" xml:space="preserve"><value>Các chương trình ưu đãi hấp dẫn sắp được cập nhật. Bạn vui lòng quay lại sau hoặc liên hệ Hotline để được tư vấn giá tốt nhất!</value></data>
+  <data name="Promotions_ViewPriceList" xml:space="preserve"><value>Xem bảng giá dịch vụ</value></data>
+  <data name="Promotions_CallHotline" xml:space="preserve"><value>📞 Hotline: {0}</value></data>
+  <data name="Promotions_CtaTitle" xml:space="preserve"><value>Bạn muốn được tư vấn gói dịch vụ phù hợp nhất?</value></data>
+  <data name="Promotions_CtaLead" xml:space="preserve"><value>Đội ngũ Master Stylist tại MC Hair luôn sẵn sàng kiểm tra chất tóc và tư vấn kiểu dáng, kỹ thuật uốn nhuộm theo dáng mặt hoàn toàn miễn phí.</value></data>
+  <data name="Promotions_CtaBook" xml:space="preserve"><value>Đặt lịch làm tóc ngay</value></data>
+  <data name="Promotions_CtaFacebook" xml:space="preserve"><value>Nhắn tin Fanpage Facebook</value></data>
+  <data name="News_HeroTitle" xml:space="preserve"><value>Xu Hướng &amp; Bí Quyết Làm Đẹp Tóc</value></data>
+  <data name="News_HeroLead" xml:space="preserve"><value>Khám phá các bí quyết chăm sóc tóc chuẩn chuyên gia, cập nhật xu hướng tạo mẫu tóc và bảng màu nhuộm hot nhất từ đội ngũ Master Stylist của MC Hair Salon.</value></data>
+  <data name="News_BreadcrumbCurrent" xml:space="preserve"><value>Tin tức &amp; Blog</value></data>
+  <data name="News_CategoryAll" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="News_SearchPlaceholder" xml:space="preserve"><value>Tìm kiếm bài viết...</value></data>
+  <data name="News_FilterShowing" xml:space="preserve"><value>Đang hiển thị kết quả cho:</value></data>
+  <data name="News_FilterCategory" xml:space="preserve"><value>Chuyên mục "{0}"</value></data>
+  <data name="News_FilterKeyword" xml:space="preserve"><value>Từ khóa "{0}"</value></data>
+  <data name="News_FilterClear" xml:space="preserve"><value>✕ Xóa bộ lọc</value></data>
+  <data name="News_BadgeFeatured" xml:space="preserve"><value>★ Nổi bật</value></data>
+  <data name="News_ReadPost" xml:space="preserve"><value>Đọc bài viết</value></data>
+  <data name="News_Views" xml:space="preserve"><value>{0} lượt xem</value></data>
+  <data name="News_EmptyTitle" xml:space="preserve"><value>Không tìm thấy bài viết nào</value></data>
+  <data name="News_EmptyLead" xml:space="preserve"><value>Thử tìm kiếm với từ khóa khác hoặc chọn chuyên mục bài viết khác bạn nhé.</value></data>
+  <data name="News_DetailShare" xml:space="preserve"><value>Chia sẻ bài viết:</value></data>
+  <data name="News_DetailCopyLink" xml:space="preserve"><value>📋 Sao chép link</value></data>
+  <data name="News_DetailLinkCopied" xml:space="preserve"><value>Đã sao chép liên kết bài viết!</value></data>
+  <data name="News_DetailRelated" xml:space="preserve"><value>Bài viết liên quan</value></data>
+  <data name="News_DetailRelatedLead" xml:space="preserve"><value>Khám phá thêm các bí quyết làm đẹp tóc cùng chuyên mục</value></data>
+  <data name="News_DetailAllPosts" xml:space="preserve"><value>← Xem tất cả bài viết</value></data>
+  <data name="News_DetailCtaTitle" xml:space="preserve"><value>Bạn muốn thay đổi kiểu tóc hoặc phục hồi mái tóc hư tổn?</value></data>
+  <data name="News_DetailCtaLead" xml:space="preserve"><value>Đến với MC Hair Salon để được Master Stylist khám chất tóc và tư vấn kiểu tóc tôn nét đẹp riêng của bạn hoàn toàn miễn phí.</value></data>
+  <data name="News_DetailCtaBook" xml:space="preserve"><value>Đặt lịch hẹn ngay</value></data>
 </root>

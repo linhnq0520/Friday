@@ -1,0 +1,90 @@
+@model Friday.Modules.Salon.Application.Models.AdminUserDto
+@using Friday.Modules.Salon.Domain.Entities
+@using Friday.Modules.Salon.Domain.Enums
+@{
+    ViewData["Title"] = "Chỉnh sửa tài khoản";
+    var stylists = ViewBag.Stylists as IReadOnlyList<Stylist> ?? [];
+    bool isCurrent = string.Equals(Model.Username, User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2>✏️ Chỉnh Sửa Tài Khoản: @Model.Username</h2>
+        <p class="admin-subtitle">Cập nhật thông tin, vai trò phân quyền, trạng thái hoạt động hoặc cấp lại mật khẩu mới.</p>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 650px; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 1.5rem;">
+    @if (ViewBag.Error is string err)
+    {
+        <div class="alert error" style="margin-bottom: 1.25rem;">@err</div>
+    }
+
+    <form asp-action="Edit" method="post" class="admin-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="form-group">
+            <label style="font-weight: 600;">Tên đăng nhập (Username)</label>
+            <input type="text" value="@Model.Username" disabled style="background: #f3f4f6; color: #6b7280; cursor: not-allowed;" />
+            <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Tên đăng nhập là định danh cố định không thể thay đổi.</small>
+        </div>
+
+        <div class="form-group">
+            <label style="font-weight: 600;">Tên hiển thị <span class="text-danger">*</span></label>
+            <input type="text" name="displayName" value="@Model.DisplayName" required placeholder="Nhập tên hiển thị..." />
+        </div>
+
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+            <div class="form-group">
+                <label style="font-weight: 600;">Vai trò phân quyền <span class="text-danger">*</span></label>
+                <select name="role" required>
+                    <option value="@((int)AdminRole.Admin)" selected="@(Model.Role == AdminRole.Admin)">👑 Quản trị viên (Admin)</option>
+                    <option value="@((int)AdminRole.Stylist)" selected="@(Model.Role == AdminRole.Stylist)">✂️ Stylist / Nhân viên</option>
+                </select>
+                @if (isCurrent)
+                {
+                    <small class="form-hint" style="color: #b45309; font-size: 0.82rem; margin-top: 0.25rem; display: block;">⚠️ Đang chỉnh sửa tài khoản của chính bạn.</small>
+                }
+            </div>
+
+            <div class="form-group">
+                <label style="font-weight: 600;">Liên kết Hồ sơ Thợ</label>
+                <select name="stylistId">
+                    <option value="">-- Không liên kết --</option>
+                    @foreach (var s in stylists)
+                    {
+                        <option value="@s.Id" selected="@(Model.StylistId == s.Id)">💇‍♂️ @s.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 0.5rem; background: #fdfbf7; padding: 1.25rem; border-radius: 6px; border: 1px dashed #d97706;">
+            <label style="font-weight: 600; color: #92400e;">🔑 Đặt lại mật khẩu mới (Reset Password)</label>
+            <input type="password" name="newPassword" placeholder="Để trống nếu không muốn đổi mật khẩu..." autocomplete="new-password" minlength="6" />
+            <small class="form-hint" style="color: #78350f; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Chỉ nhập khi Admin muốn cấp lại mật khẩu mới cho tài khoản này (tối thiểu 6 ký tự).</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 0.6rem; font-weight: 600;">
+                <input type="checkbox" name="isActive" value="true" checked="@Model.IsActive" style="width: 1.2rem; height: 1.2rem;" />
+                <span>Kích hoạt tài khoản (Cho phép đăng nhập)</span>
+            </label>
+            <small class="form-hint" style="color: #6b7280; font-size: 0.82rem; margin-top: 0.25rem; display: block;">Bỏ chọn để tạm thời khóa tài khoản này.</small>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.75rem;">
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">💾 Lưu thay đổi</button>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+            </div>
+            @if (!isCurrent)
+            {
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.88rem; font-weight: 600;">
+                    🗑️ Xóa tài khoản này
+                </a>
+            }
+        </div>
+    </form>
+</div>

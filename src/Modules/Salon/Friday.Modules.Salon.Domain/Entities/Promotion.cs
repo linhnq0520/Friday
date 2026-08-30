@@ -8,6 +8,8 @@ public sealed class Promotion : Entity
     public string? Summary { get; set; }
     public string? Content { get; set; }
     public string? ImageUrl { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public DateTime? PublishedAt { get; set; }
     public bool IsPublished { get; set; } = true;
 }

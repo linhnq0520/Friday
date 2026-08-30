@@ -8,7 +8,8 @@
   <data name="Nav_About" xml:space="preserve"><value>About</value></data>
   <data name="Nav_Services" xml:space="preserve"><value>Services</value></data>
   <data name="Nav_Gallery" xml:space="preserve"><value>Gallery</value></data>
-  <data name="Nav_News" xml:space="preserve"><value>News</value></data>
+  <data name="Nav_News" xml:space="preserve"><value>Blog</value></data>
+  <data name="Nav_Promotions" xml:space="preserve"><value>Promotions</value></data>
   <data name="Nav_Warranty" xml:space="preserve"><value>Warranty</value></data>
   <data name="Nav_Booking" xml:space="preserve"><value>Book now</value></data>
   <data name="Nav_BookingOnline" xml:space="preserve"><value>Online booking</value></data>
@@ -100,4 +101,51 @@
   <data name="Gallery_HairRecovery" xml:space="preserve"><value>Damage repair</value></data>
   <data name="Gallery_HairExtensions" xml:space="preserve"><value>Hair extensions</value></data>
   <data name="Gallery_BeforeAfter" xml:space="preserve"><value>Before &amp; After</value></data>
+  <data name="Meta_Promotions" xml:space="preserve"><value>Promotions &amp; Exclusive Offers | MC Hair Salon</value></data>
+  <data name="Meta_PromotionsDescription" xml:space="preserve"><value>Explore the latest hairstyling promotions, color and perm discounts, deep conditioning gifts, and combo packages at MC Hair Salon HCMC.</value></data>
+  <data name="Meta_NewsDescription" xml:space="preserve"><value>Discover the latest hairstyling trends, hair damage repair secrets, and expert hair care knowledge at MC Hair Salon.</value></data>
+  <data name="Promotions_BadgePill" xml:space="preserve"><value>🔥 Special Offers</value></data>
+  <data name="Promotions_HeroTitle" xml:space="preserve"><value>Promotions &amp; Customer Appreciation</value></data>
+  <data name="Promotions_HeroSubtitle" xml:space="preserve"><value>MC Hair Salon constantly offers exciting deals to give you premium haircuts, color, perm, and repair treatments at optimal prices.</value></data>
+  <data name="Promotions_BadgeActive" xml:space="preserve"><value>🟢 ACTIVE OFFER</value></data>
+  <data name="Promotions_BadgeUpcoming" xml:space="preserve"><value>⏳ UPCOMING</value></data>
+  <data name="Promotions_BadgeExpired" xml:space="preserve"><value>⛔ EXPIRED</value></data>
+  <data name="Promotions_DaysLeft" xml:space="preserve"><value>⚡ Only {0} days left!</value></data>
+  <data name="Promotions_Tag" xml:space="preserve"><value>🎁 Salon Special</value></data>
+  <data name="Promotions_DateAppliedFrom" xml:space="preserve"><value>📅 Valid from: {0}</value></data>
+  <data name="Promotions_DateUpdated" xml:space="preserve"><value>📅 Updated: {0}</value></data>
+  <data name="Promotions_BookNow" xml:space="preserve"><value>Book this offer now</value></data>
+  <data name="Promotions_BookEarly" xml:space="preserve"><value>Book early reservation</value></data>
+  <data name="Promotions_Ended" xml:space="preserve"><value>Promotion has ended</value></data>
+  <data name="Promotions_EmptyTitle" xml:space="preserve"><value>No active promotions at the moment</value></data>
+  <data name="Promotions_EmptyLead" xml:space="preserve"><value>Exciting promotions are being updated soon. Please check back later or contact our hotline for special offers!</value></data>
+  <data name="Promotions_ViewPriceList" xml:space="preserve"><value>View service price list</value></data>
+  <data name="Promotions_CallHotline" xml:space="preserve"><value>📞 Hotline: {0}</value></data>
+  <data name="Promotions_CtaTitle" xml:space="preserve"><value>Looking for a tailored hair care consultation?</value></data>
+  <data name="Promotions_CtaLead" xml:space="preserve"><value>Our Master Stylists are ready to assess your hair condition and offer customized styling and color recommendations free of charge.</value></data>
+  <data name="Promotions_CtaBook" xml:space="preserve"><value>Book an appointment now</value></data>
+  <data name="Promotions_CtaFacebook" xml:space="preserve"><value>Message us on Facebook</value></data>
+  <data name="News_HeroTitle" xml:space="preserve"><value>Hair Trends &amp; Beauty Insights</value></data>
+  <data name="News_HeroLead" xml:space="preserve"><value>Discover expert hair care tips, trending styles, and the hottest color palettes curated by MC Hair Salon's Master Stylists.</value></data>
+  <data name="News_BreadcrumbCurrent" xml:space="preserve"><value>News &amp; Blog</value></data>
+  <data name="News_CategoryAll" xml:space="preserve"><value>All</value></data>
+  <data name="News_SearchPlaceholder" xml:space="preserve"><value>Search articles...</value></data>
+  <data name="News_FilterShowing" xml:space="preserve"><value>Showing results for:</value></data>
+  <data name="News_FilterCategory" xml:space="preserve"><value>Category "{0}"</value></data>
+  <data name="News_FilterKeyword" xml:space="preserve"><value>Keyword "{0}"</value></data>
+  <data name="News_FilterClear" xml:space="preserve"><value>✕ Clear filter</value></data>
+  <data name="News_BadgeFeatured" xml:space="preserve"><value>★ Featured</value></data>
+  <data name="News_ReadPost" xml:space="preserve"><value>Read article</value></data>
+  <data name="News_Views" xml:space="preserve"><value>{0} views</value></data>
+  <data name="News_EmptyTitle" xml:space="preserve"><value>No articles found</value></data>
+  <data name="News_EmptyLead" xml:space="preserve"><value>Try searching with different keywords or browse another category.</value></data>
+  <data name="News_DetailShare" xml:space="preserve"><value>Share article:</value></data>
+  <data name="News_DetailCopyLink" xml:space="preserve"><value>📋 Copy link</value></data>
+  <data name="News_DetailLinkCopied" xml:space="preserve"><value>Article link copied to clipboard!</value></data>
+  <data name="News_DetailRelated" xml:space="preserve"><value>Related articles</value></data>
+  <data name="News_DetailRelatedLead" xml:space="preserve"><value>Explore more hair styling and care tips in this category</value></data>
+  <data name="News_DetailAllPosts" xml:space="preserve"><value>← View all articles</value></data>
+  <data name="News_DetailCtaTitle" xml:space="preserve"><value>Ready for a hair transformation or damage repair?</value></data>
+  <data name="News_DetailCtaLead" xml:space="preserve"><value>Visit MC Hair Salon for a complimentary hair health check and personalized style consultation by our Master Stylists.</value></data>
+  <data name="News_DetailCtaBook" xml:space="preserve"><value>Book appointment now</value></data>
 </root>

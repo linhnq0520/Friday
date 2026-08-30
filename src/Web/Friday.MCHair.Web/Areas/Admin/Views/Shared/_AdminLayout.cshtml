@@ -18,29 +18,53 @@
             <span class="admin-brand-label">Quản trị</span>
         </div>
         <nav>
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index">Lịch hẹn</a>
-            <a asp-area="Admin" asp-controller="Services" asp-action="Index">Dịch vụ đặt lịch</a>
-            <a asp-area="Admin" asp-controller="PriceList" asp-action="Index">Bảng giá</a>
-            <a asp-area="Admin" asp-controller="Warranty" asp-action="Index">Bảo hành</a>
-            <a asp-area="Admin" asp-controller="Stylists" asp-action="Index">Thợ</a>
-            <a asp-area="Admin" asp-controller="Gallery" asp-action="Index">Bộ sưu tập</a>
-            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="0">Feedback</a>
-            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="1">Before &amp; After</a>
-            <a asp-area="Admin" asp-controller="Partners" asp-action="Index">Đối tác</a>
-            <a asp-area="Admin" asp-controller="Sections" asp-action="Index">Nội dung trang chủ</a>
-            <a asp-area="Admin" asp-controller="Promotions" asp-action="Index">Khuyến mãi</a>
-            <a asp-area="Admin" asp-controller="Settings" asp-action="Index">Cài đặt &amp; SEO</a>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">📊 Dashboard</a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index">📅 Lịch hẹn</a>
+            <a asp-area="Admin" asp-controller="Services" asp-action="Index">💇‍♀️ Dịch vụ đặt lịch</a>
+            <a asp-area="Admin" asp-controller="PriceList" asp-action="Index">🏷️ Bảng giá</a>
+            <a asp-area="Admin" asp-controller="Warranty" asp-action="Index">🛡️ Bảo hành</a>
+            <a asp-area="Admin" asp-controller="Stylists" asp-action="Index">✂️ Thợ làm tóc</a>
+            <a asp-area="Admin" asp-controller="Gallery" asp-action="Index">🖼️ Bộ sưu tập</a>
+            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="0">💬 Feedback</a>
+            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="1">✨ Before &amp; After</a>
+            <a asp-area="Admin" asp-controller="Partners" asp-action="Index">🤝 Đối tác</a>
+            <a asp-area="Admin" asp-controller="Sections" asp-action="Index">📑 Nội dung trang chủ</a>
+            <a asp-area="Admin" asp-controller="Promotions" asp-action="Index">🎁 Khuyến mãi</a>
+            <a asp-area="Admin" asp-controller="Blog" asp-action="Index">📝 Bài viết / Blog</a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index">👥 Quản lý tài khoản</a>
+                <a asp-area="Admin" asp-controller="Settings" asp-action="Index">⚙️ Cài đặt &amp; SEO</a>
+            }
+
+            <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword">🔑 Đổi mật khẩu</a>
             <a class="admin-nav-external" href="/" target="_blank" rel="noopener">↗ Xem website</a>
         </nav>
         <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
             @Html.AntiForgeryToken()
-            <button type="submit">Đăng xuất</button>
+            <button type="submit">🚪 Đăng xuất</button>
         </form>
     </aside>
     <div class="admin-main">
-        <header class="admin-top">
-            <h1>@ViewData["Title"]</h1>
+        <header class="admin-top" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+            <h1 style="margin: 0; font-size: 1.45rem;">@ViewData["Title"]</h1>
+            <div class="admin-user-profile" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem;">
+                <div style="text-align: right;">
+                    <div style="font-weight: 700; color: #111827;">@(User.FindFirst("display_name")?.Value ?? User.Identity?.Name)</div>
+                    <div>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span style="font-size: 0.75rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 50px;">👑 Quản trị viên</span>
+                        }
+                        else
+                        {
+                            <span style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 0.15rem 0.5rem; border-radius: 50px;">✂️ Stylist / Staff</span>
+                        }
+                    </div>
+                </div>
+                <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword" class="btn btn-sm btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.8rem;" title="Đổi mật khẩu">🔑 Đổi pass</a>
+            </div>
         </header>
         @if (TempData["Success"] is string success)
         {

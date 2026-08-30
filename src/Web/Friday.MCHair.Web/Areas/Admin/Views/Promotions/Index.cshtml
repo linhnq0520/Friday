@@ -1,27 +1,128 @@
 @model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.Promotion>
 @{
-    ViewData["Title"] = "Khuyến mãi";
+    ViewData["Title"] = "Quản lý Khuyến mãi & Ưu đãi";
+    var now = GetVietnamNow();
 }
 
-<a class="btn btn-primary" asp-action="Edit">Thêm khuyến mãi</a>
-<table class="admin-table">
-    <thead><tr><th>Tiêu đề</th><th>Ngày</th><th>Hiển thị</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var item in Model)
+@functions {
+    public static DateTime GetVietnamNow()
+    {
+        try
         {
-            <tr>
-                <td>@item.Title</td>
-                <td>@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy"))</td>
-                <td>@(item.IsPublished ? "Có" : "Ẩn")</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
-                    <form asp-action="Delete" method="post" class="inline-form">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.Id" />
-                        <button type="submit">Xóa</button>
-                    </form>
-                </td>
-            </tr>
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? "SE Asia Standard Time" : "Asia/Ho_Chi_Minh");
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
         }
-    </tbody>
-</table>
+        catch
+        {
+            return DateTime.UtcNow.AddHours(7);
+        }
+    }
+}
+
+<div class="admin-page-header">
+    <div class="admin-header-title">
+        <h2>🎁 Quản lý Chương trình Khuyến mãi</h2>
+        <p class="admin-subtitle">Danh sách ưu đãi, voucher và combo dịch vụ tóc đang chạy tại salon.</p>
+    </div>
+    <div class="admin-header-actions">
+        <a class="btn btn-primary" asp-action="Edit">➕ Thêm khuyến mãi mới</a>
+    </div>
+</div>
+
+<div class="admin-table-wrapper" style="background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; margin-top: 1.5rem;">
+    <table class="admin-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; text-align: left;">
+                <th style="padding: 0.85rem 1rem; width: 80px;">Ảnh</th>
+                <th style="padding: 0.85rem 1rem;">Tiêu đề chương trình</th>
+                <th style="padding: 0.85rem 1rem;">Thời gian áp dụng</th>
+                <th style="padding: 0.85rem 1rem; width: 140px;">Trạng thái</th>
+                <th style="padding: 0.85rem 1rem; width: 130px; text-align: right;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model == null || Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 3rem; color: #6b7280;">
+                        Chưa có chương trình khuyến mãi nào. Bấm <strong>Thêm khuyến mãi mới</strong> để tạo.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
+                {
+                    var isPublished = item.IsPublished;
+                    var isUpcoming = item.StartDate.HasValue && item.StartDate.Value > now;
+                    var isExpired = item.EndDate.HasValue && item.EndDate.Value < now;
+                    var isActive = isPublished && !isUpcoming && !isExpired;
+
+                    <tr style="border-bottom: 1px solid #f3f4f6;">
+                        <td style="padding: 0.85rem 1rem;">
+                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Title" style="width: 60px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb;" />
+                            }
+                            else
+                            {
+                                <div style="width: 60px; height: 45px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🎁</div>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem;">
+                            <div style="font-weight: 700; color: #111827; margin-bottom: 0.25rem;">@item.Title</div>
+                            @if (!string.IsNullOrWhiteSpace(item.Summary))
+                            {
+                                <div style="font-size: 0.85rem; color: #6b7280; max-width: 450px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@item.Summary</div>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem; font-size: 0.88rem; color: #374151;">
+                            @if (item.StartDate.HasValue && item.EndDate.HasValue)
+                            {
+                                <div>📅 @item.StartDate.Value.ToString("dd/MM/yyyy HH:mm") – @item.EndDate.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                            }
+                            else if (item.StartDate.HasValue)
+                            {
+                                <div>📅 Từ @item.StartDate.Value.ToString("dd/MM/yyyy HH:mm") (Dài hạn)</div>
+                            }
+                            else if (item.EndDate.HasValue)
+                            {
+                                <div>📅 Đến @item.EndDate.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                            }
+                            else
+                            {
+                                <div style="color: #9ca3af;">Không giới hạn</div>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem;">
+                            @if (!isPublished)
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #f3f4f6; color: #4b5563;">⚪ Tạm ẩn</span>
+                            }
+                            else if (isUpcoming)
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #fef3c7; color: #92400e;">🟡 Sắp diễn ra</span>
+                            }
+                            else if (isExpired)
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #fee2e2; color: #991b1b;">🔴 Đã kết thúc</span>
+                            }
+                            else
+                            {
+                                <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; background: #dcfce7; color: #166534;">🟢 Đang áp dụng</span>
+                            }
+                        </td>
+                        <td style="padding: 0.85rem 1rem; text-align: right;">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.85rem;">Sửa</a>
+                            <form asp-action="Delete" method="post" class="inline-form" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger" style="padding: 0.25rem 0.6rem; font-size: 0.85rem; background: #ef4444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
