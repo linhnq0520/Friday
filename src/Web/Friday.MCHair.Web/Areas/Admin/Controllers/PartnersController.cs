@@ -1,3 +1,4 @@
+using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Domain.Entities;
 using Friday.Modules.Salon.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -63,8 +64,13 @@ public sealed class PartnersController(ISalonRepository repository) : AdminContr
         Partner? item = await repository.GetPartnerByIdAsync(id, cancellationToken);
         if (item is not null)
         {
+            IImageUploadService uploadService =
+                HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
+            uploadService.TryDeleteResourceFile(item.LogoUrl);
+
             await repository.DeletePartnerAsync(item, cancellationToken);
             await CommitAsync(cancellationToken);
+            TempData["Success"] = "Đã xóa đối tác và ảnh liên quan.";
         }
 
         return RedirectToAction(nameof(Index));

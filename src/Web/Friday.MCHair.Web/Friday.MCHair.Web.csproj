@@ -8,9 +8,10 @@
     <Content Update="wwwroot\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="Data\**\*">
+    <None Include="Data\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\SharedResources.en.resx" />

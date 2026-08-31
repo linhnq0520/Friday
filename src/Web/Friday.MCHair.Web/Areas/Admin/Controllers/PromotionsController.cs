@@ -1,3 +1,4 @@
+using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Domain.Entities;
 using Friday.Modules.Salon.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -59,8 +60,13 @@ public sealed class PromotionsController(ISalonRepository repository) : AdminCon
         Promotion? item = await repository.GetPromotionByIdAsync(id, cancellationToken);
         if (item is not null)
         {
+            IImageUploadService uploadService =
+                HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
+            uploadService.TryDeleteResourceFile(item.ImageUrl);
+
             await repository.DeletePromotionAsync(item, cancellationToken);
             await CommitAsync(cancellationToken);
+            TempData["Success"] = "Đã xóa khuyến mãi và ảnh liên quan.";
         }
 
         return RedirectToAction(nameof(Index));

@@ -122,13 +122,39 @@ public sealed class BlogController(
         BlogPost? post = await repository.GetBlogPostByIdAsync(id, cancellationToken);
         if (post != null)
         {
-            uploadService.TryDeleteResourceFile(post.ThumbnailUrl);
+            DeleteAllPostImages(post);
             await repository.DeleteBlogPostAsync(post, cancellationToken);
             await CommitAsync(cancellationToken);
-            TempData["Success"] = "Đã xóa bài viết.";
+            TempData["Success"] = "Đã xóa bài viết và toàn bộ hình ảnh liên quan.";
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private void DeleteAllPostImages(BlogPost post)
+    {
+        if (!string.IsNullOrWhiteSpace(post.ThumbnailUrl))
+        {
+            uploadService.TryDeleteResourceFile(post.ThumbnailUrl);
+        }
+
+        if (!string.IsNullOrWhiteSpace(post.Content))
+        {
+            System.Text.RegularExpressions.MatchCollection matches =
+                System.Text.RegularExpressions.Regex.Matches(
+                    post.Content,
+                    @"(/resources/[a-zA-Z0-9_\-/\.]+\.(?:jpg|jpeg|png|webp|gif))",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                if (match.Success)
+                {
+                    uploadService.TryDeleteResourceFile(match.Value);
+                }
+            }
+        }
     }
 
     [HttpPost]

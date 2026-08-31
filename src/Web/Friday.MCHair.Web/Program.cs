@@ -32,6 +32,17 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(
 );
 
 string dbFile = Path.Combine(contentRoot, "Data", "mchair.db");
+string projectDb = Path.Combine(Directory.GetCurrentDirectory(), "Data", "mchair.db");
+if (File.Exists(projectDb) && (!File.Exists(dbFile) || (new FileInfo(projectDb).Length > new FileInfo(dbFile).Length && new FileInfo(dbFile).Length < 10000)))
+{
+    Directory.CreateDirectory(Path.GetDirectoryName(dbFile)!);
+    try
+    {
+        File.Copy(projectDb, dbFile, true);
+    }
+    catch { /* Ignore */ }
+}
+
 Directory.CreateDirectory(Path.GetDirectoryName(dbFile)!);
 builder.Configuration["ConnectionStrings:FridayDb"] = $"Data Source={dbFile}";
 

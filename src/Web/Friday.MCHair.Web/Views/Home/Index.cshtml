@@ -113,17 +113,58 @@
     </div>
 </section>
 
-<section class="section section-alt" id="blog-news">
-    <div class="container">
-        <div class="section-head center">
-            <h2>@(isEn ? "Hair Trends & Beauty Blog" : "Xu Hướng & Bí Quyết Làm Đẹp Tóc")</h2>
-            <p>@(isEn ? "Discover hair care tips, styling guides and the latest trends from MC Hair experts." : "Cập nhật những xu hướng tạo mẫu tóc mới nhất và kiến thức chăm sóc tóc chuẩn salon.")</p>
-            <a class="link-more" asp-controller="News" asp-action="Index">@Localizer["Common_ViewAll"] →</a>
+@if (Model.Page.Promotions.Count > 0)
+{
+    <section class="section section-alt" id="promotions">
+        <div class="container">
+            <div class="section-head center">
+                <h2>@(isEn ? "Special Offers & Promotions" : "Chương trình khuyến mãi")</h2>
+                <p>@(isEn ? "Exciting hair salon offers and vouchers curated for you." : "Những ưu đãi làm đẹp và dịch vụ hấp dẫn nhất tại MC Hair Salon.")</p>
+                <a class="link-more" asp-controller="Promotions" asp-action="Index">@Localizer["Common_ViewAll"] →</a>
+            </div>
+            <div class="home-promo-grid">
+                @foreach (var promo in Model.Page.Promotions.Take(3))
+                {
+                    <article class="home-promo-card">
+                        @if (!string.IsNullOrWhiteSpace(promo.ImageUrl))
+                        {
+                            <div class="home-promo-card-image image-hover-frame">
+                                <a asp-controller="Promotions" asp-action="Index">
+                                    <img src="@promo.ImageUrl" alt="@promo.Title" loading="lazy" />
+                                </a>
+                            </div>
+                        }
+                        <div class="home-promo-card-body">
+                            <h3><a asp-controller="Promotions" asp-action="Index" style="color:inherit; text-decoration:none;">@promo.Title</a></h3>
+                            @if (!string.IsNullOrWhiteSpace(promo.Summary))
+                            {
+                                <p class="home-promo-card-excerpt">@promo.Summary</p>
+                            }
+                            <footer class="home-promo-card-footer">
+                                <a class="home-promo-card-link" asp-controller="Promotions" asp-action="Index">
+                                    <span>/ @Localizer["Common_ViewDetails"]</span>
+                                    <span class="home-promo-card-link-icon" aria-hidden="true">+</span>
+                                </a>
+                            </footer>
+                        </div>
+                    </article>
+                }
+            </div>
         </div>
-        <div class="home-promo-grid">
-            @if (Model.Page.BlogPosts.Count > 0)
-            {
-                @foreach (var post in Model.Page.BlogPosts.Take(4))
+    </section>
+}
+
+@if (Model.Page.BlogPosts.Count > 0)
+{
+    <section class="section" id="blog-news">
+        <div class="container">
+            <div class="section-head center">
+                <h2>@(isEn ? "Hair Trends & Beauty Blog" : "Xu Hướng & Bí Quyết Làm Đẹp Tóc")</h2>
+                <p>@(isEn ? "Discover hair care tips, styling guides and the latest trends from MC Hair experts." : "Cập nhật những xu hướng tạo mẫu tóc mới nhất và kiến thức chăm sóc tóc chuẩn salon.")</p>
+                <a class="link-more" asp-controller="News" asp-action="Index">@Localizer["Common_ViewAll"] →</a>
+            </div>
+            <div class="home-promo-grid">
+                @foreach (var post in Model.Page.BlogPosts.Take(3))
                 {
                     <article class="home-promo-card">
                         <div class="home-promo-card-image image-hover-frame">
@@ -148,37 +189,10 @@
                         </div>
                     </article>
                 }
-            }
-            else
-            {
-                @foreach (var promo in Model.Page.Promotions.Take(4))
-                {
-                    <article class="home-promo-card">
-                        @if (!string.IsNullOrWhiteSpace(promo.ImageUrl))
-                        {
-                            <div class="home-promo-card-image">
-                                <img src="@promo.ImageUrl" alt="@promo.Title" loading="lazy" />
-                            </div>
-                        }
-                        <div class="home-promo-card-body">
-                            <h3>@promo.Title</h3>
-                            @if (!string.IsNullOrWhiteSpace(promo.Summary))
-                            {
-                                <p class="home-promo-card-excerpt">@promo.Summary</p>
-                            }
-                            <footer class="home-promo-card-footer">
-                                <a class="home-promo-card-link" asp-controller="Promotions" asp-action="Index">
-                                    <span>/ @Localizer["Common_ViewDetails"]</span>
-                                    <span class="home-promo-card-link-icon" aria-hidden="true">+</span>
-                                </a>
-                            </footer>
-                        </div>
-                    </article>
-                }
-            }
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 <section class="section" id="feedback">
     <div class="container">
