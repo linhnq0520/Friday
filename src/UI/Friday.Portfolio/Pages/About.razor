@@ -83,11 +83,8 @@ else
 
                     <p style="font-family: Arial, sans-serif; font-size: 9.4pt; color: #222222; margin: 1.5px 0;">
                         <span>LinkedIn: <span style="text-decoration: underline;">@profile.LinkedInDisplay</span></span>
-                        @if (!string.IsNullOrWhiteSpace(profile.WebsiteUrl) && !profile.WebsiteUrl.Contains("localhost"))
-                        {
-                            <span style="color: #555555; margin: 0 4px;">/</span>
-                            <span>Website: <span style="text-decoration: underline;">@profile.WebsiteUrl</span></span>
-                        }
+                        <span style="color: #555555; margin: 0 4px;">/</span>
+                        <span>Website: <span style="text-decoration: underline;">@GetWebsiteDisplay()</span></span>
                     </p>
                 </td>
                 <td style="width: 100px; text-align: right; vertical-align: middle; border: none; padding: 0;">
@@ -224,14 +221,27 @@ else
                 : "Nguyen_Quoc_Linh_CV.pdf";
             await JS.InvokeVoidAsync("exportCvToPdf", fileName);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error exporting PDF: {ex.Message}");
-        }
         finally
         {
             isExporting = false;
             StateHasChanged();
+        }
+    }
+
+    private string GetWebsiteDisplay()
+    {
+        if (!string.IsNullOrWhiteSpace(profile?.WebsiteUrl))
+        {
+            return profile.WebsiteUrl.Replace("https://", "").Replace("http://", "").TrimEnd('/');
+        }
+        try
+        {
+            var uri = new Uri(Navigation.BaseUri);
+            return uri.Host + (uri.IsDefaultPort ? "" : $":{uri.Port}");
+        }
+        catch
+        {
+            return "quoclinh.dev";
         }
     }
 }
