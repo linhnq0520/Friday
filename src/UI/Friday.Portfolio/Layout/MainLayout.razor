@@ -1,10 +1,12 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @using Friday.Portfolio.Services
 @inject LanguageService Lang
+@inject NavigationManager Navigation
 
 <div class="site">
     <header class="site-header">
-        <a class="brand" href="/" aria-label="Home">
+        <a class="brand" href="/" aria-label="Home" @onclick="CloseMobileNav">
             <span class="brand-mark">QL</span>
             <span class="brand-text">Quoc Linh</span>
         </a>
@@ -15,13 +17,53 @@
             <NavLink href="/admin">@Lang.Text("✏️ Sửa CV", "✏️ Edit CV")</NavLink>
         </nav>
 
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <button class="btn btn-ghost" @onclick="ToggleLanguage" style="padding: 4px 10px; font-size: 0.85rem; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);">
-                🌐 @(Lang.IsVietnamese ? "VI | EN" : "EN | VI")
+        <div class="header-actions">
+            <button class="btn-lang" @onclick="ToggleLanguage" aria-label="Switch Language" title="Đổi ngôn ngữ / Switch Language">
+                🌐 <span>@(Lang.IsVietnamese ? "VI | EN" : "EN | VI")</span>
             </button>
-            <a class="header-cta" href="mailto:@ProfileData.Email">@Lang.Text("Email cho tôi", "Email me")</a>
+
+            <button class="hamburger-btn @(isMobileNavOpen ? "open" : "")" 
+                    @onclick="ToggleMobileNav" 
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="@(isMobileNavOpen ? "true" : "false")">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer & Backdrop -->
+    <div class="mobile-nav-backdrop @(isMobileNavOpen ? "show" : "")" @onclick="CloseMobileNav" aria-hidden="true"></div>
+    <div class="mobile-nav-drawer @(isMobileNavOpen ? "open" : "")" aria-label="Mobile Navigation">
+        <div class="mobile-nav-header">
+            <span class="mobile-nav-title">@Lang.Text("Điều hướng", "Navigation")</span>
+            <button class="mobile-nav-close" @onclick="CloseMobileNav" aria-label="Close menu">✕</button>
+        </div>
+        <div class="mobile-nav-links">
+            <NavLink href="/" Match="NavLinkMatch.All" @onclick="CloseMobileNav">
+                <span class="nav-ico">🏠</span>
+                <span class="nav-txt">@Lang.Text("Trang chủ", "Home")</span>
+            </NavLink>
+            <NavLink href="/cv" @onclick="CloseMobileNav">
+                <span class="nav-ico">📄</span>
+                <span class="nav-txt">@Lang.Text("Hồ sơ & CV Chi tiết", "Profile & CV")</span>
+            </NavLink>
+            <NavLink href="/cv#contact" @onclick="CloseMobileNav">
+                <span class="nav-ico">✉️</span>
+                <span class="nav-txt">@Lang.Text("Liên hệ nhanh", "Contact")</span>
+            </NavLink>
+            <NavLink href="/admin" @onclick="CloseMobileNav">
+                <span class="nav-ico">✏️</span>
+                <span class="nav-txt">@Lang.Text("Quản trị / Sửa CV", "CMS / Edit CV")</span>
+            </NavLink>
+        </div>
+        <div class="mobile-nav-footer">
+            <button class="mobile-lang-btn" @onclick="ToggleLanguage">
+                🌐 @(Lang.IsVietnamese ? "Ngôn ngữ: Tiếng Việt (Chuyển sang English)" : "Language: English (Switch to Tiếng Việt)")
+            </button>
+        </div>
+    </div>
 
     <main>
         @Body
@@ -47,17 +89,41 @@
     <ScrollToTop />
 </div>
 
-
 @code {
+    private bool isMobileNavOpen = false;
+
     protected override async Task OnInitializedAsync()
     {
         await Lang.InitializeAsync();
         Lang.OnLanguageChanged += StateHasChanged;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        CloseMobileNav();
+        StateHasChanged();
+    }
+
+    private void ToggleMobileNav()
+    {
+        isMobileNavOpen = !isMobileNavOpen;
+    }
+
+    private void CloseMobileNav()
+    {
+        isMobileNavOpen = false;
     }
 
     private async Task ToggleLanguage()
     {
         var targetLang = Lang.IsVietnamese ? "en" : "vi";
         await Lang.SetLanguageAsync(targetLang);
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= StateHasChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }
