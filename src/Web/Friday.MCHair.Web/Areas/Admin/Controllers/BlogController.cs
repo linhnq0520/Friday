@@ -105,6 +105,9 @@ public sealed class BlogController(
             model.ViewCount = existing.ViewCount;
         }
 
+        // Sanitize rich HTML content against XSS and SEO spam link hijacking
+        model.Content = HtmlSecuritySanitizer.Sanitize(model.Content);
+
         await repository.AddBlogPostAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
 

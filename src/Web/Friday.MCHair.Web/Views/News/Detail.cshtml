@@ -133,7 +133,7 @@
             }
 
             <div class="article-rich-body">
-                @Html.Raw(Model.Content)
+                @Html.Raw(HtmlSecuritySanitizer.Sanitize(Model.Content))
             </div>
 
             <!-- Salon CTA Booking Banner Inside Post -->

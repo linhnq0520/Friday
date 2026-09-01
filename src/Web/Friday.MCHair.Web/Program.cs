@@ -109,6 +109,19 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Security Headers Middleware (Anti-Clickjacking, Anti-MIME Sniffing, Referrer Policy)
+app.Use(async (context, next) =>
+{
+    IHeaderDictionary headers = context.Response.Headers;
+    headers.TryAdd("X-Content-Type-Options", "nosniff");
+    headers.TryAdd("X-Frame-Options", "SAMEORIGIN");
+    headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+    headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    headers.TryAdd("X-XSS-Protection", "1; mode=block");
+    await next();
+});
+
 app.UseStaticFiles(
     new StaticFileOptions
     {
