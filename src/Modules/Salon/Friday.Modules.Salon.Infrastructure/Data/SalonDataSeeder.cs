@@ -504,6 +504,42 @@ public static class SalonDataSeeder
         [
             new BlogPost
             {
+                Title = "[Video] Trải Nghiệm Quy Trình Tạo Mẫu & Nhuộm Tóc Thiết Kế Tại MC Hair Salon",
+                Slug = "video-trai-nghiem-quy-trinh-tao-mau-nhuom-toc-thiet-ke-mc-hair-salon",
+                Category = "Xu hướng tóc",
+                Summary = "Video cận cảnh quy trình tư vấn 1:1, kỹ thuật nhuộm chuyển sắc Balayage và chăm sóc phục hồi chuyên sâu tại kênh YouTube @mchairsalon.",
+                ThumbnailUrl = "/resources/dich_vu/997d6f7b2107436a9338c7f6ec2547cb.jpeg",
+                VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                AuthorName = "MC Hair Team",
+                PublishedAt = DateTime.UtcNow,
+                IsPublished = true,
+                IsFeatured = true,
+                ViewCount = 238,
+                MetaTitle = "Trải Nghiệm Thực Tế Tại MC Hair Salon | Kênh YouTube @mchairsalon",
+                MetaDescription = "Xem video thực tế quy trình làm tóc chuyên nghiệp tại MC Hair Salon và đăng ký theo dõi kênh YouTube @mchairsalon.",
+                Content = """
+                <p class="lead">Chào mừng bạn đến với kênh chính thức của <strong>MC Hair Salon</strong>! Trong video dưới đây, hãy cùng theo chân đội ngũ Stylist khám phá quy trình biến hình mái tóc từ khâu kiểm tra chất tóc, tư vấn phối màu cho đến bước tạo kiểu hoàn thiện đầy ấn tượng.</p>
+
+                <h2>Khám Phá Kỹ Thuật Tạo Mẫu Độc Bản Tại MC Hair</h2>
+                <p>Mỗi mái tóc tại MC Hair đều là một tác phẩm nghệ thuật cá nhân hóa, được thiết kế tỉ mỉ dựa trên cấu trúc gương mặt, phong cách và chất tóc riêng của từng khách hàng.</p>
+
+                <div class="embedded-video-wrapper">
+                    <iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" allowfullscreen loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                </div>
+
+                <h2>Những Điểm Nổi Bật Trong Quy Trình Của Chúng Tôi:</h2>
+                <ul>
+                    <li><strong>Tư vấn 1:1 chuyên sâu:</strong> Lắng nghe mong muốn và phân tích cấu trúc sợi tóc kỹ lưỡng trước khi bắt đầu.</li>
+                    <li><strong>Sản phẩm cao cấp:</strong> Sử dụng 100% dòng mỹ phẩm tóc hàng đầu thế giới (Olaplex, L'Oréal Professionnel, Moroccanoil).</li>
+                    <li><strong>Kỹ thuật điêu luyện:</strong> Đội ngũ Stylist nhiều năm kinh nghiệm, liên tục cập nhật các xu hướng tóc quốc tế hot nhất.</li>
+                    <li><strong>Chế độ bảo hành tận tâm:</strong> Cam kết đồng hành và chăm sóc mái tóc khách hàng sau dịch vụ.</li>
+                </ul>
+
+                <blockquote>"Đừng quên nhấn Đăng ký (Subscribe) kênh YouTube chính thức của chúng tôi tại <a href='https://www.youtube.com/@mchairsalon' target='_blank' rel='noopener'>@mchairsalon</a> để cập nhật những video chia sẻ mẹo làm đẹp và các kiểu tóc mới nhất nhé!"</blockquote>
+                """
+            },
+            new BlogPost
+            {
                 Title = "Top 5 Xu Hướng Màu Nhuộm Balayage & Highlight Đẹp Nhất 2026",
                 Slug = "top-5-xu-huong-mau-nhuom-balayage-highlight-2026",
                 Category = "Xu hướng tóc",
@@ -670,6 +706,67 @@ public static class SalonDataSeeder
         catch
         {
             // Ignore if column already exists
+        }
+
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync("ALTER TABLE salon_blog_posts ADD COLUMN VideoUrl TEXT;", ct);
+        }
+        catch
+        {
+            // Ignore if column already exists
+        }
+
+        try
+        {
+            BlogPost? existingVideoPost = await db.BlogPosts.FirstOrDefaultAsync(
+                x => x.Slug == "video-trai-nghiem-quy-trinh-tao-mau-nhuom-toc-thiet-ke-mc-hair-salon",
+                ct
+            );
+            if (existingVideoPost is null)
+            {
+                db.BlogPosts.Add(new BlogPost
+                {
+                    Title = "[Video] Trải Nghiệm Quy Trình Tạo Mẫu & Nhuộm Tóc Thiết Kế Tại MC Hair Salon",
+                    Slug = "video-trai-nghiem-quy-trinh-tao-mau-nhuom-toc-thiet-ke-mc-hair-salon",
+                    Category = "Xu hướng tóc",
+                    Summary = "Video cận cảnh quy trình tư vấn 1:1, kỹ thuật nhuộm chuyển sắc Balayage và chăm sóc phục hồi chuyên sâu tại kênh YouTube @mchairsalon.",
+                    ThumbnailUrl = "/resources/dich_vu/997d6f7b2107436a9338c7f6ec2547cb.jpeg",
+                    VideoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    AuthorName = "MC Hair Team",
+                    PublishedAt = DateTime.UtcNow,
+                    IsPublished = true,
+                    IsFeatured = true,
+                    ViewCount = 238,
+                    MetaTitle = "Trải Nghiệm Thực Tế Tại MC Hair Salon | Kênh YouTube @mchairsalon",
+                    MetaDescription = "Xem video thực tế quy trình làm tóc chuyên nghiệp tại MC Hair Salon và đăng ký theo dõi kênh YouTube @mchairsalon.",
+                    Content = """
+                    <p class="lead">Chào mừng bạn đến với kênh chính thức của <strong>MC Hair Salon</strong>! Trong video dưới đây, hãy cùng theo chân đội ngũ Stylist khám phá quy trình biến hình mái tóc từ khâu kiểm tra chất tóc, tư vấn phối màu cho đến bước tạo kiểu hoàn thiện đầy ấn tượng.</p>
+
+                    <h2>Khám Phá Kỹ Thuật Tạo Mẫu Độc Bản Tại MC Hair</h2>
+                    <p>Mỗi mái tóc tại MC Hair đều là một tác phẩm nghệ thuật cá nhân hóa, được thiết kế tỉ mỉ dựa trên cấu trúc gương mặt, phong cách và chất tóc riêng của từng khách hàng.</p>
+
+                    <div class="embedded-video-wrapper">
+                        <iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" allowfullscreen loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                    </div>
+
+                    <h2>Những Điểm Nổi Bật Trong Quy Trình Của Chúng Tôi:</h2>
+                    <ul>
+                        <li><strong>Tư vấn 1:1 chuyên sâu:</strong> Lắng nghe mong muốn và phân tích cấu trúc sợi tóc kỹ lưỡng trước khi bắt đầu.</li>
+                        <li><strong>Sản phẩm cao cấp:</strong> Sử dụng 100% dòng mỹ phẩm tóc hàng đầu thế giới (Olaplex, L'Oréal Professionnel, Moroccanoil).</li>
+                        <li><strong>Kỹ thuật điêu luyện:</strong> Đội ngũ Stylist nhiều năm kinh nghiệm, liên tục cập nhật các xu hướng tóc quốc tế hot nhất.</li>
+                        <li><strong>Chế độ bảo hành tận tâm:</strong> Cam kết đồng hành và chăm sóc mái tóc khách hàng sau dịch vụ.</li>
+                    </ul>
+
+                    <blockquote>"Đừng quên nhấn Đăng ký (Subscribe) kênh YouTube chính thức của chúng tôi tại <a href='https://www.youtube.com/@mchairsalon' target='_blank' rel='noopener'>@mchairsalon</a> để cập nhật những video chia sẻ mẹo làm đẹp và các kiểu tóc mới nhất nhé!"</blockquote>
+                    """
+                });
+                await db.SaveChangesAsync(ct);
+            }
+        }
+        catch
+        {
+            // Ignore if error during seed
         }
     }
 }

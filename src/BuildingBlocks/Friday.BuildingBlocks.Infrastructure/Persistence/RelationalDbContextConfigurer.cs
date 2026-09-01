@@ -35,6 +35,7 @@ public static class RelationalDbContextConfigurer
                 break;
             case RelationalDatabaseProvider.Sqlite:
                 options.UseSqlite(connectionString);
+                options.ReplaceService<Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator, SafeSqliteMigrationsSqlGenerator>();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(provider), provider, "Unknown database provider.");

@@ -1,3 +1,4 @@
+@using Friday.MCHair.Web.Services
 @model Friday.Modules.Salon.Application.Models.BlogListResultDto
 @{
     var featured = Model.CurrentPage == 1 && string.IsNullOrWhiteSpace(Model.SearchQuery) && string.IsNullOrWhiteSpace(Model.SelectedCategory)
@@ -78,8 +79,14 @@
             <div class="blog-featured-card">
                 <div class="featured-image-col">
                     <a href="/tin-tuc/@featured.Slug" class="featured-image-link image-hover-frame">
-                        <img src="@(featured.ThumbnailUrl ?? "/resources/dich_vu/nhuom_thiet_ke.jpg")" alt="@featured.Title" loading="eager" />
+                        <img src="@(featured.ThumbnailUrl ?? (!string.IsNullOrWhiteSpace(featured.VideoUrl) ? YouTubeHelper.ToThumbnailUrl(featured.VideoUrl) : "/resources/dich_vu/nhuom_thiet_ke.jpg"))" alt="@featured.Title" loading="eager" />
                         <span class="badge-featured">@Localizer["News_BadgeFeatured"]</span>
+                        @if (!string.IsNullOrWhiteSpace(featured.VideoUrl))
+                        {
+                            <span class="video-play-badge" title="Bài viết có Video YouTube">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Video
+                            </span>
+                        }
                     </a>
                 </div>
                 <div class="featured-content-col">
@@ -113,7 +120,13 @@
                     <article class="blog-card">
                         <div class="blog-card-media image-hover-frame">
                             <a href="/tin-tuc/@post.Slug" aria-label="@post.Title">
-                                <img src="@(post.ThumbnailUrl ?? "/resources/dich_vu/cat_toc.jpg")" alt="@post.Title" loading="lazy" />
+                                <img src="@(post.ThumbnailUrl ?? (!string.IsNullOrWhiteSpace(post.VideoUrl) ? YouTubeHelper.ToThumbnailUrl(post.VideoUrl) : "/resources/dich_vu/cat_toc.jpg"))" alt="@post.Title" loading="lazy" />
+                                @if (!string.IsNullOrWhiteSpace(post.VideoUrl))
+                                {
+                                    <span class="video-play-badge" title="Bài viết có Video YouTube">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Video
+                                    </span>
+                                }
                             </a>
                             <span class="blog-category-badge">@post.Category</span>
                         </div>
@@ -177,7 +190,7 @@
                 </nav>
             }
         }
-        else
+        else if (featured == null && Model.Items.Count == 0)
         {
             <div class="blog-empty-state">
                 <div class="empty-icon">📰</div>

@@ -1,3 +1,4 @@
+@using Friday.MCHair.Web.Services
 @model Friday.Modules.Salon.Domain.Entities.BlogPost
 @{
     ViewData["Title"] = Model.Id == 0 ? "Viết bài mới" : $"Sửa bài viết: {Model.Title}";
@@ -96,6 +97,9 @@
                                     <button type="button" class="toolbar-btn toolbar-btn-highlight" id="btnOpenImageModal" title="Chèn ảnh vào vị trí con trỏ chuột">
                                         📷 Chèn hình ảnh...
                                     </button>
+                                    <button type="button" class="toolbar-btn toolbar-btn-video" id="btnOpenVideoModal" title="Chèn Video YouTube vào vị trí con trỏ chuột">
+                                        🎬 Chèn Video YouTube...
+                                    </button>
                                     <button type="button" class="toolbar-btn" id="btnToggleHtml" title="Chuyển chế độ xem mã nguồn HTML">HTML</button>
                                 </div>
                             </div>
@@ -184,6 +188,33 @@
                         @await Html.PartialAsync("_ImageUploadField", Model.ThumbnailUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Chọn ảnh bìa đại diện" }, { "ImageFieldName", "ThumbnailUrl" } })
                     </div>
 
+                    <!-- YouTube Video Box -->
+                    <div class="admin-card sidebar-box">
+                        <h3 class="box-title">🎬 Video YouTube</h3>
+                        <div class="form-group">
+                            <label asp-for="VideoUrl"><strong>Đường dẫn Video YouTube</strong></label>
+                            <input asp-for="VideoUrl" id="blogVideoUrl" class="form-control" 
+                                   placeholder="https://www.youtube.com/watch?v=... hoặc youtu.be/..." />
+                            <p class="field-hint" style="margin-top: 0.4rem; font-size: 0.82rem; color: var(--muted);">
+                                💡 Gắn link YouTube (Watch, Shorts, Share). Video phát trực tiếp từ YouTube mà không tốn dung lượng máy chủ.
+                            </p>
+                        </div>
+
+                        <div id="videoPreviewContainer" class="video-preview-wrapper" style="display: @(string.IsNullOrWhiteSpace(Model.VideoUrl) ? "none" : "block"); margin-top: 0.75rem;">
+                            <span class="preview-label" style="display:block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--brand);">Xem trước Video:</span>
+                            <div class="video-embed-ratio" style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #000;">
+                                <iframe id="videoPreviewIframe" src="@(YouTubeHelper.ToEmbedUrl(Model.VideoUrl) ?? "")" 
+                                        style="position: absolute; top:0; left:0; width:100%; height:100%; border:0;" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline" id="btnRemoveVideo" style="margin-top: 0.5rem; color: #b71c1c; border-color: #f5c6cb; width: 100%;">
+                                🗑 Xóa liên kết video
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- SEO Box -->
                     <div class="admin-card sidebar-box">
                         <h3 class="box-title">Cấu hình SEO Google</h3>
@@ -251,6 +282,14 @@
                             </div>
                         </div>
                     </header>
+
+                    <div class="container article-container" id="pvVideoWrapper" style="display:none; margin-bottom: 2rem;">
+                        <div class="article-video-wrapper" style="background:#000; border-radius:8px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                            <div class="video-embed-responsive" style="position:relative; width:100%; aspect-ratio:16/9;">
+                                <iframe id="pvVideoIframe" src="" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="container article-container" id="pvCoverWrapper">
                         <figure class="article-featured-image">
@@ -365,6 +404,41 @@
         <div class="img-modal-footer">
             <button type="button" class="btn btn-outline" id="btnCancelImageModal">Hủy bỏ</button>
             <button type="button" class="btn btn-primary" id="btnConfirmInsertImage" style="display:none;">Chèn ảnh vào bài viết</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     MODAL CHÈN VIDEO YOUTUBE VÀO BÀI VIẾT
+     ========================================================================= -->
+<div id="videoInsertModal" class="img-modal-backdrop" style="display:none;">
+    <div class="img-modal-dialog">
+        <div class="img-modal-header">
+            <h3 class="img-modal-title">🎬 Chèn Video YouTube vào bài viết</h3>
+            <button type="button" class="img-modal-close" id="btnCloseVideoModal">&times;</button>
+        </div>
+        <div class="img-modal-body" style="padding: 1.5rem;">
+            <div class="form-group">
+                <label><strong>Đường dẫn Video YouTube (URL):</strong></label>
+                <input type="text" id="inputModalVideoUrl" class="form-control" 
+                       placeholder="https://www.youtube.com/watch?v=... hoặc https://youtu.be/..." />
+                <p class="field-hint" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+                    💡 Hỗ trợ mọi định dạng: link video thường (watch), link chia sẻ (youtu.be), YouTube Shorts, v.v. Video phát trực tiếp từ YouTube mà không tốn dung lượng máy chủ.
+                </p>
+            </div>
+
+            <div id="modalVideoPreviewBox" style="display:none; margin-top: 1rem;">
+                <span class="preview-label" style="display:block; font-weight: 600; margin-bottom: 0.4rem; color: var(--brand);">Xem trước video:</span>
+                <div style="position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #000;">
+                    <iframe id="modalVideoPreviewIframe" src="" style="position: absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div id="modalVideoStatusMsg" class="upload-status-msg" style="display:none; margin-top: 0.75rem;"></div>
+        </div>
+        <div class="img-modal-footer">
+            <button type="button" class="btn btn-outline" id="btnCancelVideoModal">Hủy bỏ</button>
+            <button type="button" class="btn btn-primary" id="btnConfirmInsertVideo" style="display:none;">Chèn video vào bài viết</button>
         </div>
     </div>
 </div>
@@ -586,6 +660,18 @@
 }
 .toolbar-btn-highlight:hover {
     background: var(--accent-dark) !important;
+}
+
+.toolbar-btn-video {
+    background: #fde8e4 !important;
+    color: #b71c1c !important;
+    border-color: #f5c6cb !important;
+    font-weight: 600;
+}
+.toolbar-btn-video:hover {
+    background: #e53935 !important;
+    color: #fff !important;
+    border-color: #e53935 !important;
 }
 
 .editor-wrapper {
@@ -1116,6 +1202,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const panelEditView = document.getElementById('panelEditView');
     const panelPreviewView = document.getElementById('panelPreviewView');
 
+    // Video sidebar elements
+    const blogVideoUrl = document.getElementById('blogVideoUrl');
+    const videoPreviewContainer = document.getElementById('videoPreviewContainer');
+    const videoPreviewIframe = document.getElementById('videoPreviewIframe');
+    const btnRemoveVideo = document.getElementById('btnRemoveVideo');
+
+    // Video modal elements
+    const btnOpenVideoModal = document.getElementById('btnOpenVideoModal');
+    const videoInsertModal = document.getElementById('videoInsertModal');
+    const btnCloseVideoModal = document.getElementById('btnCloseVideoModal');
+    const btnCancelVideoModal = document.getElementById('btnCancelVideoModal');
+    const inputModalVideoUrl = document.getElementById('inputModalVideoUrl');
+    const modalVideoPreviewBox = document.getElementById('modalVideoPreviewBox');
+    const modalVideoPreviewIframe = document.getElementById('modalVideoPreviewIframe');
+    const modalVideoStatusMsg = document.getElementById('modalVideoStatusMsg');
+    const btnConfirmInsertVideo = document.getElementById('btnConfirmInsertVideo');
+
     // Preview elements
     const pvTitle = document.getElementById('pvTitle');
     const pvTitleBreadcrumb = document.getElementById('pvTitleBreadcrumb');
@@ -1126,6 +1229,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const pvDate = document.getElementById('pvDate');
     const pvCoverImage = document.getElementById('pvCoverImage');
     const pvCoverWrapper = document.getElementById('pvCoverWrapper');
+    const pvVideoWrapper = document.getElementById('pvVideoWrapper');
+    const pvVideoIframe = document.getElementById('pvVideoIframe');
     const pvSummary = document.getElementById('pvSummary');
     const pvSummaryWrapper = document.getElementById('pvSummaryWrapper');
     const pvContent = document.getElementById('pvContent');
@@ -1363,6 +1468,131 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // --- YOUTUBE HELPER & MODAL SYSTEM ---
+    function getYouTubeEmbedUrl(url) {
+        if (!url || !url.trim()) return null;
+        const trimmed = url.trim();
+        if (/^[\w-]{11}$/.test(trimmed)) {
+            return `https://www.youtube-nocookie.com/embed/${trimmed}`;
+        }
+        const match = trimmed.match(/(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+        return match ? `https://www.youtube-nocookie.com/embed/${match[1]}` : null;
+    }
+
+    function updateSidebarVideoPreview() {
+        if (!blogVideoUrl) return;
+        const embedUrl = getYouTubeEmbedUrl(blogVideoUrl.value);
+        if (embedUrl) {
+            videoPreviewIframe.src = embedUrl;
+            videoPreviewContainer.style.display = 'block';
+        } else {
+            videoPreviewIframe.src = '';
+            videoPreviewContainer.style.display = 'none';
+        }
+    }
+
+    if (blogVideoUrl) {
+        blogVideoUrl.addEventListener('input', updateSidebarVideoPreview);
+        blogVideoUrl.addEventListener('change', updateSidebarVideoPreview);
+    }
+
+    if (btnRemoveVideo) {
+        btnRemoveVideo.addEventListener('click', function () {
+            if (blogVideoUrl) {
+                blogVideoUrl.value = '';
+                updateSidebarVideoPreview();
+            }
+        });
+    }
+
+    // Video modal
+    function openVideoModal() {
+        placeCursorMarker();
+        videoInsertModal.style.display = 'flex';
+        inputModalVideoUrl.value = '';
+        modalVideoPreviewBox.style.display = 'none';
+        modalVideoStatusMsg.style.display = 'none';
+        btnConfirmInsertVideo.style.display = 'none';
+    }
+
+    function closeVideoModal() {
+        removeCursorMarker();
+        videoInsertModal.style.display = 'none';
+        modalVideoStatusMsg.style.display = 'none';
+    }
+
+    if (btnOpenVideoModal) {
+        btnOpenVideoModal.addEventListener('click', openVideoModal);
+    }
+    if (btnCloseVideoModal) {
+        btnCloseVideoModal.addEventListener('click', closeVideoModal);
+    }
+    if (btnCancelVideoModal) {
+        btnCancelVideoModal.addEventListener('click', closeVideoModal);
+    }
+
+    if (inputModalVideoUrl) {
+        inputModalVideoUrl.addEventListener('input', function () {
+            const embedUrl = getYouTubeEmbedUrl(this.value);
+            if (embedUrl) {
+                modalVideoPreviewIframe.src = embedUrl;
+                modalVideoPreviewBox.style.display = 'block';
+                modalVideoStatusMsg.textContent = '✓ Nhận diện video YouTube hợp lệ';
+                modalVideoStatusMsg.className = 'upload-status-msg is-loading';
+                modalVideoStatusMsg.style.background = '#e8f5e9';
+                modalVideoStatusMsg.style.color = '#2e7d32';
+                modalVideoStatusMsg.style.borderColor = '#c8e6c9';
+                modalVideoStatusMsg.style.display = 'block';
+                btnConfirmInsertVideo.style.display = 'inline-block';
+            } else if (this.value.trim().length > 5) {
+                modalVideoPreviewBox.style.display = 'none';
+                modalVideoStatusMsg.textContent = 'Link YouTube không đúng định dạng. Vui lòng kiểm tra lại.';
+                modalVideoStatusMsg.className = 'upload-status-msg is-error';
+                modalVideoStatusMsg.style.display = 'block';
+                btnConfirmInsertVideo.style.display = 'none';
+            } else {
+                modalVideoPreviewBox.style.display = 'none';
+                modalVideoStatusMsg.style.display = 'none';
+                btnConfirmInsertVideo.style.display = 'none';
+            }
+        });
+    }
+
+    if (btnConfirmInsertVideo) {
+        btnConfirmInsertVideo.addEventListener('click', function () {
+            const embedUrl = getYouTubeEmbedUrl(inputModalVideoUrl.value);
+            if (!embedUrl) return;
+
+            const marker = document.getElementById('blog-img-cursor-marker');
+
+            const videoBox = document.createElement('div');
+            videoBox.className = 'embedded-video-wrapper';
+
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.setAttribute('allowfullscreen', 'true');
+            iframe.setAttribute('loading', 'lazy');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+
+            videoBox.appendChild(iframe);
+
+            const p = document.createElement('p');
+            p.innerHTML = '<br>';
+
+            if (marker && marker.parentNode) {
+                marker.parentNode.insertBefore(videoBox, marker);
+                marker.parentNode.insertBefore(p, marker);
+                marker.remove();
+            } else {
+                visualEditor.appendChild(videoBox);
+                visualEditor.appendChild(p);
+            }
+
+            closeVideoModal();
+            videoBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
     // --- DIRECT DRAG & DROP ONTO EDITOR ---
     visualEditor.addEventListener('dragover', function (e) {
         e.preventDefault();
@@ -1580,12 +1810,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const imgInput = document.querySelector('input[name="ThumbnailUrl"]');
         const imgPreview = document.querySelector('.image-upload-field .image-preview');
+        
+        let hasVideo = false;
+        if (blogVideoUrl && blogVideoUrl.value.trim()) {
+            const embedUrl = getYouTubeEmbedUrl(blogVideoUrl.value);
+            if (embedUrl) {
+                pvVideoIframe.src = embedUrl;
+                pvVideoWrapper.style.display = 'block';
+                hasVideo = true;
+            }
+        }
+        
+        if (!hasVideo) {
+            pvVideoIframe.src = '';
+            pvVideoWrapper.style.display = 'none';
+        }
+
         if (imgPreview && imgPreview.src) {
             pvCoverImage.src = imgPreview.src;
-            pvCoverWrapper.style.display = 'block';
+            pvCoverWrapper.style.display = hasVideo ? 'none' : 'block';
         } else if (imgInput && imgInput.value.trim()) {
             pvCoverImage.src = imgInput.value.trim();
-            pvCoverWrapper.style.display = 'block';
+            pvCoverWrapper.style.display = hasVideo ? 'none' : 'block';
         } else {
             pvCoverWrapper.style.display = 'none';
         }

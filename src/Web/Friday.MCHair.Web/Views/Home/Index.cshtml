@@ -1,5 +1,6 @@
 @model HomeIndexViewModel
 @using Friday.MCHair.Web.Localization
+@using Friday.MCHair.Web.Services
 @{
     var hero = LocalizationExtensions.LocalizeSection(Model.GetSection("hero"));
     var hotGallery = LocalizationExtensions.LocalizeSection(Model.GetSection("gallery_intro"));
@@ -169,7 +170,13 @@
                     <article class="home-promo-card">
                         <div class="home-promo-card-image image-hover-frame">
                             <a href="/tin-tuc/@post.Slug">
-                                <img src="@(post.ThumbnailUrl ?? "/resources/dich_vu/cat_toc.jpg")" alt="@post.Title" loading="lazy" />
+                                <img src="@(post.ThumbnailUrl ?? (!string.IsNullOrWhiteSpace(post.VideoUrl) ? YouTubeHelper.ToThumbnailUrl(post.VideoUrl) : "/resources/dich_vu/cat_toc.jpg"))" alt="@post.Title" loading="lazy" />
+                                @if (!string.IsNullOrWhiteSpace(post.VideoUrl))
+                                {
+                                    <span class="video-play-badge" title="Bài viết có Video YouTube">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Video
+                                    </span>
+                                }
                             </a>
                             <span class="blog-category-badge">@post.Category</span>
                         </div>

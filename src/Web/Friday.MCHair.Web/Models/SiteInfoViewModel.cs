@@ -11,6 +11,7 @@ public sealed class SiteInfoViewModel
     public string OpeningHours { get; init; } = SiteContent.DefaultOpeningHours;
 
     public string FacebookUrl { get; init; } = SiteContent.FacebookUrl;
+    public string YouTubeUrl { get; init; } = SiteContent.YouTubeUrl;
 
     public string MapsUrl { get; init; } = SiteContent.DefaultMapsUrl;
 

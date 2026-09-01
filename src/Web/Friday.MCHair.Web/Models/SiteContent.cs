@@ -5,6 +5,7 @@ namespace Friday.MCHair.Web.Models;
 public static class SiteContent
 {
     public const string FacebookUrl = "https://www.facebook.com/profile.php?id=61551835762411";
+    public const string YouTubeUrl = "https://www.youtube.com/@mchairsalon";
 
     public const string DefaultHotline = "0988305371";
     public const string DefaultOpeningHours = "08:30 – 20:00";

@@ -1,3 +1,4 @@
+@using Friday.MCHair.Web.Services
 @model Friday.Modules.Salon.Application.Models.BlogPostDetailDto
 @{
     string fullUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
@@ -5,7 +6,10 @@
         ? (Model.ThumbnailUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) 
             ? Model.ThumbnailUrl 
             : $"{Context.Request.Scheme}://{Context.Request.Host}{Model.ThumbnailUrl}")
-        : $"{Context.Request.Scheme}://{Context.Request.Host}/resources/logo.jpg";
+        : (!string.IsNullOrWhiteSpace(Model.VideoUrl) 
+            ? (YouTubeHelper.ToThumbnailUrl(Model.VideoUrl, "maxresdefault") ?? $"{Context.Request.Scheme}://{Context.Request.Host}/resources/logo.jpg")
+            : $"{Context.Request.Scheme}://{Context.Request.Host}/resources/logo.jpg");
+    string? embedVideoUrl = YouTubeHelper.ToEmbedUrl(Model.VideoUrl);
 }
 
 @section Head {
@@ -89,7 +93,28 @@
         </div>
     </header>
 
-    @if (!string.IsNullOrWhiteSpace(Model.ThumbnailUrl))
+    @if (!string.IsNullOrWhiteSpace(embedVideoUrl))
+    {
+        <div class="container article-container article-video-container">
+            <div class="article-video-wrapper">
+                <div class="video-embed-responsive">
+                    <iframe src="@embedVideoUrl" 
+                            title="@Model.Title" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerpolicy="strict-origin-when-cross-origin" 
+                            allowfullscreen
+                            loading="lazy">
+                    </iframe>
+                </div>
+                <div class="video-caption-bar">
+                    <span class="video-icon">🎬</span>
+                    <span>Video YouTube: <strong>@Model.Title</strong></span>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.ThumbnailUrl))
     {
         <div class="container article-container">
             <figure class="article-featured-image">

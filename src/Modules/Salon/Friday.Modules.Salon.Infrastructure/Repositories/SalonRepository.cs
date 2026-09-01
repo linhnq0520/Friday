@@ -662,6 +662,7 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
                 target.Summary = source.Summary;
                 target.Content = source.Content;
                 target.ThumbnailUrl = source.ThumbnailUrl;
+                target.VideoUrl = source.VideoUrl;
                 target.Category = source.Category;
                 target.AuthorName = source.AuthorName;
                 target.PublishedAt = source.PublishedAt;

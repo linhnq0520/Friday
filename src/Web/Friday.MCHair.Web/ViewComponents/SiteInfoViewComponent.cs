@@ -34,6 +34,7 @@ public sealed class SiteInfoViewComponent(ISalonRepository repository) : ViewCom
             AddressShort = Get(settings, "address_short", SiteContent.DefaultAddressShort),
             OpeningHours = Get(settings, "opening_hours", SiteContent.DefaultOpeningHours),
             FacebookUrl = Get(settings, "facebook", SiteContent.FacebookUrl),
+            YouTubeUrl = Get(settings, "youtube", SiteContent.YouTubeUrl),
             MapsUrl = Get(settings, "maps_url", SiteContent.DefaultMapsUrl),
             ZaloUrl = BuildZaloUrl(Get(settings, "zalo", SiteContent.DefaultZaloPhone)),
             MessengerUrl = Get(settings, "messenger_url", SiteContent.DefaultMessengerUrl),

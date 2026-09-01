@@ -9,6 +9,7 @@ public sealed class BlogPost : Entity
     public string? Summary { get; set; }
     public string? Content { get; set; }
     public string? ThumbnailUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public string Category { get; set; } = "Xu hướng tóc";
     public string AuthorName { get; set; } = "MC Hair Team";
     public DateTime? PublishedAt { get; set; } = DateTime.UtcNow;

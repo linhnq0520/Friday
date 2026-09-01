@@ -61,6 +61,10 @@
                         </td>
                         <td>
                             <strong>@item.Title</strong>
+                            @if (!string.IsNullOrWhiteSpace(item.VideoUrl))
+                            {
+                                <span class="badge" style="background:#b71c1c; color:#fff; font-size:0.7rem; padding:2px 6px; margin-left:4px;" title="@item.VideoUrl">🎬 YouTube</span>
+                            }
                             <div class="admin-slug-hint" style="font-size: 0.8rem; color: #888;">
                                 <code>/tin-tuc/@item.Slug</code>
                             </div>

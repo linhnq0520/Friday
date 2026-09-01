@@ -184,6 +184,7 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
         builder.Property(x => x.Slug).HasMaxLength(300).IsRequired();
         builder.Property(x => x.Summary).HasMaxLength(1000);
         builder.Property(x => x.ThumbnailUrl).HasMaxLength(500);
+        builder.Property(x => x.VideoUrl).HasMaxLength(500);
         builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
         builder.Property(x => x.AuthorName).HasMaxLength(100).IsRequired();
         builder.Property(x => x.MetaTitle).HasMaxLength(300);
