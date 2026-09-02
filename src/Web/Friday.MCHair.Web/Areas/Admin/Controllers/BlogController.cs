@@ -105,6 +105,13 @@ public sealed class BlogController(
             model.ViewCount = existing.ViewCount;
         }
 
+        if (model.PublishedAt.HasValue)
+        {
+            model.PublishedAt = model.PublishedAt.Value.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(model.PublishedAt.Value, DateTimeKind.Local).ToUniversalTime()
+                : model.PublishedAt.Value.ToUniversalTime();
+        }
+
         // Sanitize rich HTML content against XSS and SEO spam link hijacking
         model.Content = HtmlSecuritySanitizer.Sanitize(model.Content);
 

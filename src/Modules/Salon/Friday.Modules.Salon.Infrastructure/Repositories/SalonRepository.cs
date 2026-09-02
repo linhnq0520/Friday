@@ -489,10 +489,11 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         CancellationToken cancellationToken = default
     )
     {
+        DateTime now = DateTime.UtcNow;
         IQueryable<BlogPost> query = dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished);
+            .Where(x => x.IsPublished && (x.PublishedAt == null || x.PublishedAt <= now));
 
         if (!string.IsNullOrWhiteSpace(category))
         {
@@ -523,10 +524,11 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         CancellationToken cancellationToken = default
     )
     {
+        DateTime now = DateTime.UtcNow;
         IQueryable<BlogPost> query = dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished);
+            .Where(x => x.IsPublished && (x.PublishedAt == null || x.PublishedAt <= now));
 
         if (!string.IsNullOrWhiteSpace(category))
         {
@@ -585,26 +587,32 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public async Task<IReadOnlyList<BlogPost>> GetLatestBlogPostsAsync(
         int count,
         CancellationToken cancellationToken = default
-    ) =>
-        await dbContext
+    )
+    {
+        DateTime now = DateTime.UtcNow;
+        return await dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished)
+            .Where(x => x.IsPublished && (x.PublishedAt == null || x.PublishedAt <= now))
             .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(count)
             .ToListAsync(cancellationToken);
+    }
 
     public async Task<IReadOnlyList<BlogPost>> GetFeaturedBlogPostsAsync(
         int count,
         CancellationToken cancellationToken = default
-    ) =>
-        await dbContext
+    )
+    {
+        DateTime now = DateTime.UtcNow;
+        return await dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished && x.IsFeatured)
+            .Where(x => x.IsPublished && x.IsFeatured && (x.PublishedAt == null || x.PublishedAt <= now))
             .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(count)
             .ToListAsync(cancellationToken);
+    }
 
     public async Task<IReadOnlyList<BlogPost>> GetRelatedBlogPostsAsync(
         int currentId,
@@ -613,10 +621,11 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         CancellationToken cancellationToken = default
     )
     {
+        DateTime now = DateTime.UtcNow;
         IReadOnlyList<BlogPost> sameCategory = await dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished && x.Id != currentId && x.Category == category)
+            .Where(x => x.IsPublished && x.Id != currentId && x.Category == category && (x.PublishedAt == null || x.PublishedAt <= now))
             .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(count)
             .ToListAsync(cancellationToken);
@@ -632,7 +641,7 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         List<BlogPost> additional = await dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished && !excludedIds.Contains(x.Id))
+            .Where(x => x.IsPublished && !excludedIds.Contains(x.Id) && (x.PublishedAt == null || x.PublishedAt <= now))
             .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(remaining)
             .ToListAsync(cancellationToken);
@@ -642,15 +651,18 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
 
     public async Task<IReadOnlyList<string>> GetDistinctCategoriesAsync(
         CancellationToken cancellationToken = default
-    ) =>
-        await dbContext
+    )
+    {
+        DateTime now = DateTime.UtcNow;
+        return await dbContext
             .Set<BlogPost>()
             .AsNoTracking()
-            .Where(x => x.IsPublished && !string.IsNullOrEmpty(x.Category))
+            .Where(x => x.IsPublished && (x.PublishedAt == null || x.PublishedAt <= now) && !string.IsNullOrEmpty(x.Category))
             .Select(x => x.Category)
             .Distinct()
             .OrderBy(x => x)
             .ToListAsync(cancellationToken);
+    }
 
     public Task AddBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default) =>
         UpsertAsync(

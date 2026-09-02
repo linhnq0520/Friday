@@ -514,3 +514,104 @@
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 }
+
+/* ==========================================================================
+   GLOBAL ADMIN CONFIRMATION MODAL DIALOG
+   ========================================================================== */
+.admin-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    animation: adminFadeIn 0.2s ease-out;
+}
+
+@keyframes adminFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.admin-modal-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    max-width: 440px;
+    width: 100%;
+    padding: 2rem 1.75rem 1.75rem;
+    text-align: center;
+    animation: adminSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@keyframes adminSlideUp {
+    from { transform: translateY(20px) scale(0.96); }
+    to { transform: translateY(0) scale(1); }
+}
+
+.admin-modal-icon-warning {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1.15rem;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 8px #fef2f2;
+}
+
+.admin-modal-header h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: #111827;
+    font-weight: 700;
+}
+
+.admin-modal-header p {
+    margin: 0 0 1.75rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #4b5563;
+}
+
+.admin-modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.admin-modal-footer .btn {
+    flex: 1;
+    padding: 0.65rem 1.15rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-cancel {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.btn-modal-cancel:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.btn-modal-danger {
+    background: #dc2626;
+    color: #ffffff;
+    border: 1px solid #dc2626;
+}
+.btn-modal-danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}

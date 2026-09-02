@@ -673,7 +673,7 @@ public sealed class GetBlogPostDetailHandler(ISalonRepository repository)
     )
     {
         BlogPost? post = await repository.GetBlogPostBySlugAsync(request.Slug, cancellationToken);
-        if (post is null || !post.IsPublished)
+        if (post is null || !post.IsPublished || (post.PublishedAt.HasValue && post.PublishedAt.Value > DateTime.UtcNow))
         {
             return null;
         }

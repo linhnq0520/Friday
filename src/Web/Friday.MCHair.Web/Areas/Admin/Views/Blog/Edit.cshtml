@@ -163,6 +163,9 @@
                             <input asp-for="PublishedAt" id="blogPublishedAt" type="datetime-local" 
                                    value="@(Model.PublishedAt?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm"))" 
                                    class="form-control" />
+                            <small class="form-hint" style="display:block; margin-top:5px; font-size:0.8rem; color:#888;">
+                                💡 <em>Nếu chọn ngày giờ tương lai, bài viết sẽ ở trạng thái <strong>Đã lên lịch</strong> và tự động hiển thị ra website khi đến đúng thời điểm đó.</em>
+                            </small>
                         </div>
 
                         <div class="checkboxes-wrapper">

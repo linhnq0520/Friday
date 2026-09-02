@@ -76,7 +76,14 @@
                         <td>
                             @if (item.IsPublished)
                             {
-                                <span class="badge badge-success" style="background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">Đã xuất bản</span>
+                                if (item.PublishedAt.HasValue && item.PublishedAt.Value > DateTime.UtcNow)
+                                {
+                                    <span class="badge" style="background:#0288d1; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🕒 Đã lên lịch</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success" style="background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">✓ Đã xuất bản</span>
+                                }
                             }
                             else
                             {
@@ -84,7 +91,7 @@
                             }
                             @if (item.IsFeatured)
                             {
-                                <span class="badge badge-info" style="background:#0288d1; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-top:3px; display:inline-block;">★ Nổi bật</span>
+                                <span class="badge badge-info" style="background:#d97706; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-top:3px; display:inline-block;">★ Nổi bật</span>
                             }
                         </td>
                         <td class="actions-cell">
