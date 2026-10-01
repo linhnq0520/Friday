@@ -719,6 +719,15 @@ public static class SalonDataSeeder
 
         try
         {
+            await db.Database.ExecuteSqlRawAsync("ALTER TABLE salon_blog_posts ADD COLUMN SortOrder INTEGER NOT NULL DEFAULT 0;", ct);
+        }
+        catch
+        {
+            // Ignore if column already exists
+        }
+
+        try
+        {
             BlogPost? existingVideoPost = await db.BlogPosts.FirstOrDefaultAsync(
                 x => x.Slug == "video-trai-nghiem-quy-trinh-tao-mau-nhuom-toc-thiet-ke-mc-hair-salon",
                 ct

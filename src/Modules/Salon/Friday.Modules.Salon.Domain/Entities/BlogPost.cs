@@ -15,6 +15,7 @@ public sealed class BlogPost : Entity
     public DateTime? PublishedAt { get; set; } = DateTime.UtcNow;
     public bool IsPublished { get; set; } = true;
     public bool IsFeatured { get; set; } = false;
+    public int SortOrder { get; set; } = 0;
     public int ViewCount { get; set; } = 0;
     public string? MetaTitle { get; set; }
     public string? MetaDescription { get; set; }

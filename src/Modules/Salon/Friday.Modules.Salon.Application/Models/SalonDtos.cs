@@ -110,7 +110,8 @@ public sealed record BlogPostDto(
     string AuthorName,
     DateTime? PublishedAt,
     bool IsFeatured,
-    int ViewCount
+    int ViewCount,
+    int SortOrder = 0
 );
 
 public sealed record BlogPostDetailDto(
@@ -129,7 +130,8 @@ public sealed record BlogPostDetailDto(
     string? MetaTitle,
     string? MetaDescription,
     string? MetaKeywords,
-    IReadOnlyList<BlogPostDto> RelatedPosts
+    IReadOnlyList<BlogPostDto> RelatedPosts,
+    int SortOrder = 0
 );
 
 public sealed record BlogListResultDto(

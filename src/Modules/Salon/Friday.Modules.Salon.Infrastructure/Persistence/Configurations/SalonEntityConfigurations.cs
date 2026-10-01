@@ -195,6 +195,7 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
         builder.HasIndex(x => x.IsPublished);
         builder.HasIndex(x => x.PublishedAt);
         builder.HasIndex(x => x.IsFeatured);
+        builder.HasIndex(x => x.SortOrder);
         builder.Ignore(x => x.DomainEvents);
     }
 }

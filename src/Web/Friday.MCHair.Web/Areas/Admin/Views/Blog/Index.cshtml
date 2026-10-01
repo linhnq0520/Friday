@@ -7,8 +7,14 @@
 }
 
 <div class="admin-toolbar">
-    <div class="admin-toolbar-left">
+    <div class="admin-toolbar-left" style="display: flex; gap: 0.5rem; align-items: center;">
         <a class="btn btn-primary" asp-action="Edit">+ Viết bài mới</a>
+        <button type="submit" form="ordersForm" class="btn btn-outline" id="btnSaveAllOrders" title="Lưu lại tất cả số thứ tự đã nhập trên danh sách">
+            💾 Lưu thứ tự
+        </button>
+        <span id="quickSaveToast" style="display:none; font-size: 0.85rem; color: #2e7d32; font-weight: 600; background: #e8f5e9; padding: 4px 10px; border-radius: 6px; border: 1px solid #c8e6c9;">
+            ✓ Đã lưu thứ tự
+        </span>
     </div>
     <div class="admin-toolbar-right">
         <form method="get" asp-action="Index" class="admin-filter-form">
@@ -29,91 +35,178 @@
     </div>
 </div>
 
-<div class="admin-card">
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th style="width: 70px;">Ảnh</th>
-                <th>Tiêu đề &amp; Đường dẫn (Slug)</th>
-                <th>Chuyên mục</th>
-                <th>Tác giả</th>
-                <th>Ngày đăng</th>
-                <th>Lượt xem</th>
-                <th>Trạng thái</th>
-                <th style="width: 140px;">Thao tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.Count > 0)
-            {
-                @foreach (var item in Model)
+<form method="post" asp-action="UpdateOrders" id="ordersForm">
+    @Html.AntiForgeryToken()
+    <div class="admin-card">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width: 85px; text-align: center;" title="Thứ tự ưu tiên hiển thị (số nhỏ hơn đứng trước, 1, 2, 3...)">
+                        Thứ tự ⇕
+                    </th>
+                    <th style="width: 70px;">Ảnh</th>
+                    <th>Tiêu đề &amp; Đường dẫn (Slug)</th>
+                    <th>Chuyên mục</th>
+                    <th>Tác giả</th>
+                    <th>Ngày đăng</th>
+                    <th>Lượt xem</th>
+                    <th>Trạng thái</th>
+                    <th style="width: 140px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count > 0)
                 {
-                    <tr>
-                        <td>
-                            @if (!string.IsNullOrWhiteSpace(item.ThumbnailUrl))
-                            {
-                                <img src="@item.ThumbnailUrl" alt="@item.Title" class="admin-thumb-sm" style="width: 60px; height: 45px; object-fit: cover; border-radius: 6px;" />
-                            }
-                            else
-                            {
-                                <span class="badge muted">Không ảnh</span>
-                            }
-                        </td>
-                        <td>
-                            <strong>@item.Title</strong>
-                            @if (!string.IsNullOrWhiteSpace(item.VideoUrl))
-                            {
-                                <span class="badge" style="background:#b71c1c; color:#fff; font-size:0.7rem; padding:2px 6px; margin-left:4px;" title="@item.VideoUrl">🎬 YouTube</span>
-                            }
-                            <div class="admin-slug-hint" style="font-size: 0.8rem; color: #888;">
-                                <code>/tin-tuc/@item.Slug</code>
-                            </div>
-                        </td>
-                        <td><span class="badge">@item.Category</span></td>
-                        <td>@item.AuthorName</td>
-                        <td>@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
-                        <td><strong>@item.ViewCount</strong></td>
-                        <td>
-                            @if (item.IsPublished)
-                            {
-                                if (item.PublishedAt.HasValue && item.PublishedAt.Value > DateTime.UtcNow)
+                    @foreach (var item in Model)
+                    {
+                        <tr data-post-id="@item.Id">
+                            <td style="text-align: center; vertical-align: middle;">
+                                <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <input type="number" 
+                                           name="orders[@item.Id]" 
+                                           value="@item.SortOrder" 
+                                           min="0" 
+                                           class="post-sort-input" 
+                                           data-id="@item.Id"
+                                           data-original="@item.SortOrder"
+                                           title="Nhập số thứ tự (số nhỏ đứng trước, 0 là tự động theo ngày đăng)"
+                                           style="width: 60px; text-align: center; padding: 4px 6px; font-weight: 600; border: 1px solid #dcd4c8; border-radius: 6px; font-size: 0.95rem; background: #fff;" />
+                                    <span class="save-status-icon" id="status-icon-@item.Id" style="display: none; font-size: 0.8rem; color: #2e7d32;" title="Đã lưu thành công">✓</span>
+                                </div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.ThumbnailUrl))
                                 {
-                                    <span class="badge" style="background:#0288d1; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🕒 Đã lên lịch</span>
+                                    <img src="@item.ThumbnailUrl" alt="@item.Title" class="admin-thumb-sm" style="width: 60px; height: 45px; object-fit: cover; border-radius: 6px;" />
                                 }
                                 else
                                 {
-                                    <span class="badge badge-success" style="background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">✓ Đã xuất bản</span>
+                                    <span class="badge muted">Không ảnh</span>
                                 }
-                            }
-                            else
-                            {
-                                <span class="badge badge-warning" style="background:#ed6c02; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">Bản nháp</span>
-                            }
-                            @if (item.IsFeatured)
-                            {
-                                <span class="badge badge-info" style="background:#d97706; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-top:3px; display:inline-block;">★ Nổi bật</span>
-                            }
-                        </td>
-                        <td class="actions-cell">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="action-link">Sửa</a>
-                            <a href="/tin-tuc/@item.Slug" target="_blank" rel="noopener" class="action-link" title="Xem trên website">Xem ↗</a>
-                            <form asp-action="Delete" method="post" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <button type="submit" class="action-btn-danger">Xóa</button>
-                            </form>
+                            </td>
+                            <td>
+                                <strong>@item.Title</strong>
+                                @if (!string.IsNullOrWhiteSpace(item.VideoUrl))
+                                {
+                                    <span class="badge" style="background:#b71c1c; color:#fff; font-size:0.7rem; padding:2px 6px; margin-left:4px;" title="@item.VideoUrl">🎬 YouTube</span>
+                                }
+                                <div class="admin-slug-hint" style="font-size: 0.8rem; color: #888;">
+                                    <code>/tin-tuc/@item.Slug</code>
+                                </div>
+                            </td>
+                            <td><span class="badge">@item.Category</span></td>
+                            <td>@item.AuthorName</td>
+                            <td>@(item.PublishedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                            <td><strong>@item.ViewCount</strong></td>
+                            <td>
+                                @if (item.IsPublished)
+                                {
+                                    if (item.PublishedAt.HasValue && item.PublishedAt.Value > DateTime.UtcNow)
+                                    {
+                                        <span class="badge" style="background:#0288d1; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">🕒 Đã lên lịch</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success" style="background:#2e7d32; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">✓ Đã xuất bản</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning" style="background:#ed6c02; color:#fff; padding:2px 8px; border-radius:4px; font-size:0.75rem;">Bản nháp</span>
+                                }
+                                @if (item.IsFeatured)
+                                {
+                                    <span class="badge badge-info" style="background:#d97706; color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-top:3px; display:inline-block;">
+                                        ★ Nổi bật @(item.SortOrder > 0 ? $"#{item.SortOrder}" : "")
+                                    </span>
+                                }
+                            </td>
+                            <td class="actions-cell">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="action-link">Sửa</a>
+                                <a href="/tin-tuc/@item.Slug" target="_blank" rel="noopener" class="action-link" title="Xem trên website">Xem ↗</a>
+                                <button type="button" class="action-btn-danger" onclick="confirmDelete(@item.Id)">Xóa</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: #888;">
+                            Chưa có bài viết nào. Hãy bấm "+ Viết bài mới" để tạo bài viết đầu tiên!
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 2rem; color: #888;">
-                        Chưa có bài viết nào. Hãy bấm "+ Viết bài mới" để tạo bài viết đầu tiên!
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<!-- Form xóa bài viết riêng biệt để không lồng form -->
+<form id="deleteForm" asp-action="Delete" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deletePostId" value="" />
+</form>
+
+<script>
+    function confirmDelete(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+            document.getElementById('deletePostId').value = id;
+            document.getElementById('deleteForm').submit();
+        }
+    }
+
+    // AJAX Quick Update Thứ tự khi thay đổi input
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputs = document.querySelectorAll('.post-sort-input');
+        const toast = document.getElementById('quickSaveToast');
+
+        inputs.forEach(input => {
+            input.addEventListener('change', function () {
+                const id = parseInt(this.getAttribute('data-id'), 10);
+                const original = parseInt(this.getAttribute('data-original'), 10);
+                const sortOrder = parseInt(this.value, 10) || 0;
+                const statusIcon = document.getElementById('status-icon-' + id);
+
+                if (sortOrder === original) return;
+
+                fetch('@Url.Action("QuickUpdateOrder", "Blog")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: id, sortOrder: sortOrder })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success) {
+                        input.setAttribute('data-original', data.sortOrder);
+                        input.style.borderColor = '#2e7d32';
+                        input.style.backgroundColor = '#f1f8e9';
+                        if (statusIcon) {
+                            statusIcon.style.display = 'inline';
+                        }
+                        if (toast) {
+                            toast.style.display = 'inline-block';
+                            clearTimeout(window._toastTimeout);
+                            window._toastTimeout = setTimeout(() => {
+                                toast.style.display = 'none';
+                            }, 3000);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Lỗi khi cập nhật thứ tự:', err);
+                });
+            });
+
+            // Enter key triggers change & blur
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+        });
+    });
+</script>

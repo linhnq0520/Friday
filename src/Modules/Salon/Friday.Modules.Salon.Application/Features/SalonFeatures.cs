@@ -128,7 +128,8 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
             x.AuthorName,
             x.PublishedAt,
             x.IsFeatured,
-            x.ViewCount
+            x.ViewCount,
+            x.SortOrder
         );
 
     internal static AppointmentDto MapAppointment(Appointment x) =>
@@ -701,7 +702,8 @@ public sealed class GetBlogPostDetailHandler(ISalonRepository repository)
             post.MetaTitle,
             post.MetaDescription,
             post.MetaKeywords,
-            related.Select(GetHomePageHandler.MapBlogPost).ToList()
+            related.Select(GetHomePageHandler.MapBlogPost).ToList(),
+            post.SortOrder
         );
     }
 }

@@ -179,6 +179,14 @@
                             </label>
                         </div>
 
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label asp-for="SortOrder"><strong>Thứ tự hiển thị (Ưu tiên)</strong></label>
+                            <input asp-for="SortOrder" id="blogSortOrder" type="number" min="0" class="form-control" placeholder="0" />
+                            <small class="form-hint" style="display:block; margin-top:5px; font-size:0.8rem; color:#888;">
+                                💡 <em>Số nhỏ hơn đứng trước (1, 2, 3...). Số 0 là mặc định (tự xếp sau theo ngày đăng mới nhất).</em>
+                            </small>
+                        </div>
+
                         <div class="sidebar-action-buttons">
                             <button type="submit" class="btn btn-primary btn-block">💾 Lưu bài viết</button>
                             <a asp-action="Index" class="btn btn-outline btn-block">Hủy bỏ</a>

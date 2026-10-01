@@ -512,7 +512,9 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
 
         return await query
             .OrderByDescending(x => x.IsFeatured)
+            .ThenBy(x => x.SortOrder == 0 ? int.MaxValue : x.SortOrder)
             .ThenByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .ThenByDescending(x => x.Id)
             .Skip((Math.Max(1, page) - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -579,7 +581,9 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
         }
 
         return await query
-            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .OrderByDescending(x => x.IsFeatured)
+            .ThenBy(x => x.SortOrder == 0 ? int.MaxValue : x.SortOrder)
+            .ThenByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .ThenByDescending(x => x.Id)
             .ToListAsync(cancellationToken);
     }
@@ -594,7 +598,9 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
             .Set<BlogPost>()
             .AsNoTracking()
             .Where(x => x.IsPublished && (x.PublishedAt == null || x.PublishedAt <= now))
-            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .OrderByDescending(x => x.IsFeatured)
+            .ThenBy(x => x.SortOrder == 0 ? int.MaxValue : x.SortOrder)
+            .ThenByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(count)
             .ToListAsync(cancellationToken);
     }
@@ -609,9 +615,31 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
             .Set<BlogPost>()
             .AsNoTracking()
             .Where(x => x.IsPublished && x.IsFeatured && (x.PublishedAt == null || x.PublishedAt <= now))
-            .OrderByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
+            .OrderBy(x => x.SortOrder == 0 ? int.MaxValue : x.SortOrder)
+            .ThenByDescending(x => x.PublishedAt ?? x.CreatedOnUtc)
             .Take(count)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task UpdateBlogPostSortOrdersAsync(
+        IReadOnlyDictionary<int, int> orderMap,
+        CancellationToken cancellationToken = default
+    )
+    {
+        if (orderMap.Count == 0) return;
+
+        List<int> ids = orderMap.Keys.ToList();
+        List<BlogPost> posts = await dbContext.BlogPosts
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+
+        foreach (BlogPost post in posts)
+        {
+            if (orderMap.TryGetValue(post.Id, out int newOrder))
+            {
+                post.SortOrder = Math.Max(0, newOrder);
+            }
+        }
     }
 
     public async Task<IReadOnlyList<BlogPost>> GetRelatedBlogPostsAsync(

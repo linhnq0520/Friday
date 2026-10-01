@@ -141,6 +141,47 @@ public sealed class BlogController(
         return RedirectToAction(nameof(Index));
     }
 
+    public sealed record UpdateSortOrderRequest(int Id, int SortOrder);
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateOrders(
+        [FromForm] Dictionary<int, int> orders,
+        CancellationToken cancellationToken
+    )
+    {
+        if (orders != null && orders.Count > 0)
+        {
+            await repository.UpdateBlogPostSortOrdersAsync(orders, cancellationToken);
+            await CommitAsync(cancellationToken);
+            TempData["Success"] = "Đã cập nhật thứ tự các bài viết thành công.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> QuickUpdateOrder(
+        [FromBody] UpdateSortOrderRequest request,
+        CancellationToken cancellationToken
+    )
+    {
+        if (request.Id <= 0)
+        {
+            return BadRequest(new { success = false, message = "ID bài viết không hợp lệ." });
+        }
+
+        int normalizedOrder = Math.Max(0, request.SortOrder);
+        await repository.UpdateBlogPostSortOrdersAsync(
+            new Dictionary<int, int> { [request.Id] = normalizedOrder },
+            cancellationToken
+        );
+        await CommitAsync(cancellationToken);
+
+        return Json(new { success = true, id = request.Id, sortOrder = normalizedOrder });
+    }
+
     private void DeleteAllPostImages(BlogPost post)
     {
         if (!string.IsNullOrWhiteSpace(post.ThumbnailUrl))

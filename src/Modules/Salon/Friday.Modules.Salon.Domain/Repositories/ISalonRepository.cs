@@ -118,4 +118,5 @@ public interface ISalonRepository
     Task AddBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default);
     Task DeleteBlogPostAsync(BlogPost post, CancellationToken cancellationToken = default);
     Task IncrementBlogPostViewAsync(int id, CancellationToken cancellationToken = default);
+    Task UpdateBlogPostSortOrdersAsync(IReadOnlyDictionary<int, int> orderMap, CancellationToken cancellationToken = default);
 }
