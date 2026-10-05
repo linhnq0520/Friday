@@ -21,6 +21,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="google-site-verification" content="Wl2m3g0qP_w8DCxyMUrNzxEzA4QLjdwvypX-nh5P0hQ" />
     <partial name="_Favicons" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" />
     <link rel="stylesheet" href="~/css/mchair.css" asp-append-version="true" />
     @await RenderSectionAsync("Head", required: false)
     <script type="application/ld+json">
@@ -59,6 +60,7 @@
                 <a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a>
                 <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
                 <a asp-controller="Services" asp-action="Index">@Localizer["Nav_Services"]</a>
+                <a asp-controller="PriceList" asp-action="Index">@Localizer["Nav_PriceList"]</a>
                 <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
                 <a asp-controller="Promotions" asp-action="Index">@Localizer["Nav_Promotions"]</a>
                 <a asp-controller="News" asp-action="Index">@Localizer["Nav_News"]</a>
@@ -89,7 +91,8 @@
             <div>
                 <h4>@Localizer["Footer_Links"]</h4>
                 <a asp-controller="About" asp-action="Index">@Localizer["Nav_About"]</a>
-                <a asp-controller="Services" asp-action="Index">@Localizer["Footer_PriceList"]</a>
+                <a asp-controller="Services" asp-action="Index">@Localizer["Nav_Services"]</a>
+                <a asp-controller="PriceList" asp-action="Index">@Localizer["Footer_PriceList"]</a>
                 <a asp-controller="Gallery" asp-action="Index">@Localizer["Nav_Gallery"]</a>
                 <a asp-controller="Promotions" asp-action="Index">@Localizer["Nav_Promotions"]</a>
                 <a asp-controller="News" asp-action="Index">@Localizer["Nav_News"]</a>

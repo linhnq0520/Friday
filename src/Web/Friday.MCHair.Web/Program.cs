@@ -99,6 +99,7 @@ await EnsureGalleryFromResourcesAsync(app.Services);
 await EnsureShowcaseFromResourcesAsync(app.Services);
 await EnsurePartnersSeededAsync(app.Services);
 await EnsureServiceImagesAsync(app.Services);
+await SalonDataSeeder.EnsureServiceDetailsSeededAsync(app.Services);
 await EnsureStylistsFromResourcesAsync(app.Services);
 await SalonDataSeeder.EnsureBlogPostsSeededAsync(app.Services);
 

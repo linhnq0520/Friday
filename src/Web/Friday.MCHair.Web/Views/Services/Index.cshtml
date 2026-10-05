@@ -1,4 +1,4 @@
-@model ServicesIndexViewModel
+@model ServicesHubViewModel
 @using Friday.MCHair.Web.Localization
 @{
     var openingHours = Model.Settings.GetValueOrDefault("opening_hours", "08:30 – 20:00");
@@ -6,91 +6,327 @@
     bool isEn = CultureHelper.IsEnglish;
 }
 
-<section class="page-hero price-hero">
+<nav class="breadcrumb-container" aria-label="Breadcrumb">
     <div class="container">
-        <p class="eyebrow eyebrow-dark">MC Hair Salon</p>
-        <h1>@Localizer["Services_Title"]</h1>
-        <p class="lead">@Localizer["Services_Lead"]</p>
-        <div class="price-meta">
-            <span>@Localizer["Services_OpeningHours"] <strong>@openingHours</strong></span>
-            <span>@Localizer["Common_Hotline"] <strong>@hotline</strong></span>
-            <a href="@SiteContent.FacebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <ol class="breadcrumb">
+            <li><a asp-controller="Home" asp-action="Index">@Localizer["Nav_Home"]</a></li>
+            <li aria-current="page">@Localizer["Nav_Services"]</li>
+        </ol>
+    </div>
+</nav>
+
+<!-- Service Hub Hero -->
+<section class="svc-hub-hero">
+    <div class="container">
+        <div class="svc-hub-hero-grid">
+            <div class="svc-hub-hero-text">
+                <span class="badge-eyebrow">Tất cả dịch vụ · MC Hair Salon · Q.1 TP.HCM</span>
+                <h1 class="svc-hub-title">Salon tóc tận tâm,<br /><em>giá rõ từ trước</em></h1>
+                <p class="svc-hub-lede">
+                    Cắt · Uốn · Nhuộm · Duỗi · Nối · Phục hồi — MC Hair tư vấn 1:1 theo tỉ lệ khuôn mặt và chất tóc thực tế, cam kết báo giá minh bạch, không chèo kéo phát sinh.
+                </p>
+                <div class="svc-hub-btn-row">
+                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-lg", label = Localizer["Common_BookingNow"].Value })
+                    <a asp-controller="PriceList" asp-action="Index" class="btn btn-outline btn-lg">Xem bảng giá chi tiết →</a>
+                </div>
+                <div class="svc-hub-stats">
+                    <div class="stat-item">
+                        <span class="stat-num"><span class="stars">★★★★★</span> 5.0</span>
+                        <span class="stat-label">1.000+ đánh giá Google</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">250+</span>
+                        <span class="stat-label">lượt phục vụ / tháng</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">~10</span>
+                        <span class="stat-label">năm kinh nghiệm stylist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hair Condition Interactive Finder -->
+        <div class="svc-finder-box" id="hairFinder">
+            <h3 class="svc-finder-title">Chưa biết nên làm dịch vụ gì? <em>Thử chọn tình trạng tóc của bạn</em></h3>
+            <p class="svc-finder-subtitle">Tóc bạn hiện tại đang như thế nào?</p>
+            <div class="svc-pill-row">
+                <button type="button" class="svc-pill" data-target="phuc-hoi-toc">Khô xơ sau tẩy/nhuộm</button>
+                <button type="button" class="svc-pill" data-target="duoi-toc">Tóc rối, không vào nếp</button>
+                <button type="button" class="svc-pill" data-target="nhuom-toc">Muốn đổi màu thời trang</button>
+                <button type="button" class="svc-pill" data-target="uon-toc">Muốn uốn sóng / xoăn layer</button>
+                <button type="button" class="svc-pill" data-target="noi-toc">Muốn tóc dài và dày hơn</button>
+                <button type="button" class="svc-pill" data-target="cat-toc-nu">Muốn cắt tỉa kiểu mới</button>
+                <a asp-controller="PriceList" asp-action="Index" class="svc-pill svc-pill-link">Cần xem bảng giá trước →</a>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section">
+<!-- Services Grid -->
+<section class="section svc-cards-section" id="danh-sach-dich-vu">
     <div class="container">
-        <p class="price-note">@Model.PriceList.PriceUnitNote</p>
+        <div class="section-head-split">
+            <div>
+                <span class="badge-eyebrow">Dịch vụ chuyên nghiệp</span>
+                <h2 class="svc-section-heading">MC Hair có <em>những dịch vụ gì?</em></h2>
+            </div>
+            <a asp-controller="PriceList" asp-action="Index" class="btn btn-outline btn-sm">Xem bảng giá đầy đủ →</a>
+        </div>
 
-        <div class="price-columns">
-            @foreach (var column in Model.PriceList.ToColumns())
+        <div class="svc-hub-grid">
+            @foreach (var s in Model.Services)
             {
-                <div class="price-column">
-                    @foreach (var group in column.Groups)
-                    {
-                        <article class="price-group">
-                            <h2>@group.Title</h2>
-                            <table class="price-table">
-                                <tbody>
-                                    @foreach (var item in group.Items)
-                                    {
-                                        <tr>
-                                            <th scope="row">@item.Name</th>
-                                            <td>@item.Price</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </article>
-                    }
-                </div>
+                string detailUrl = !string.IsNullOrWhiteSpace(s.Slug) ? $"/dich-vu/{s.Slug}" : $"/dich-vu/{s.Id}";
+                string image = !string.IsNullOrWhiteSpace(s.ImageUrl) ? s.ImageUrl : "/resources/dich_vu/cat_toc.jpg";
+                string priceText = !string.IsNullOrWhiteSpace(s.PriceTagText) ? s.PriceTagText : (s.PriceFrom > 0 ? $"Từ {s.PriceFrom:N0}đ" : "Liên hệ");
+                string duration = !string.IsNullOrWhiteSpace(s.DurationText) ? s.DurationText : "1–2 giờ";
+                string badge = !string.IsNullOrWhiteSpace(s.BadgeText) ? s.BadgeText : "Chuyên nghiệp";
+
+                <article class="svc-hub-card" id="card-@(s.Slug)">
+                    <a href="@detailUrl" class="svc-hub-thumb" title="@s.Name">
+                        <span class="svc-pop-badge">@badge</span>
+                        <img src="@image" alt="@s.Name tại MC Hair Salon" loading="lazy" />
+                    </a>
+                    <div class="svc-hub-body">
+                        <h3><a href="@detailUrl">@s.Name</a></h3>
+                        <p class="svc-hub-desc">@(s.ShortDescription ?? s.Description ?? s.Headline)</p>
+                        <div class="svc-hub-meta">
+                            <span class="svc-hub-price">@priceText</span>
+                            <span class="svc-hub-dur">⏱ @duration</span>
+                        </div>
+                        <a href="@detailUrl" class="btn btn-primary svc-hub-btn">Xem chi tiết →</a>
+                    </div>
+                </article>
             }
         </div>
-
-        <article class="price-group price-length-guide">
-            <h2>@Localizer["Services_SizeGuideTitle"]</h2>
-            <p class="muted">@Localizer["Services_SizeGuideLead"]</p>
-            <div class="length-grid">
-                @foreach (var size in Model.PriceList.LengthGuide)
-                {
-                    <div class="length-item">
-                        <span class="length-badge">@size.Size</span>
-                        <span>@size.Description</span>
-                    </div>
-                }
-            </div>
-        </article>
     </div>
 </section>
 
-@if (Model.Services.Count > 0)
-{
-    <section class="section section-alt">
-        <div class="container">
-            <div class="section-head center">
-                <h2>@Localizer["Services_QuickBookingTitle"]</h2>
-                <p>@Localizer["Services_QuickBookingLead"]</p>
+<!-- Combos Section -->
+<section class="section section-alt svc-combo-section">
+    <div class="container">
+        <div class="section-head center">
+            <span class="badge-eyebrow">Kết hợp hoàn hảo</span>
+            <h2>Combo dịch vụ <em>hiệu quả và tiết kiệm hơn</em></h2>
+            <p class="lead">Khách hàng tại MC Hair thường lựa chọn các combo này để tối ưu thời gian và chi phí.</p>
+        </div>
+
+        <div class="svc-combo-grid">
+            <div class="svc-combo-card">
+                <span class="combo-tag combo-tag-pop">Phổ biến nhất</span>
+                <h3>Nhuộm + Phục hồi chuyên sâu</h3>
+                <div class="combo-steps">
+                    <div class="combo-step"><span class="step-num">1</span>Nhuộm màu thời trang chuẩn tone</div>
+                    <div class="combo-step"><span class="step-num">2</span>Bọc dưỡng Olaplex & Keratin sau nhuộm</div>
+                </div>
+                <p class="combo-note">Giữ hạt màu bền hơn gấp đôi, bảo vệ sợi tóc luôn bóng mượt, không khô xơ.</p>
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-outline btn-block", label = "Đặt combo này" })
             </div>
-            <div class="card-grid four">
-                @foreach (var service in Model.Services)
+
+            <div class="svc-combo-card">
+                <span class="combo-tag">Làm mới toàn diện</span>
+                <h3>Cắt Layer + Uốn sóng lơi + Dưỡng</h3>
+                <div class="combo-steps">
+                    <div class="combo-step"><span class="step-num">1</span>Cắt tỉa phom dáng chuẩn tỉ lệ gương mặt</div>
+                    <div class="combo-step"><span class="step-num">2</span>Uốn sóng lơi định hình bồng bềnh</div>
+                    <div class="combo-step"><span class="step-num">3</span>Khóa nếp Collagen mềm mại tự nhiên</div>
+                </div>
+                <p class="combo-note">Thay đổi thần thái và diện mạo toàn diện chỉ trong một buổi làm đẹp.</p>
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-outline btn-block", label = "Đặt combo này" })
+            </div>
+
+            <div class="svc-combo-card">
+                <span class="combo-tag">Mái tóc trong mơ</span>
+                <h3>Nối tóc + Nhuộm đồng màu + Dưỡng bóng</h3>
+                <div class="combo-steps">
+                    <div class="combo-step"><span class="step-num">1</span>Nối tóc dài và dày kỹ thuật lông vũ siêu vi</div>
+                    <div class="combo-step"><span class="step-num">2</span>Nhuộm đồng màu hoặc light thiết kế</div>
+                    <div class="combo-step"><span class="step-num">3</span>Ủ dưỡng suôn mượt toàn bộ mái tóc</div>
+                </div>
+                <p class="combo-note">Sở hữu mái tóc dài bồng bềnh, óng ả ngay lập tức mà không cần chờ đợi.</p>
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-outline btn-block", label = "Đặt combo này" })
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Real Gallery Photos -->
+@if (Model.GalleryItems.Count > 0)
+{
+    <section class="section svc-gallery-section">
+        <div class="container">
+            <div class="section-head-split">
+                <div>
+                    <span class="badge-eyebrow">Ảnh thực tế tại salon</span>
+                    <h2>Tác phẩm từ <em>khách hàng thực tế</em></h2>
+                    <p class="lead">Ảnh chụp thật 100% tại salon MC Hair — không chỉnh sửa quá đà, trung thực với kết quả của bạn.</p>
+                </div>
+                <a asp-controller="Gallery" asp-action="Index" class="btn btn-outline btn-sm">Xem toàn bộ bộ sưu tập →</a>
+            </div>
+
+            <div class="svc-gallery-grid">
+                @foreach (var item in Model.GalleryItems)
                 {
-                    <article class="card service-card">
-                        <h3>@CatalogTranslations.ServiceName(service.Name, isEn)</h3>
-                        <p>@CatalogTranslations.ServiceDescription(service.Name, service.Description, isEn)</p>
-                        <p class="price">@Localizer["Common_PriceFrom"] <strong>@service.PriceFrom.ToString("N0")</strong> @(isEn ? "VND" : "đ")</p>
-                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Nav_Booking"].Value, serviceId = service.Id })
-                    </article>
+                    <a asp-controller="Gallery" asp-action="Index" class="svc-gal-item">
+                        <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" />
+                        <span class="svc-gal-label">@item.Title</span>
+                    </a>
                 }
             </div>
         </div>
     </section>
 }
 
-<section class="section section-cta">
-    <div class="container center">
-        <h2>@Localizer["Services_CtaTitle"]</h2>
-        <p>@Localizer["Services_CtaLead"]</p>
-        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Common_BookingNow"].Value })
+<!-- Why Choose MC Hair -->
+<section class="section svc-trust-section">
+    <div class="container">
+        <span class="badge-eyebrow">Cam kết chất lượng</span>
+        <h2 class="svc-section-heading">Vì sao khách hàng tin chọn <em>MC Hair Salon?</em></h2>
+
+        <div class="svc-trust-layout">
+            <div class="svc-trust-rating-box">
+                <div class="rating-big-num">5.0</div>
+                <div class="rating-big-stars" style="display:inline-flex; gap:3px; color:#f59e0b; justify-content:center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <p>1.000+ đánh giá thực tế<br />trên Google Maps & Mạng xã hội</p>
+            </div>
+            <div class="svc-trust-grid">
+                <div class="svc-trust-card">
+                    <div class="trust-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div>
+                        <h4>Vị trí trung tâm Quận 1</h4>
+                        <p>14D Cống Quỳnh, P. Cầu Ông Lãnh, vị trí đắc địa dễ tìm, chỗ gửi xe rộng rãi an toàn.</p>
+                    </div>
+                </div>
+                <div class="svc-trust-card">
+                    <div class="trust-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+                    </div>
+                    <div>
+                        <h4>Stylist 10 năm kinh nghiệm</h4>
+                        <p>Đội ngũ Hair Artist giàu kinh nghiệm, trực tiếp tư vấn 1:1 và làm cẩn trọng từng lọn tóc.</p>
+                    </div>
+                </div>
+                <div class="svc-trust-card">
+                    <div class="trust-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.1 20.3a2 2 0 0 0 1.7 2.7h12.4a2 2 0 0 0 1.7-2.7L14 9.31V2"/><path d="M8.5 2h7"/><path d="M14 9.3h-4"/><path d="M7 16h10"/></svg>
+                    </div>
+                    <div>
+                        <h4>Sản phẩm chính hãng 100%</h4>
+                        <p>Sử dụng thương hiệu quốc tế cao cấp L'Oréal Professionnel, Olaplex, Moroccanoil, ATS an toàn cho da đầu.</p>
+                    </div>
+                </div>
+                <div class="svc-trust-card">
+                    <div class="trust-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div>
+                        <h4>Báo giá rõ ràng trước khi làm</h4>
+                        <p>Khách hàng nắm rõ chi phí chính xác trước khi thực hiện, cam kết không ép giá hay upsell phát sinh.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
+
+<!-- FAQs Section -->
+<section class="section section-alt svc-faq-section">
+    <div class="container">
+        <div class="section-head center">
+            <span class="badge-eyebrow">Giải đáp thắc mắc</span>
+            <h2>Câu hỏi thường gặp về <em>dịch vụ làm tóc</em></h2>
+        </div>
+
+        <div class="svc-faq-list">
+            <details class="svc-faq-item">
+                <summary>
+                    <span>Giá dịch vụ tại MC Hair có thay đổi theo độ dài tóc không?</span>
+                    <span class="faq-toggle">+</span>
+                </summary>
+                <div class="faq-answer">
+                    <p>Có, với các dịch vụ hóa chất như Uốn, Nhuộm, Duỗi, giá sẽ phụ thuộc vào size độ dài tóc (Size S: ngắn ngang cằm, Size M: lửng ngang vai, Size L: dài qua ngực). Stylist luôn kiểm tra và báo giá chính xác cho bạn trước khi làm.</p>
+                </div>
+            </details>
+
+            <details class="svc-faq-item">
+                <summary>
+                    <span>Nên chọn dịch vụ nào nếu tóc tôi đang bị khô xơ và chẻ ngọn?</span>
+                    <span class="faq-toggle">+</span>
+                </summary>
+                <div class="faq-answer">
+                    <p>Nếu tóc đang hư tổn, bạn nên ưu tiên liệu trình <a href="/dich-vu/phuc-hoi-toc">Phục hồi tóc Olaplex chuyên sâu</a> trước để hàn gắn liên kết sợi tóc. Sau khi tóc hồi phục độ đàn hồi, stylist sẽ tiến hành uốn hoặc nhuộm an toàn.</p>
+                </div>
+            </details>
+
+            <details class="svc-faq-item">
+                <summary>
+                    <span>Salon có tư vấn kiểu tóc trước khi làm không?</span>
+                    <span class="faq-toggle">+</span>
+                </summary>
+                <div class="faq-answer">
+                    <p>Chắc chắn có! Tại MC Hair, quy trình tư vấn 1:1 là hoàn toàn miễn phí. Stylist sẽ phân tích dáng mặt, nước da và chất tóc thật của bạn để đưa ra phương án đẹp và hài hòa nhất.</p>
+                </div>
+            </details>
+
+            <details class="svc-faq-item">
+                <summary>
+                    <span>Thời gian làm dịch vụ thường mất bao lâu?</span>
+                    <span class="faq-toggle">+</span>
+                </summary>
+                <div class="faq-answer">
+                    <p>Tùy theo dịch vụ bạn chọn: Cắt tóc 30–45 phút, Nhuộm 1.5–2 giờ, Uốn hoặc Duỗi 2–3 giờ, Nối tóc 2–3.5 giờ. Salon luôn sắp xếp kỹ thuật viên làm liền mạch để tiết kiệm thời gian nhất cho bạn.</p>
+                </div>
+            </details>
+
+            <details class="svc-faq-item">
+                <summary>
+                    <span>Có cần đặt lịch trước khi đến không?</span>
+                    <span class="faq-toggle">+</span>
+                </summary>
+                <div class="faq-answer">
+                    <p>Để salon chuẩn bị tiếp đón chu đáo và bạn không phải chờ đợi vào các khung giờ cao điểm, bạn nên đặt lịch trước qua website hoặc Hotline/Zalo: <strong>@hotline</strong>.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="section section-cta">
+    <div class="container center">
+        <h2>Sẵn sàng sở hữu mái tóc đẹp chuẩn phong cách?</h2>
+        <p class="lead">Đặt lịch ngay hôm nay để được đội ngũ Stylist MC Hair Salon chăm sóc và tư vấn chuyên sâu.</p>
+        <div class="cta-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-lg", label = "Đặt lịch hẹn ngay" })
+            <a href="tel:@hotline" class="btn btn-outline btn-lg btn-hotline" style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Gọi Hotline: <strong class="hotline-number">@hotline</strong></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.svc-pill[data-target]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                const card = document.getElementById('card-' + target);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('svc-highlight');
+                    setTimeout(() => card.classList.remove('svc-highlight'), 2000);
+                }
+            });
+        });
+    </script>
+}

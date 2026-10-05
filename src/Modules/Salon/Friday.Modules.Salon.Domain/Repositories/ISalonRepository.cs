@@ -8,6 +8,7 @@ public interface ISalonRepository
     Task<IReadOnlyList<HairService>> GetActiveServicesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<HairService>> GetAllServicesAsync(CancellationToken cancellationToken = default);
     Task<HairService?> GetServiceByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<HairService?> GetServiceBySlugAsync(string slug, CancellationToken cancellationToken = default);
     Task AddServiceAsync(HairService service, CancellationToken cancellationToken = default);
     Task DeleteServiceAsync(HairService service, CancellationToken cancellationToken = default);
 

@@ -1,0 +1,488 @@
+@model ServiceDetailViewModel
+@using Friday.MCHair.Web.Localization
+@{
+    var s = Model.Service;
+    var hotline = Model.Settings.GetValueOrDefault("hotline", "0988305371");
+    var address = Model.Settings.GetValueOrDefault("address_short", "14D Cống Quỳnh, P. Cầu Ông Lãnh, Q.1");
+    var messengerUrl = Model.Settings.GetValueOrDefault("messenger_url", SiteContent.DefaultMessengerUrl);
+    var zalo = Model.Settings.GetValueOrDefault("zalo", SiteContent.DefaultZaloPhone);
+    var pricing = Model.PricingData;
+    var methods = Model.Methods;
+    var steps = Model.Steps;
+    var faqs = Model.Faqs;
+
+    string heroImage = !string.IsNullOrWhiteSpace(s.HeroImageUrl) ? s.HeroImageUrl : (!string.IsNullOrWhiteSpace(s.ImageUrl) ? s.ImageUrl : "/resources/dich_vu/cat_toc.jpg");
+    string beforeImage = !string.IsNullOrWhiteSpace(s.BeforeImageUrl) ? s.BeforeImageUrl : "/resources/before_after/5c14189be5f248a0a65c847d169a0c6c.jpg";
+    string afterImage = !string.IsNullOrWhiteSpace(s.AfterImageUrl) ? s.AfterImageUrl : "/resources/before_after/69c14f69b5b144428ed075bbd48823f8.jpg";
+    string priceText = !string.IsNullOrWhiteSpace(s.PriceTagText) ? s.PriceTagText : (s.PriceFrom > 0 ? $"Từ {s.PriceFrom:N0}đ" : "Liên hệ báo giá");
+}
+
+<!-- Breadcrumb -->
+<nav class="breadcrumb-container" aria-label="Breadcrumb">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li><a asp-controller="Services" asp-action="Index">Dịch vụ</a></li>
+            <li aria-current="page">@s.Name</li>
+        </ol>
+    </div>
+</nav>
+
+<!-- Service Hero Banner -->
+<section class="svc-detail-hero">
+    <div class="container svc-detail-hero-grid">
+        <div class="svc-detail-hero-info">
+            <span class="badge-eyebrow">@s.Name · MC Hair Salon · TP.HCM</span>
+            <h1 class="svc-detail-title">@(s.Headline ?? $"{s.Name} Đẹp Tự Nhiên Chuẩn Phong Cách")</h1>
+            
+            <div class="svc-detail-pricetag">
+                <span class="pricetag-prefix">Chỉ từ</span>
+                <span class="pricetag-val">@priceText</span>
+                @if (!string.IsNullOrWhiteSpace(s.BadgeText))
+                {
+                    <span class="svc-pop-badge" style="position:static; margin-left:10px;">@s.BadgeText</span>
+                }
+            </div>
+
+            <p class="svc-detail-lede">
+                @(s.Description ?? s.ShortDescription ?? "MC Hair Salon tư vấn 1:1 tận tâm dựa trên chất tóc thật và tỉ lệ gương mặt, bảo hành kết quả chu đáo.")
+            </p>
+
+            <div class="svc-detail-actions">
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-lg", label = "Đặt lịch ngay", serviceId = s.Id })
+                <a href="#pricing" class="btn btn-outline btn-lg">Xem bảng giá chi tiết ↓</a>
+            </div>
+
+            <div class="svc-trust-strip">
+                <span class="stars" style="display:inline-flex; gap:2px; color:#eab308; vertical-align:middle;">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                <span><strong>5.0/5</strong> · Hàng ngàn lượt khách mỗi năm tại TP.HCM</span>
+                <span><strong>~10 năm</strong> kinh nghiệm stylist</span>
+            </div>
+        </div>
+
+        <div class="svc-detail-hero-visual">
+            <div class="hero-visual-frame">
+                <img src="@heroImage" alt="@s.Name tại MC Hair Salon" />
+                <span class="hero-visual-caption">Khách hàng thực tế tại MC Hair Salon</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Before & After Slider Section -->
+<section class="section svc-ba-section" id="gallery">
+    <div class="container">
+        <div class="section-head center">
+            <span class="badge-eyebrow">Bằng chứng thật, không chỉnh sửa</span>
+            <h2>Trước và <em>sau</em> khi làm @s.Name tại MC Hair</h2>
+            <p class="lead">Tóc thật của khách hàng thực tế — kéo thanh trượt để cảm nhận sự thay đổi kỳ diệu.</p>
+        </div>
+
+        <div class="ba-slider-container">
+            <div class="ba-slider-box" id="baSlider">
+                <div class="ba-img-layer ba-before">
+                    <img src="@beforeImage" alt="@s.Name - Trước khi làm" />
+                    <span class="ba-tag ba-tag-before">TRƯỚC</span>
+                </div>
+                <div class="ba-img-layer ba-after" id="baAfterLayer">
+                    <img src="@afterImage" alt="@s.Name - Sau khi làm" />
+                    <span class="ba-tag ba-tag-after">SAU</span>
+                    <span class="ba-badge-result">@s.Name</span>
+                </div>
+                <div class="ba-handle" id="baHandle">
+                    <div class="ba-handle-line"></div>
+                    <div class="ba-handle-circle"><i class="ri-arrow-left-right-line" style="font-size:1.2rem;"></i></div>
+                </div>
+                <input type="range" min="0" max="100" value="50" class="ba-range-slider" id="baRange" aria-label="Kéo để so sánh trước và sau" />
+            </div>
+            <p class="ba-hint">← Kéo thanh trượt để so sánh kết quả Trước & Sau →</p>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Pricing Section -->
+<section class="section section-alt svc-pricing-section" id="pricing">
+    <div class="container">
+        <div class="section-head center">
+            <span class="badge-eyebrow">Giá cả minh bạch — không phát sinh</span>
+            <h2>Bảng giá chi tiết dịch vụ <em>@s.Name</em></h2>
+            <p class="lead">Báo giá rõ ràng ngay từ đầu, tư vấn phù hợp nhất với tình trạng tóc thật của bạn.</p>
+        </div>
+
+        @if (pricing != null && pricing.Groups.Count > 0)
+        {
+            <div class="svc-price-tables-wrap">
+                @foreach (var group in pricing.Groups)
+                {
+                    <div class="svc-table-box">
+                        <h3 class="svc-table-title">@group.Title</h3>
+                        <div class="svc-table-responsive">
+                            <table class="svc-table">
+                                <thead>
+                                    <tr>
+                                        @foreach (var col in group.Columns)
+                                        {
+                                            <th>@col</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in group.Items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@item.Name</strong>
+                                                @if (!string.IsNullOrWhiteSpace(item.Note))
+                                                {
+                                                    <span class="table-row-note">@item.Note</span>
+                                                }
+                                            </td>
+                                            @if (!string.IsNullOrWhiteSpace(item.Price1))
+                                            {
+                                                <td><span class="price-val">@item.Price1</span></td>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(item.Price2))
+                                            {
+                                                <td><span class="price-val price-vip">@item.Price2</span></td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (pricing.Addons.Count > 0)
+            {
+                <div class="svc-addon-block">
+                    <h3>Dịch vụ & Liệu trình đi kèm</h3>
+                    <div class="svc-addon-grid">
+                        @foreach (var addon in pricing.Addons)
+                        {
+                            <div class="svc-addon-item">
+                                <span>@addon.Name</span>
+                                <b>@addon.Price</b>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(pricing.Note))
+            {
+                <p class="svc-price-footer-note"><i class="ri-information-line" style="vertical-align:middle; margin-right:4px;"></i> @pricing.Note</p>
+            }
+        }
+        else
+        {
+            <div class="svc-price-simple-box">
+                <div class="simple-price-tag">
+                    <span>Mức giá tham khảo</span>
+                    <strong>@priceText</strong>
+                </div>
+                <p>Chi phí chính xác phụ thuộc vào độ dài tóc, độ dày và tình trạng tóc thực tế của bạn. Đội ngũ Stylist MC Hair luôn kiểm tra và báo giá cụ thể trước khi thực hiện.</p>
+            </div>
+        }
+
+        <!-- Pricing CTA Box -->
+        <div class="svc-pricing-cta-card">
+            <div class="cta-card-content">
+                <h4>Đã rõ mức giá — Bạn muốn đặt lịch để giữ khung giờ đẹp nhất?</h4>
+                <p>Hỗ trợ đặt chỗ trước không phải chờ đợi, tư vấn 1:1 miễn phí cùng Master Stylist.</p>
+            </div>
+            <div class="cta-card-actions">
+                @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = "Đặt lịch – chốt giá ngay", serviceId = s.Id })
+                <a href="@messengerUrl" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Hỏi thêm qua Messenger</a>
+            </div>
+        </div>
+
+        <p class="pricing-cross-link">
+            Xem thêm <a asp-controller="PriceList" asp-action="Index">bảng giá đầy đủ tất cả dịch vụ tại salon</a>
+        </p>
+    </div>
+</section>
+
+<!-- Methods & Techniques -->
+@if (methods.Count > 0)
+{
+    <section class="section svc-methods-section">
+        <div class="container">
+            <div class="section-head center">
+                <span class="badge-eyebrow">Kỹ thuật chuyên sâu</span>
+                <h2>Các phương pháp thực hiện <em>@s.Name</em> tại MC Hair</h2>
+            </div>
+
+            <div class="svc-methods-grid">
+                @foreach (var m in methods)
+                {
+                    <div class="svc-method-card">
+                        <div class="method-icon-wrap" aria-hidden="true">
+                            @if (m.Icon == "scissors")
+                            {
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+                            }
+                            else if (m.Icon == "feather")
+                            {
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+                            }
+                            else if (m.Icon == "star")
+                            {
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            }
+                            else if (m.Icon == "link")
+                            {
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            }
+                            else
+                            {
+                                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                            }
+                        </div>
+                        <h3>@m.Title</h3>
+                        <p>@m.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Process Steps -->
+@if (steps.Count > 0)
+{
+    <section class="section section-alt svc-steps-section">
+        <div class="container">
+            <div class="section-head center">
+                <span class="badge-eyebrow">Quy trình chuyên nghiệp</span>
+                <h2>5 Bước thực hiện <em>@s.Name</em> chuẩn salon</h2>
+            </div>
+
+            <div class="svc-steps-flow">
+                @foreach (var step in steps)
+                {
+                    <div class="svc-step-node">
+                        <div class="step-circle">@step.StepNumber</div>
+                        <div class="step-content">
+                            <h4>@step.Title</h4>
+                            <p>@step.Description</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Customer Reviews & Trust Badges -->
+<section class="section svc-experience-section">
+    <div class="container">
+        <div class="section-head center">
+            <span class="badge-eyebrow">Cảm nhận thực tế</span>
+            <h2>Khách hàng nói gì về dịch vụ <em>@s.Name?</em></h2>
+        </div>
+
+        <div class="svc-review-grid">
+            <div class="svc-review-card">
+                <div class="review-top">
+                    <div class="review-avatar">TT</div>
+                    <div class="review-user-info">
+                        <b>Khách hàng Thùy Trang</b>
+                        <span class="review-tag"><span class="verified-badge">✓</span> Khách tại Quận 1</span>
+                    </div>
+                </div>
+                <div class="review-stars" aria-label="5 trên 5 sao">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <p class="review-quote">"Mình làm dịch vụ @s.Name ở đây thấy cực kỳ ưng ý. Stylist tư vấn rất kỹ, làm cẩn thận từng chút một, về nhà ai cũng khen đẹp."</p>
+            </div>
+
+            <div class="svc-review-card">
+                <div class="review-top">
+                    <div class="review-avatar">MA</div>
+                    <div class="review-user-info">
+                        <b>Khách hàng Minh Anh</b>
+                        <span class="review-tag"><span class="verified-badge">✓</span> Khách tại Quận 3</span>
+                    </div>
+                </div>
+                <div class="review-stars" aria-label="5 trên 5 sao">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <p class="review-quote">"Thích nhất là báo giá rõ ràng trước khi làm, không hề phát sinh chi phí nào. Không gian tiệm sạch sẽ, nhân viên thân thiện chu đáo."</p>
+            </div>
+
+            <div class="svc-review-card">
+                <div class="review-top">
+                    <div class="review-avatar">BN</div>
+                    <div class="review-user-info">
+                        <b>Khách hàng Bảo Ngọc</b>
+                        <span class="review-tag"><span class="verified-badge">✓</span> Khách tại Quận 7</span>
+                    </div>
+                </div>
+                <div class="review-stars" aria-label="5 trên 5 sao">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <p class="review-quote">"Tóc mình trước đây bị hư tổn nhiều nhưng sau khi làm xong cảm giác sợi tóc vẫn rất chắc khỏe, mềm mượt tự nhiên, giữ nếp rất lâu."</p>
+            </div>
+        </div>
+
+        <div class="svc-quality-badges">
+            <div class="quality-badge-item">
+                <span class="q-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <div>
+                    <h5>Vị trí thuận tiện</h5>
+                    <p>14D Cống Quỳnh, trung tâm Quận 1 dễ tìm, có bãi đậu xe.</p>
+                </div>
+            </div>
+            <div class="quality-badge-item">
+                <span class="q-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.1 20.3a2 2 0 0 0 1.7 2.7h12.4a2 2 0 0 0 1.7-2.7L14 9.31V2"/><path d="M8.5 2h7"/><path d="M14 9.3h-4"/><path d="M7 16h10"/></svg>
+                </span>
+                <div>
+                    <h5>Dòng thuốc chính hãng</h5>
+                    <p>100% dòng sản phẩm cao cấp bảo vệ tối đa cấu trúc sợi tóc.</p>
+                </div>
+            </div>
+            <div class="quality-badge-item">
+                <span class="q-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+                </span>
+                <div>
+                    <h5>Kỹ thuật chuẩn tỉ lệ</h5>
+                    <p>Stylist nhiều năm kinh nghiệm, kỹ thuật tỉ mỉ, tự nhiên.</p>
+                </div>
+            </div>
+            <div class="quality-badge-item">
+                <span class="q-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                </span>
+                <div>
+                    <h5>Bảo hành & Đồng hành</h5>
+                    <p>Hỗ trợ chỉnh sửa và hướng dẫn chăm sóc chu đáo tại nhà.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQs Section -->
+@if (faqs.Count > 0)
+{
+    <section class="section section-alt svc-faq-section" id="faq">
+        <div class="container">
+            <div class="section-head center">
+                <span class="badge-eyebrow">Giải đáp thắc mắc</span>
+                <h2>Câu hỏi thường gặp về <em>@s.Name</em></h2>
+            </div>
+
+            <div class="svc-faq-list">
+                @foreach (var faq in faqs)
+                {
+                    <details class="svc-faq-item">
+                        <summary>
+                            <span>@faq.Question</span>
+                            <span class="faq-toggle">+</span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>@faq.Answer</p>
+                        </div>
+                    </details>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Other Services You May Like -->
+@if (Model.OtherServices.Count > 0)
+{
+    <section class="section svc-other-services">
+        <div class="container">
+            <div class="section-head-split">
+                <div>
+                    <span class="badge-eyebrow">Khám phá thêm</span>
+                    <h2>Dịch vụ khác tại <em>MC Hair Salon</em></h2>
+                </div>
+                <a asp-controller="Services" asp-action="Index" class="btn btn-outline btn-sm">Xem tất cả dịch vụ →</a>
+            </div>
+
+            <div class="card-grid four">
+                @foreach (var other in Model.OtherServices.Take(4))
+                {
+                    string otherUrl = !string.IsNullOrWhiteSpace(other.Slug) ? $"/dich-vu/{other.Slug}" : $"/dich-vu/{other.Id}";
+                    <article class="card service-card">
+                        <div class="service-card-image">
+                            <img src="@(other.ImageUrl ?? "/resources/dich_vu/cat_toc.jpg")" alt="@other.Name" loading="lazy" />
+                        </div>
+                        <h3><a href="@otherUrl" style="color:inherit; text-decoration:none;">@other.Name</a></h3>
+                        <p>@(other.ShortDescription ?? other.Description)</p>
+                        <p class="price">Giá từ <strong>@(other.PriceTagText ?? other.PriceFrom.ToString("N0") + "đ")</strong></p>
+                        <a href="@otherUrl" class="btn btn-sm btn-primary">Xem dịch vụ →</a>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Bottom Booking CTA Banner -->
+<section class="section section-cta">
+    <div class="container center">
+        <h2>Đặt lịch làm @s.Name ngay hôm nay</h2>
+        <p class="lead">Nhận tư vấn 1:1 miễn phí và trải nghiệm dịch vụ chuyên nghiệp tại MC Hair Salon.</p>
+        <div class="cta-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary btn-lg", label = "Đặt lịch ngay", serviceId = s.Id })
+            <a href="tel:@hotline" class="btn btn-outline btn-lg btn-hotline" style="display:inline-flex; align-items:center; gap:0.5rem;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Hotline: <strong class="hotline-number">@hotline</strong></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Interactive Before & After drag slider logic
+        (function() {
+            const range = document.getElementById('baRange');
+            const afterLayer = document.getElementById('baAfterLayer');
+            const handle = document.getElementById('baHandle');
+
+            if (!range || !afterLayer || !handle) return;
+
+            function updateSlider(val) {
+                // val is from 0 to 100
+                afterLayer.style.clipPath = `inset(0 0 0 ${val}%)`;
+                handle.style.left = `${val}%`;
+            }
+
+            range.addEventListener('input', function(e) {
+                updateSlider(e.target.value);
+            });
+
+            // Initial position
+            updateSlider(50);
+        })();
+    </script>
+}

@@ -6,12 +6,26 @@
 
 <div class="stat-grid">
     <div class="stat-card">
-        <span>Lịch hôm nay</span>
-        <strong>@ViewBag.TodayCount</strong>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <span>Lịch hôm nay</span>
+                <strong style="display:block; margin-top:0.25rem;">@ViewBag.TodayCount</strong>
+            </div>
+            <div class="stat-icon-wrap" style="width:44px; height:44px; border-radius:12px; background:rgba(92,64,51,0.08); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:1.35rem;">
+                <i class="ri-calendar-check-line"></i>
+            </div>
+        </div>
     </div>
     <div class="stat-card">
-        <span>Chờ xác nhận</span>
-        <strong>@ViewBag.PendingCount</strong>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <span>Chờ xác nhận</span>
+                <strong style="display:block; margin-top:0.25rem;">@ViewBag.PendingCount</strong>
+            </div>
+            <div class="stat-icon-wrap" style="width:44px; height:44px; border-radius:12px; background:rgba(217,119,6,0.1); color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.35rem;">
+                <i class="ri-time-line"></i>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MC Hair Admin</title>
     <partial name="_Favicons" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" />
     <link rel="stylesheet" href="~/css/mchair.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 </head>
@@ -18,32 +19,32 @@
             <span class="admin-brand-label">Quản trị</span>
         </div>
         <nav>
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">📊 Dashboard</a>
-            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index">📅 Lịch hẹn</a>
-            <a asp-area="Admin" asp-controller="Services" asp-action="Index">💇‍♀️ Dịch vụ đặt lịch</a>
-            <a asp-area="Admin" asp-controller="PriceList" asp-action="Index">🏷️ Bảng giá</a>
-            <a asp-area="Admin" asp-controller="Warranty" asp-action="Index">🛡️ Bảo hành</a>
-            <a asp-area="Admin" asp-controller="Stylists" asp-action="Index">✂️ Thợ làm tóc</a>
-            <a asp-area="Admin" asp-controller="Gallery" asp-action="Index">🖼️ Bộ sưu tập</a>
-            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="0">💬 Feedback</a>
-            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="1">✨ Before &amp; After</a>
-            <a asp-area="Admin" asp-controller="Partners" asp-action="Index">🤝 Đối tác</a>
-            <a asp-area="Admin" asp-controller="Sections" asp-action="Index">📑 Nội dung trang chủ</a>
-            <a asp-area="Admin" asp-controller="Promotions" asp-action="Index">🎁 Khuyến mãi</a>
-            <a asp-area="Admin" asp-controller="Blog" asp-action="Index">📝 Bài viết / Blog</a>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="ri-dashboard-3-line"></i> <span>Dashboard</span></a>
+            <a asp-area="Admin" asp-controller="Appointments" asp-action="Index"><i class="ri-calendar-schedule-line"></i> <span>Lịch hẹn</span></a>
+            <a asp-area="Admin" asp-controller="Services" asp-action="Index"><i class="ri-scissors-2-line"></i> <span>Dịch vụ &amp; Landing page</span></a>
+            <a asp-area="Admin" asp-controller="PriceList" asp-action="Index"><i class="ri-price-tag-3-line"></i> <span>Bảng giá</span></a>
+            <a asp-area="Admin" asp-controller="Warranty" asp-action="Index"><i class="ri-shield-check-line"></i> <span>Bảo hành</span></a>
+            <a asp-area="Admin" asp-controller="Stylists" asp-action="Index"><i class="ri-user-star-line"></i> <span>Thợ làm tóc</span></a>
+            <a asp-area="Admin" asp-controller="Gallery" asp-action="Index"><i class="ri-gallery-line"></i> <span>Bộ sưu tập</span></a>
+            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="0"><i class="ri-chat-smile-2-line"></i> <span>Feedback</span></a>
+            <a asp-area="Admin" asp-controller="Showcase" asp-action="Index" asp-route-type="1"><i class="ri-contrast-2-line"></i> <span>Before &amp; After</span></a>
+            <a asp-area="Admin" asp-controller="Partners" asp-action="Index"><i class="ri-shake-hands-line"></i> <span>Đối tác</span></a>
+            <a asp-area="Admin" asp-controller="Sections" asp-action="Index"><i class="ri-layout-top-line"></i> <span>Nội dung trang chủ</span></a>
+            <a asp-area="Admin" asp-controller="Promotions" asp-action="Index"><i class="ri-gift-line"></i> <span>Khuyến mãi</span></a>
+            <a asp-area="Admin" asp-controller="Blog" asp-action="Index"><i class="ri-article-line"></i> <span>Bài viết / Blog</span></a>
 
             @if (User.IsInRole("Admin"))
             {
-                <a asp-area="Admin" asp-controller="Users" asp-action="Index">👥 Quản lý tài khoản</a>
-                <a asp-area="Admin" asp-controller="Settings" asp-action="Index">⚙️ Cài đặt &amp; SEO</a>
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index"><i class="ri-team-line"></i> <span>Quản lý tài khoản</span></a>
+                <a asp-area="Admin" asp-controller="Settings" asp-action="Index"><i class="ri-settings-4-line"></i> <span>Cài đặt &amp; SEO</span></a>
             }
 
-            <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword">🔑 Đổi mật khẩu</a>
-            <a class="admin-nav-external" href="/" target="_blank" rel="noopener">↗ Xem website</a>
+            <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword"><i class="ri-lock-password-line"></i> <span>Đổi mật khẩu</span></a>
+            <a class="admin-nav-external" href="/" target="_blank" rel="noopener"><i class="ri-external-link-line"></i> <span>Xem website</span></a>
         </nav>
         <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
             @Html.AntiForgeryToken()
-            <button type="submit">🚪 Đăng xuất</button>
+            <button type="submit"><i class="ri-logout-box-r-line"></i> <span>Đăng xuất</span></button>
         </form>
     </aside>
     <div class="admin-main">
@@ -55,15 +56,15 @@
                     <div>
                         @if (User.IsInRole("Admin"))
                         {
-                            <span style="font-size: 0.75rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 0.15rem 0.5rem; border-radius: 50px;">👑 Quản trị viên</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; background: #fef3c7; color: #92400e; padding: 0.2rem 0.6rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 4px;"><i class="ri-vip-crown-line" style="font-size: 0.85rem;"></i> Quản trị viên</span>
                         }
                         else
                         {
-                            <span style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 0.15rem 0.5rem; border-radius: 50px;">✂️ Stylist / Staff</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 0.2rem 0.6rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 4px;"><i class="ri-scissors-line" style="font-size: 0.85rem;"></i> Stylist / Staff</span>
                         }
                     </div>
                 </div>
-                <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword" class="btn btn-sm btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.8rem;" title="Đổi mật khẩu">🔑 Đổi pass</a>
+                <a asp-area="Admin" asp-controller="Account" asp-action="ChangePassword" class="btn btn-sm btn-secondary" style="padding: 0.35rem 0.7rem; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 4px;" title="Đổi mật khẩu"><i class="ri-key-line"></i> Đổi pass</a>
             </div>
         </header>
         @if (TempData["Success"] is string success)
@@ -93,7 +94,7 @@
             </div>
             <div class="admin-modal-footer">
                 <button type="button" id="adminConfirmCancelBtn" class="btn btn-modal-cancel">Hủy bỏ</button>
-                <button type="button" id="adminConfirmOkBtn" class="btn btn-modal-danger">🗑 Đồng ý xóa</button>
+                <button type="button" id="adminConfirmOkBtn" class="btn btn-modal-danger"><i class="ri-delete-bin-line"></i> Đồng ý xóa</button>
             </div>
         </div>
     </div>
@@ -106,50 +107,84 @@
             const cancelBtn = document.getElementById('adminConfirmCancelBtn');
             const okBtn = document.getElementById('adminConfirmOkBtn');
             let pendingAction = null;
+            let pendingCancel = null;
 
-            window.showConfirmModal = function(title, message, onConfirm) {
-                if (titleEl) titleEl.textContent = title || 'Xác nhận xóa';
-                if (msgEl) msgEl.textContent = message || 'Bạn có chắc chắn muốn thực hiện thao tác xóa này không? Dữ liệu sau khi xóa sẽ không thể hoàn tác.';
+            window.showConfirmModal = function(title, message, onConfirm, options = {}) {
+                if (titleEl) titleEl.textContent = title || 'Xác nhận thao tác';
+                if (msgEl) msgEl.textContent = message || 'Bạn có chắc chắn muốn thực hiện thao tác này không?';
+
+                const okText = (typeof options === 'object' && options.okText) || (typeof options === 'string' ? options : '<i class="ri-delete-bin-line"></i> Đồng ý xóa');
+                const okClass = (typeof options === 'object' && options.okClass) || 'btn-modal-danger';
+                const cancelText = (typeof options === 'object' && options.cancelText) || 'Hủy bỏ';
+
+                if (okBtn) {
+                    okBtn.innerHTML = okText;
+                    okBtn.className = 'btn ' + okClass;
+                }
+                if (cancelBtn) {
+                    cancelBtn.innerHTML = cancelText;
+                }
+
                 pendingAction = onConfirm;
+                pendingCancel = (typeof options === 'object' && options.onCancel) || null;
+
                 if (modal) {
                     modal.style.display = 'flex';
                     modal.setAttribute('aria-hidden', 'false');
                 }
             };
 
-            function closeModal() {
+            window.customConfirm = function(message, options = {}) {
+                return new Promise((resolve) => {
+                    const title = options.title || 'Xác nhận';
+                    window.showConfirmModal(title, message, () => {
+                        resolve(true);
+                    }, {
+                        ...options,
+                        onCancel: () => resolve(false)
+                    });
+                });
+            };
+
+            function closeModal(isConfirmed = false) {
                 if (modal) {
                     modal.style.display = 'none';
                     modal.setAttribute('aria-hidden', 'true');
                 }
+                if (!isConfirmed && typeof pendingCancel === 'function') {
+                    const cancel = pendingCancel;
+                    pendingCancel = null;
+                    cancel();
+                }
                 pendingAction = null;
+                pendingCancel = null;
             }
 
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', closeModal);
+                cancelBtn.addEventListener('click', function() {
+                    closeModal(false);
+                });
             }
 
             if (okBtn) {
                 okBtn.addEventListener('click', function() {
-                    if (typeof pendingAction === 'function') {
-                        const action = pendingAction;
-                        closeModal();
+                    const action = pendingAction;
+                    closeModal(true);
+                    if (typeof action === 'function') {
                         action();
-                    } else {
-                        closeModal();
                     }
                 });
             }
 
             if (modal) {
                 modal.addEventListener('click', function(e) {
-                    if (e.target === modal) closeModal();
+                    if (e.target === modal) closeModal(false);
                 });
             }
 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && modal && modal.style.display !== 'none') {
-                    closeModal();
+                    closeModal(false);
                 }
             });
 
@@ -198,7 +233,19 @@
                     });
                 }
             }, true);
+
+            // Highlight active sidebar navigation
+            const curPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.admin-sidebar nav a').forEach(a => {
+                const href = a.getAttribute('href');
+                if (href && href !== '/' && curPath.startsWith(href.toLowerCase())) {
+                    a.classList.add('active');
+                } else if (href === '/' && curPath === '/') {
+                    a.classList.add('active');
+                }
+            });
         })();
     </script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

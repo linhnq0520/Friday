@@ -26,7 +26,7 @@
         <p class="hero-text">@(hero?.Body ?? (isEn ? "A modern, refined and personalized beauty experience." : "Trải nghiệm làm đẹp hiện đại, tinh tế và cá nhân hoá cho từng khách hàng."))</p>
         <div class="hero-actions">
             @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-primary", label = Localizer["Common_BookingNow"].Value })
-            <a class="btn btn-outline" asp-controller="Services" asp-action="Index">@Localizer["Home_ViewPriceList"]</a>
+            <a class="btn btn-outline" asp-controller="PriceList" asp-action="Index">@Localizer["Home_ViewPriceList"]</a>
         </div>
     </div>
     <div class="hero-dots" role="tablist" aria-label="Chọn ảnh">
@@ -99,15 +99,18 @@
         <div class="card-grid four">
             @foreach (var service in Model.Page.Services)
             {
+                string sUrl = !string.IsNullOrWhiteSpace(service.Slug) ? $"/dich-vu/{service.Slug}" : $"/dich-vu/{service.Id}";
                 <article class="card service-card">
-                    <div class="service-card-image">
+                    <a href="@sUrl" class="service-card-image" style="display:block;">
                         <img src="@(service.ImageUrl ?? "/resources/khong_gian/khong-gian10.jpg")" alt="@service.Name" loading="lazy" />
-                    </div>
-                    <h3>@CatalogTranslations.ServiceName(service.Name, isEn)</h3>
+                    </a>
+                    <h3><a href="@sUrl" style="color:inherit; text-decoration:none;">@CatalogTranslations.ServiceName(service.Name, isEn)</a></h3>
                     <p>@CatalogTranslations.ServiceDescription(service.Name, service.Description, isEn)</p>
-                    <p class="price">@Localizer["Common_PriceFrom"] <strong>@service.PriceFrom.ToString("N0")</strong> @(isEn ? "VND" : "vnđ")</p>
-                    <div class="rating">@service.RatingDisplay ★ @Localizer["Common_Rating"]</div>
-                    @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm", label = Localizer["Common_BookingNow"].Value, serviceId = service.Id })
+                    <p class="price">@Localizer["Common_PriceFrom"] <strong>@(service.PriceTagText ?? service.PriceFrom.ToString("N0") + (isEn ? " VND" : " vnđ"))</strong></p>
+                    <div style="display:flex; gap:0.5rem; align-items:center; justify-content:space-between; margin-top:0.75rem;">
+                        <a href="@sUrl" class="btn btn-sm btn-outline">Xem chi tiết</a>
+                        @await Component.InvokeAsync("BookingLink", new { cssClass = "btn btn-sm btn-primary", label = Localizer["Common_BookingNow"].Value, serviceId = service.Id })
+                    </div>
                 </article>
             }
         </div>

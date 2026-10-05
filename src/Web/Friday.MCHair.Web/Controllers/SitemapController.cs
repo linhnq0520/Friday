@@ -17,8 +17,9 @@ public sealed class SitemapController(ISalonRepository repository) : Controller
         List<XElement> urls =
         [
             CreateUrl(ns, baseUrl + "/", "daily", "1.0"),
+            CreateUrl(ns, baseUrl + "/dich-vu", "daily", "1.0"),
+            CreateUrl(ns, baseUrl + "/bang-gia", "weekly", "0.9"),
             CreateUrl(ns, baseUrl + "/About", "monthly", "0.9"),
-            CreateUrl(ns, baseUrl + "/Services", "weekly", "0.9"),
             CreateUrl(ns, baseUrl + "/Gallery", "weekly", "0.9"),
             CreateUrl(ns, baseUrl + "/khuyen-mai", "weekly", "0.9"),
             CreateUrl(ns, baseUrl + "/tin-tuc", "daily", "0.9"),
@@ -28,6 +29,12 @@ public sealed class SitemapController(ISalonRepository repository) : Controller
 
         try
         {
+            IReadOnlyList<HairService> services = await repository.GetActiveServicesAsync(cancellationToken);
+            foreach (HairService service in services.Where(s => !string.IsNullOrWhiteSpace(s.Slug)))
+            {
+                urls.Add(CreateUrl(ns, $"{baseUrl}/dich-vu/{service.Slug}", "weekly", "0.9"));
+            }
+
             IReadOnlyList<BlogPost> posts = await repository.GetPublishedBlogPostsAsync(
                 null,
                 1,

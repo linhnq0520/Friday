@@ -1,17 +1,1711 @@
 @model Friday.Modules.Salon.Domain.Entities.HairService
 @{
-    ViewData["Title"] = Model.Id == 0 ? "Thêm dịch vụ" : "Sửa dịch vụ";
+    bool isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "Thêm dịch vụ mới" : $"Sửa dịch vụ: {Model.Name}";
+    string publicUrl = !string.IsNullOrWhiteSpace(Model.Slug) ? $"/dich-vu/{Model.Slug}" : (!isNew ? $"/dich-vu/{Model.Id}" : "");
 }
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form">
+<div id="draftAlert" class="draft-alert" style="display:none;">
+    <span>💡 <strong>Đã tự động khôi phục nội dung bạn đang nhập dở trước đó!</strong></span>
+    <div>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="discardDraft()" style="background:#fff; color:#b91c1c; border-color:#fca5a5;">🗑 Xóa bản nháp (Hoàn tác)</button>
+    </div>
+</div>
+
+<div class="admin-page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+        <a asp-action="Index" class="btn btn-sm btn-secondary">← Quay lại danh sách</a>
+    </div>
+    @if (!isNew && !string.IsNullOrWhiteSpace(publicUrl))
+    {
+        <div>
+            <a href="@publicUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline">↗ Xem trang công khai (@publicUrl)</a>
+        </div>
+    }
+</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="admin-form-wide" id="serviceForm" style="width:100%; max-width:100%;">
     @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-    <div class="form-group"><label>Tên</label><input asp-for="Name" required /></div>
-    <div class="form-group"><label>Mô tả</label><textarea asp-for="Description"></textarea></div>
-    <div class="form-group"><label>Giá từ (vnđ)</label><input asp-for="PriceFrom" type="number" step="1000" /></div>
-    @await Html.PartialAsync("_ImageUploadField", Model.ImageUrl, new ViewDataDictionary(ViewData) { { "ImageLabel", "Ảnh dịch vụ" } })
-    <div class="form-group"><label>Thứ tự</label><input asp-for="SortOrder" type="number" /></div>
-    <div class="form-group"><label>Đánh giá hiển thị</label><input asp-for="RatingDisplay" type="number" min="1" max="5" /></div>
-    <label><input asp-for="IsActive" type="checkbox" /> Hiển thị</label>
-    <button type="submit" class="btn btn-primary">Lưu</button>
+    <input type="hidden" asp-for="Id" id="serviceIdInput" />
+    <input type="hidden" asp-for="RatingDisplay" />
+
+    <!-- Hidden Raw JSON inputs synced automatically with the List-Object UI -->
+    <textarea asp-for="PricingTableJson" id="pricingTableJsonInput" style="display:none;"></textarea>
+    <textarea asp-for="MethodsJson" id="methodsJsonInput" style="display:none;"></textarea>
+    <textarea asp-for="StepsJson" id="stepsJsonInput" style="display:none;"></textarea>
+    <textarea asp-for="FaqsJson" id="faqsJsonInput" style="display:none;"></textarea>
+
+    <div class="admin-grid" style="display:grid; grid-template-columns: minmax(0, 1.8fr) minmax(380px, 1.2fr); gap:1.75rem; align-items:start; width:100%;">
+        <!-- Left Column: Main Information & List-Object Structured Sections -->
+        <div style="display:flex; flex-direction:column; gap:1.75rem; min-width:0;">
+            
+            <!-- 1. Basic Info Card -->
+            <div class="admin-card">
+                <h3 style="margin-top:0; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem; color:var(--brand);">
+                    1. Thông tin dịch vụ &amp; URL
+                </h3>
+                
+                <div class="form-group">
+                    <label>Tên dịch vụ <span style="color:red;">*</span></label>
+                    <input asp-for="Name" id="serviceNameInput" required placeholder="Ví dụ: Nối tóc, Uốn tóc, Nhuộm tóc..." />
+                </div>
+
+                <div class="form-group">
+                    <label>Đường dẫn URL Slug <span style="color:red;">*</span></label>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <span style="color:#6b7280; font-size:0.9rem;">/dich-vu/</span>
+                        <input asp-for="Slug" id="serviceSlugInput" required placeholder="noi-toc" style="flex:1;" />
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="autoGenerateSlug()">Tạo tự động</button>
+                    </div>
+                    <small style="color:#6b7280;">Trang sẽ có URL riêng tại <code>/dich-vu/[slug]</code> và truy cập tắt trực tiếp tại <code>/[slug]</code></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Tiêu đề Hero (Dòng chữ lớn H1 trên trang chi tiết)</label>
+                    <input asp-for="Headline" id="serviceHeadlineInput" placeholder="Ví dụ: Nối tóc dài tự nhiên, mối nối gọn khó nhận ra" />
+                    <small style="color:#6b7280;">Dòng tiêu đề lớn gây ấn tượng khi khách bấm vào xem chi tiết.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả ngắn (hiển thị ở thẻ card danh sách dịch vụ)</label>
+                    <textarea asp-for="ShortDescription" id="serviceShortDescInput" rows="2" placeholder="Ví dụ: Tóc dài, dày tự nhiên trong 2-3h với kỹ thuật không đau, không lộ mối"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả chi tiết / Lede (đoạn văn giới thiệu đầu trang chi tiết)</label>
+                    <textarea asp-for="Description" id="serviceDescInput" rows="3" placeholder="Giới thiệu kỹ thuật, ưu điểm nổi bật và cam kết của salon cho dịch vụ này..."></textarea>
+                </div>
+            </div>
+
+            <!-- 2. Detailed Pricing Card (List-Object & Master Price List Sync) -->
+            <div class="admin-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem;">
+                    <h3 style="margin:0; color:var(--brand);">2. Bảng giá chi tiết dịch vụ</h3>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="loadSamplePricing()">✨ Mẫu bảng giá</button>
+                </div>
+
+                <!-- Select from Master Price List -->
+                <div style="background:#f5efe9; padding:0.9rem 1rem; border-radius:10px; border:1px solid #e5ddd3; margin:1rem 0 1.25rem;">
+                    <label style="font-weight:700; color:var(--brand); display:block; margin-bottom:0.4rem;">
+                        🏷️ Chọn nạp nhanh từ Bảng giá gốc của Salon:
+                    </label>
+                    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                        <select id="masterPriceGroupSelect" style="flex:1; min-width:220px; background:#fff;">
+                            <option value="">-- Chọn nhóm từ Bảng giá gốc (Cắt, Uốn, Nhuộm, Nối...) --</option>
+                            @if (ViewBag.MasterPriceGroups is IEnumerable<Friday.MCHair.Web.Models.PriceGroupData> masterGroups)
+                            {
+                                foreach (var g in masterGroups)
+                                {
+                                    <option value="@g.Title">@g.Title (@g.Items.Count mục giá)</option>
+                                }
+                            }
+                        </select>
+                        <button type="button" id="btnImportMaster" class="btn btn-sm btn-primary" onclick="importFromMasterPriceList()">📥 Nạp vào bảng này</button>
+                        <a href="/Admin/PriceList" target="_blank" rel="noopener" class="btn btn-sm btn-outline" title="Mở trang Bảng giá gốc ở tab mới để thêm nhóm nếu chưa có">↗ Quản lý Bảng giá gốc</a>
+                        <button type="button" id="btnReloadMaster" class="btn btn-sm btn-secondary" onclick="reloadMasterPriceGroups()" title="Cập nhật lại danh sách nhóm mới">🔄 Tải lại</button>
+                    </div>
+                    <small style="color:#6b7280; display:block; margin-top:0.4rem;">
+                        💡 Nếu dịch vụ mới này chưa có trong Bảng giá gốc, bạn bấm <strong>↗ Quản lý Bảng giá gốc</strong> để mở tab mới thêm giá (không mất thông tin đang nhập ở đây), sau đó quay lại bấm <strong>🔄 Tải lại</strong> rồi chọn nạp.
+                    </small>
+                </div>
+
+                <!-- Price Table Header Config -->
+                <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+                    <div class="form-group">
+                        <label>Tiêu đề bảng giá</label>
+                        <input id="priceGroupTitleInput" placeholder="Ví dụ: Bảng giá dịch vụ theo độ dài tóc" oninput="saveCurrentPriceConfig()" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tên cột 1</label>
+                        <input id="priceCol1Input" placeholder="Tiêu chuẩn" oninput="saveCurrentPriceConfig()" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tên cột 2 (tùy chọn)</label>
+                        <input id="priceCol2Input" placeholder="Cao cấp L'Oréal" oninput="saveCurrentPriceConfig()" />
+                    </div>
+                </div>
+
+                <!-- Price Items List-Object: Upper Editor Fields -->
+                <div class="crud-editor-box">
+                    <div class="crud-editor-title">
+                        <span id="priceItemFormHeading">➕ Thêm dòng giá vào bảng:</span>
+                        <small style="font-weight:normal; color:#6b7280;">Điền thông tin và bấm "Thêm dòng giá"</small>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap:0.75rem; align-items:end;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Tên hạng mục / Size <span style="color:red;">*</span></label>
+                            <input id="p_item_name" placeholder="Tóc ngắn (Size S)" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Giá cột 1 <span style="color:red;">*</span></label>
+                            <input id="p_item_price1" placeholder="650.000đ" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Giá cột 2</label>
+                            <input id="p_item_price2" placeholder="950.000đ" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Ghi chú</label>
+                            <input id="p_item_note" placeholder="Ngang cằm / bob" />
+                        </div>
+                    </div>
+                    <div class="crud-actions">
+                        <button type="button" id="btn_save_pitem" class="btn btn-sm btn-primary" onclick="savePriceItem()">➕ Thêm dòng giá</button>
+                        <button type="button" id="btn_cancel_pitem" class="btn btn-sm btn-secondary" style="display:none;" onclick="cancelPriceItem()">✖ Hủy</button>
+                    </div>
+                </div>
+
+                <!-- Price Items Table -->
+                <div class="crud-table-wrap">
+                    <table class="crud-table" id="priceItemsTable">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">STT</th>
+                                <th>Hạng mục / Dịch vụ</th>
+                                <th id="thCol1">Giá 1</th>
+                                <th id="thCol2">Giá 2</th>
+                                <th>Ghi chú</th>
+                                <th style="width:130px; text-align:center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priceItemsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-cell">Chưa có dòng giá nào. Hãy nhập thông tin ở trên hoặc chọn nạp từ Bảng giá gốc.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add-ons List-Object Section -->
+                <div style="margin-top:1.5rem; border-top:1px solid #f3f4f6; padding-top:1.25rem;">
+                    <h4 style="margin:0 0 0.75rem; color:var(--brand);">Dịch vụ cộng thêm / Phụ phí (Add-ons)</h4>
+                    
+                    <div class="crud-editor-box">
+                        <div class="crud-editor-title">
+                            <span id="addonFormHeading">➕ Thêm dịch vụ cộng thêm:</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.75rem; align-items:end;">
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.85rem;">Tên dịch vụ phụ</label>
+                                <input id="addon_name" placeholder="Ví dụ: Bọc dưỡng Olaplex số 1 & 2" />
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.85rem;">Giá phụ phí</label>
+                                <input id="addon_price" placeholder="Ví dụ: 350.000đ hoặc Miễn phí" />
+                            </div>
+                        </div>
+                        <div class="crud-actions">
+                            <button type="button" id="btn_save_addon" class="btn btn-sm btn-primary" onclick="saveAddon()">➕ Thêm dịch vụ phụ</button>
+                            <button type="button" id="btn_cancel_addon" class="btn btn-sm btn-secondary" style="display:none;" onclick="cancelAddon()">✖ Hủy</button>
+                        </div>
+                    </div>
+
+                    <div class="crud-table-wrap">
+                        <table class="crud-table" id="addonsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;">STT</th>
+                                    <th>Tên dịch vụ phụ</th>
+                                    <th>Giá</th>
+                                    <th style="width:110px; text-align:center;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="addonsTableBody">
+                                <tr>
+                                    <td colspan="4" class="empty-cell">Chưa có dịch vụ phụ nào.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1rem;">
+                    <label>Ghi chú chân bảng giá (chính sách bảo hành / lưu ý):</label>
+                    <input id="priceNoteInput" placeholder="Ví dụ: Giá trên đã bao gồm tư vấn 1:1, kiểm tra chất tóc và bảo hành 15 ngày tại salon." oninput="saveCurrentPriceConfig()" />
+                </div>
+            </div>
+
+            <!-- 3. Methods & Techniques List-Object Card -->
+            <div class="admin-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem;">
+                    <h3 style="margin:0; color:var(--brand);">3. Các phương pháp / Kỹ thuật thực hiện</h3>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="loadSampleMethods()">✨ Mẫu kỹ thuật</button>
+                </div>
+
+                <!-- Upper Fields for Method -->
+                <div class="crud-editor-box" style="margin-top:1rem;">
+                    <div class="crud-editor-title">
+                        <span id="methodFormHeading">➕ Thêm phương pháp / kỹ thuật mới:</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Tên phương pháp / Kỹ thuật <span style="color:red;">*</span></label>
+                            <input id="m_title" placeholder="Ví dụ: Nối lông vũ siêu vi, Balayage Pháp, Uốn sóng lơi..." />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Biểu tượng Icon</label>
+                            <select id="m_icon">
+                                <option value="sparkles">✨ sparkles (Điểm nhấn, lấp lánh)</option>
+                                <option value="scissors">✂️ scissors (Cắt, tạo kiểu)</option>
+                                <option value="feather">🪶 feather (Lông vũ, nhẹ êm)</option>
+                                <option value="zap">⚡ zap (Phục hồi nhanh, liên kết)</option>
+                                <option value="droplet">💧 droplet (Dưỡng ẩm, collagen)</option>
+                                <option value="shield">🛡️ shield (Bảo vệ tóc &amp; da đầu)</option>
+                                <option value="heart">💖 heart (Tự nhiên, yêu thích)</option>
+                                <option value="sun">☀️ sun (Highlight, phản quang)</option>
+                                <option value="palette">🎨 palette (Màu sắc đa dạng)</option>
+                                <option value="maximize">📐 maximize (Dài tối đa VIP)</option>
+                                <option value="user">👤 user (Thiết kế cá nhân 1:1)</option>
+                                <option value="brush">🖌️ brush (Quét cọ nghệ thuật)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label style="font-size:0.85rem;">Mô tả ưu điểm và hiệu quả kỹ thuật <span style="color:red;">*</span></label>
+                        <textarea id="m_desc" rows="2" placeholder="Ví dụ: Mối nối siêu nhỏ chỉ bằng hạt gạo, nhẹ êm, không cộm, buộc tóc cao hoàn toàn không lộ..."></textarea>
+                    </div>
+                    <div class="crud-actions">
+                        <button type="button" id="btn_save_method" class="btn btn-sm btn-primary" onclick="saveMethod()">➕ Thêm kỹ thuật</button>
+                        <button type="button" id="btn_cancel_method" class="btn btn-sm btn-secondary" style="display:none;" onclick="cancelMethod()">✖ Hủy</button>
+                    </div>
+                </div>
+
+                <!-- Methods Table -->
+                <div class="crud-table-wrap">
+                    <table class="crud-table" id="methodsTable">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">STT</th>
+                                <th style="width:50px; text-align:center;">Icon</th>
+                                <th style="width:200px;">Tên kỹ thuật</th>
+                                <th>Mô tả chi tiết</th>
+                                <th style="width:130px; text-align:center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="methodsTableBody">
+                            <tr>
+                                <td colspan="5" class="empty-cell">Chưa có phương pháp nào. Hãy thêm ở trên.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Steps List-Object Card -->
+            <div class="admin-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem;">
+                    <h3 style="margin:0; color:var(--brand);">4. Quy trình các bước chuẩn salon</h3>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="loadSampleSteps()">✨ Mẫu quy trình</button>
+                </div>
+
+                <!-- Upper Fields for Step -->
+                <div class="crud-editor-box" style="margin-top:1rem;">
+                    <div class="crud-editor-title">
+                        <span id="stepFormHeading">➕ Thêm bước thực hiện mới:</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 80px 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Bước số</label>
+                            <input id="s_number" type="number" min="1" value="1" />
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.85rem;">Tiêu đề bước <span style="color:red;">*</span></label>
+                            <input id="s_title" placeholder="Ví dụ: Kiểm tra chất tóc &amp; Tư vấn 1:1" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label style="font-size:0.85rem;">Chi tiết nội dung bước <span style="color:red;">*</span></label>
+                        <textarea id="s_desc" rows="2" placeholder="Ví dụ: Đánh giá độ chắc khỏe của chân tóc thật và tư vấn kỹ thuật cũng như độ dài, mật độ phù hợp..."></textarea>
+                    </div>
+                    <div class="crud-actions">
+                        <button type="button" id="btn_save_step" class="btn btn-sm btn-primary" onclick="saveStep()">➕ Thêm bước</button>
+                        <button type="button" id="btn_cancel_step" class="btn btn-sm btn-secondary" style="display:none;" onclick="cancelStep()">✖ Hủy</button>
+                    </div>
+                </div>
+
+                <!-- Steps Table -->
+                <div class="crud-table-wrap">
+                    <table class="crud-table" id="stepsTable">
+                        <thead>
+                            <tr>
+                                <th style="width:70px; text-align:center;">Bước</th>
+                                <th style="width:200px;">Tiêu đề bước</th>
+                                <th>Chi tiết thực hiện</th>
+                                <th style="width:130px; text-align:center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stepsTableBody">
+                            <tr>
+                                <td colspan="4" class="empty-cell">Chưa có bước thực hiện nào. Hãy thêm ở trên.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. FAQs List-Object Card -->
+            <div class="admin-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem;">
+                    <h3 style="margin:0; color:var(--brand);">5. Câu hỏi thường gặp (FAQs)</h3>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="loadSampleFaqs()">✨ Mẫu câu hỏi</button>
+                </div>
+
+                <!-- Upper Fields for FAQ -->
+                <div class="crud-editor-box" style="margin-top:1rem;">
+                    <div class="crud-editor-title">
+                        <span id="faqFormHeading">➕ Thêm câu hỏi thường gặp:</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0.75rem;">
+                        <label style="font-size:0.85rem;">Câu hỏi <span style="color:red;">*</span></label>
+                        <input id="f_question" placeholder="Ví dụ: Dịch vụ này giữ được bao lâu?" />
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label style="font-size:0.85rem;">Câu trả lời chi tiết <span style="color:red;">*</span></label>
+                        <textarea id="f_answer" rows="2" placeholder="Ví dụ: Trung bình giữ đẹp từ 3–6 tháng tùy theo chất tóc và cách chăm sóc tại nhà..."></textarea>
+                    </div>
+                    <div class="crud-actions">
+                        <button type="button" id="btn_save_faq" class="btn btn-sm btn-primary" onclick="saveFaq()">➕ Thêm câu hỏi</button>
+                        <button type="button" id="btn_cancel_faq" class="btn btn-sm btn-secondary" style="display:none;" onclick="cancelFaq()">✖ Hủy</button>
+                    </div>
+                </div>
+
+                <!-- FAQs Table -->
+                <div class="crud-table-wrap">
+                    <table class="crud-table" id="faqsTable">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">STT</th>
+                                <th style="width:240px;">Câu hỏi</th>
+                                <th>Câu trả lời</th>
+                                <th style="width:130px; text-align:center;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faqsTableBody">
+                            <tr>
+                                <td colspan="4" class="empty-cell">Chưa có câu hỏi nào. Hãy thêm ở trên.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Advanced JSON Drawer (Collapsible) -->
+            <div style="border:1px dashed #d1d5db; border-radius:8px; padding:0.75rem 1rem; background:#f9fafb;">
+                <details>
+                    <summary style="cursor:pointer; font-weight:600; color:#4b5563; font-size:0.88rem;">
+                        🛠️ Chế độ xem &amp; sửa mã JSON trực tiếp (Dành cho kỹ thuật viên)
+                    </summary>
+                    <div style="margin-top:0.75rem; display:grid; gap:0.75rem;">
+                        <div>
+                            <small style="font-weight:600;">PricingTableJson (Bảng giá)</small>
+                            <textarea id="debugPricingJson" rows="4" style="font-family:monospace; font-size:0.8rem;" oninput="applyRawJson('pricing')"></textarea>
+                        </div>
+                        <div>
+                            <small style="font-weight:600;">MethodsJson (Kỹ thuật)</small>
+                            <textarea id="debugMethodsJson" rows="3" style="font-family:monospace; font-size:0.8rem;" oninput="applyRawJson('methods')"></textarea>
+                        </div>
+                        <div>
+                            <small style="font-weight:600;">StepsJson (Quy trình)</small>
+                            <textarea id="debugStepsJson" rows="3" style="font-family:monospace; font-size:0.8rem;" oninput="applyRawJson('steps')"></textarea>
+                        </div>
+                        <div>
+                            <small style="font-weight:600;">FaqsJson (Câu hỏi)</small>
+                            <textarea id="debugFaqsJson" rows="3" style="font-family:monospace; font-size:0.8rem;" oninput="applyRawJson('faqs')"></textarea>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Images & Meta Parameters (Sticky) -->
+        <div style="display:flex; flex-direction:column; gap:1.75rem; min-width:0; position:sticky; top:1rem;">
+            
+            <!-- Meta & Pricing -->
+            <div class="admin-card">
+                <h3 style="margin-top:0; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem; color:var(--brand);">
+                    Giá &amp; Cấu hình
+                </h3>
+
+                <div class="form-group">
+                    <label>Nhãn hiển thị giá nổi bật</label>
+                    <input asp-for="PriceTagText" id="servicePriceTagInput" placeholder="Ví dụ: Từ 16K/tép hoặc Từ 650K" />
+                </div>
+
+                <div class="form-group">
+                    <label>Giá từ (số, dùng lọc &amp; sắp xếp)</label>
+                    <input asp-for="PriceFrom" id="servicePriceFromInput" type="number" step="1000" />
+                </div>
+
+                <div class="form-group">
+                    <label>Thời gian thực hiện</label>
+                    <input asp-for="DurationText" id="serviceDurationInput" placeholder="Ví dụ: 2–3 giờ, 30–60 phút" />
+                </div>
+
+                <div class="form-group">
+                    <label>Huy hiệu nổi bật</label>
+                    <input asp-for="BadgeText" id="serviceBadgeInput" placeholder="Ví dụ: Tìm nhiều nhất, Phổ biến nhất, Mới..." />
+                </div>
+
+                <div class="form-group">
+                    <label>Thứ tự hiển thị</label>
+                    <input asp-for="SortOrder" id="serviceSortOrderInput" type="number" />
+                </div>
+
+                <div class="form-group">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                        <input asp-for="IsActive" id="serviceIsActiveInput" type="checkbox" style="width:auto;" />
+                        <strong>Hiển thị dịch vụ công khai</strong>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:1rem; padding:0.85rem; font-size:1.05rem; font-weight:700; width:100%;">
+                    💾 Lưu dịch vụ
+                </button>
+            </div>
+
+            <!-- Images Card -->
+            <div class="admin-card">
+                <h3 style="margin-top:0; border-bottom:1px solid #f3f4f6; padding-bottom:0.75rem; color:var(--brand);">
+                    Hình ảnh dịch vụ
+                </h3>
+
+                <!-- 1. Thumbnail Image -->
+                <div class="form-group">
+                    <label>1. Ảnh đại diện / Thumbnail (card danh sách)</label>
+                    <input type="hidden" asp-for="ImageUrl" id="serviceImageUrlInput" />
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <div style="margin-bottom:0.5rem;">
+                            <img src="@Model.ImageUrl" alt="Thumbnail" style="width:100%; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;" />
+                        </div>
+                    }
+                    <input type="file" name="imageFile" accept="image/*" />
+                </div>
+
+                <!-- 2. Hero Banner Image -->
+                <div class="form-group">
+                    <label>2. Banner Hero lớn (đầu trang chi tiết)</label>
+                    <input type="hidden" asp-for="HeroImageUrl" id="serviceHeroImageUrlInput" />
+                    @if (!string.IsNullOrWhiteSpace(Model.HeroImageUrl))
+                    {
+                        <div style="margin-bottom:0.5rem;">
+                            <img src="@Model.HeroImageUrl" alt="Hero Banner" style="width:100%; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;" />
+                        </div>
+                    }
+                    <input type="file" name="heroImageFile" accept="image/*" />
+                </div>
+
+                <!-- 3. Before Image -->
+                <div class="form-group">
+                    <label>3. Ảnh Trước khi làm (Before slider)</label>
+                    <input type="hidden" asp-for="BeforeImageUrl" id="serviceBeforeImageUrlInput" />
+                    @if (!string.IsNullOrWhiteSpace(Model.BeforeImageUrl))
+                    {
+                        <div style="margin-bottom:0.5rem;">
+                            <img src="@Model.BeforeImageUrl" alt="Before" style="width:100%; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;" />
+                        </div>
+                    }
+                    <input type="file" name="beforeImageFile" accept="image/*" />
+                </div>
+
+                <!-- 4. After Image -->
+                <div class="form-group">
+                    <label>4. Ảnh Sau khi làm (After slider)</label>
+                    <input type="hidden" asp-for="AfterImageUrl" id="serviceAfterImageUrlInput" />
+                    @if (!string.IsNullOrWhiteSpace(Model.AfterImageUrl))
+                    {
+                        <div style="margin-bottom:0.5rem;">
+                            <img src="@Model.AfterImageUrl" alt="After" style="width:100%; max-height:120px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb;" />
+                        </div>
+                    }
+                    <input type="file" name="afterImageFile" accept="image/*" />
+                </div>
+            </div>
+
+        </div>
+    </div>
 </form>
+
+@section Scripts {
+    <script>
+        // =========================================================================
+        // STATE STORAGE FOR LIST-OBJECTS
+        // =========================================================================
+        const serviceId = parseInt(document.getElementById('serviceIdInput').value || '0', 10);
+        const draftStorageKey = 'mchair_service_draft_' + serviceId;
+
+        // Pricing state
+        let priceConfig = {
+            title: '',
+            col1: 'Tiêu chuẩn',
+            col2: '',
+            note: ''
+        };
+        let priceItems = [];
+        let priceAddons = [];
+        let editingPriceItemIndex = -1;
+        let editingAddonIndex = -1;
+
+        // Methods state
+        let methodsList = [];
+        let editingMethodIndex = -1;
+
+        // Steps state
+        let stepsList = [];
+        let editingStepIndex = -1;
+
+        // FAQs state
+        let faqsList = [];
+        let editingFaqIndex = -1;
+
+        // Icon map for emoji display
+        const iconEmojiMap = {
+            'sparkles': '✨',
+            'scissors': '✂️',
+            'feather': '🪶',
+            'zap': '⚡',
+            'droplet': '💧',
+            'shield': '🛡️',
+            'heart': '💖',
+            'sun': '☀️',
+            'palette': '🎨',
+            'maximize': '📐',
+            'user': '👤',
+            'brush': '🖌️'
+        };
+
+        // Non-blocking toast notification helper
+        function showToast(message, type = 'info') {
+            let container = document.getElementById('adminToastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'adminToastContainer';
+                container.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:8px; pointer-events:none;';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? '#ef4444' : (type === 'success' ? '#10b981' : '#3b82f6');
+            toast.style.cssText = `background:${bg}; color:#fff; padding:10px 18px; border-radius:8px; font-size:0.92rem; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,0.25); opacity:0; transform:translateY(10px); transition:all 0.25s ease; pointer-events:auto; display:flex; align-items:center; gap:8px;`;
+            const icon = type === 'error' ? '⚠️' : (type === 'success' ? '✅' : 'ℹ️');
+            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 250);
+            }, 2500);
+        }
+
+        // =========================================================================
+        // INITIALIZATION
+        // =========================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Try restore from draft if exists and newer
+            const hasDraft = checkAndPromptDraft();
+
+            if (!hasDraft) {
+                // Parse existing JSON from database
+                parseInitialJson();
+            }
+
+            renderAllTables();
+            setupAutoSave();
+        });
+
+        function parseInitialJson() {
+            // Pricing Table
+            const rawPricing = document.getElementById('pricingTableJsonInput').value;
+            if (rawPricing) {
+                try {
+                    const parsed = JSON.parse(rawPricing);
+                    if (parsed.Groups && parsed.Groups.length > 0) {
+                        const g = parsed.Groups[0];
+                        priceConfig.title = g.Title || '';
+                        if (g.Columns && g.Columns.length > 0) {
+                            priceConfig.col1 = g.Columns[1] || 'Tiêu chuẩn';
+                            priceConfig.col2 = g.Columns[2] || '';
+                        }
+                        priceItems = (g.Items || []).map(x => ({
+                            name: x.Name || '',
+                            price1: x.Price1 || '',
+                            price2: x.Price2 || '',
+                            note: x.Note || ''
+                        }));
+                    }
+                    priceAddons = (parsed.Addons || []).map(x => ({
+                        name: x.Name || '',
+                        price: x.Price || ''
+                    }));
+                    priceConfig.note = parsed.Note || '';
+                } catch(e) {
+                    console.warn('Error parsing pricing JSON', e);
+                }
+            }
+
+            // Methods
+            const rawMethods = document.getElementById('methodsJsonInput').value;
+            if (rawMethods) {
+                try {
+                    const parsed = JSON.parse(rawMethods);
+                    if (Array.isArray(parsed)) {
+                        methodsList = parsed.map(x => ({
+                            title: x.Title || '',
+                            description: x.Description || '',
+                            icon: x.Icon || 'sparkles'
+                        }));
+                    }
+                } catch(e) {
+                    console.warn('Error parsing methods JSON', e);
+                }
+            }
+
+            // Steps
+            const rawSteps = document.getElementById('stepsJsonInput').value;
+            if (rawSteps) {
+                try {
+                    const parsed = JSON.parse(rawSteps);
+                    if (Array.isArray(parsed)) {
+                        stepsList = parsed.map((x, i) => ({
+                            stepNumber: x.StepNumber || (i + 1),
+                            title: x.Title || '',
+                            description: x.Description || ''
+                        }));
+                    }
+                } catch(e) {
+                    console.warn('Error parsing steps JSON', e);
+                }
+            }
+
+            // FAQs
+            const rawFaqs = document.getElementById('faqsJsonInput').value;
+            if (rawFaqs) {
+                try {
+                    const parsed = JSON.parse(rawFaqs);
+                    if (Array.isArray(parsed)) {
+                        faqsList = parsed.map(x => ({
+                            question: x.Question || '',
+                            answer: x.Answer || ''
+                        }));
+                    }
+                } catch(e) {
+                    console.warn('Error parsing faqs JSON', e);
+                }
+            }
+        }
+
+        // =========================================================================
+        // PRICING LIST-OBJECT LOGIC
+        // =========================================================================
+        function saveCurrentPriceConfig() {
+            priceConfig.title = document.getElementById('priceGroupTitleInput').value.trim();
+            priceConfig.col1 = document.getElementById('priceCol1Input').value.trim() || 'Tiêu chuẩn';
+            priceConfig.col2 = document.getElementById('priceCol2Input').value.trim();
+            priceConfig.note = document.getElementById('priceNoteInput').value.trim();
+            
+            document.getElementById('thCol1').textContent = priceConfig.col1;
+            document.getElementById('thCol2').textContent = priceConfig.col2 || 'Giá 2';
+            syncPricingJson();
+        }
+
+        function renderPricingTable() {
+            document.getElementById('priceGroupTitleInput').value = priceConfig.title || '';
+            document.getElementById('priceCol1Input').value = priceConfig.col1 || 'Tiêu chuẩn';
+            document.getElementById('priceCol2Input').value = priceConfig.col2 || '';
+            document.getElementById('priceNoteInput').value = priceConfig.note || '';
+
+            document.getElementById('thCol1').textContent = priceConfig.col1 || 'Tiêu chuẩn';
+            document.getElementById('thCol2').textContent = priceConfig.col2 || 'Giá 2';
+
+            const tbody = document.getElementById('priceItemsTableBody');
+            if (priceItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">Chưa có dòng giá nào. Hãy nhập thông tin ở trên hoặc chọn nạp từ Bảng giá gốc.</td></tr>';
+            } else {
+                tbody.innerHTML = priceItems.map((item, idx) => `
+                    <tr>
+                        <td style="text-align:center; font-weight:600;">${idx + 1}</td>
+                        <td style="font-weight:600;">${escapeHtml(item.name)}</td>
+                        <td><span style="color:#b91c1c; font-weight:700;">${escapeHtml(item.price1)}</span></td>
+                        <td>${escapeHtml(item.price2 || '—')}</td>
+                        <td style="color:#6b7280; font-size:0.84rem;">${escapeHtml(item.note || '—')}</td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button type="button" class="btn-row-action btn-edit" onclick="editPriceItem(${idx})" title="Sửa dòng này">✏ Sửa</button>
+                            <button type="button" class="btn-row-action btn-del" onclick="deletePriceItem(${idx})" title="Xóa dòng này">🗑 Xóa</button>
+                            <button type="button" class="btn-row-action" onclick="movePriceItem(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''} title="Lên">⬆</button>
+                            <button type="button" class="btn-row-action" onclick="movePriceItem(${idx}, 1)" ${idx === priceItems.length - 1 ? 'disabled style="opacity:0.4;"' : ''} title="Xuống">⬇</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Render Addons
+            const addonTbody = document.getElementById('addonsTableBody');
+            if (priceAddons.length === 0) {
+                addonTbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Chưa có dịch vụ phụ nào.</td></tr>';
+            } else {
+                addonTbody.innerHTML = priceAddons.map((item, idx) => `
+                    <tr>
+                        <td style="text-align:center; font-weight:600;">${idx + 1}</td>
+                        <td style="font-weight:600;">${escapeHtml(item.name)}</td>
+                        <td><span style="color:#b91c1c; font-weight:700;">${escapeHtml(item.price)}</span></td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button type="button" class="btn-row-action btn-edit" onclick="editAddon(${idx})" title="Sửa">✏ Sửa</button>
+                            <button type="button" class="btn-row-action btn-del" onclick="deleteAddon(${idx})" title="Xóa">🗑 Xóa</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function savePriceItem() {
+            const name = document.getElementById('p_item_name').value.trim();
+            const price1 = document.getElementById('p_item_price1').value.trim();
+            const price2 = document.getElementById('p_item_price2').value.trim();
+            const note = document.getElementById('p_item_note').value.trim();
+
+            if (!name) {
+                showToast('Vui lòng nhập tên hạng mục / dịch vụ!', 'error');
+                document.getElementById('p_item_name').focus();
+                return;
+            }
+            if (!price1) {
+                showToast('Vui lòng nhập giá!', 'error');
+                document.getElementById('p_item_price1').focus();
+                return;
+            }
+
+            const item = { 
+                name, 
+                price1: formatMasterPriceToVnd(price1), 
+                price2: price2 ? formatMasterPriceToVnd(price2) : '', 
+                note 
+            };
+            if (editingPriceItemIndex >= 0) {
+                priceItems[editingPriceItemIndex] = item;
+                editingPriceItemIndex = -1;
+                document.getElementById('btn_save_pitem').textContent = '➕ Thêm dòng giá';
+                document.getElementById('btn_cancel_pitem').style.display = 'none';
+                document.getElementById('priceItemFormHeading').textContent = '➕ Thêm dòng giá vào bảng:';
+            } else {
+                priceItems.push(item);
+            }
+
+            // Clear inputs
+            document.getElementById('p_item_name').value = '';
+            document.getElementById('p_item_price1').value = '';
+            document.getElementById('p_item_price2').value = '';
+            document.getElementById('p_item_note').value = '';
+
+            renderPricingTable();
+            syncPricingJson();
+        }
+
+        function editPriceItem(index) {
+            const item = priceItems[index];
+            if (!item) return;
+
+            editingPriceItemIndex = index;
+            document.getElementById('p_item_name').value = item.name;
+            document.getElementById('p_item_price1').value = item.price1;
+            document.getElementById('p_item_price2').value = item.price2 || '';
+            document.getElementById('p_item_note').value = item.note || '';
+
+            document.getElementById('btn_save_pitem').textContent = '💾 Cập nhật dòng giá';
+            document.getElementById('btn_cancel_pitem').style.display = 'inline-block';
+            document.getElementById('priceItemFormHeading').textContent = `✏️ Đang sửa dòng số ${index + 1}:`;
+            document.getElementById('p_item_name').focus();
+        }
+
+        function cancelPriceItem() {
+            editingPriceItemIndex = -1;
+            document.getElementById('p_item_name').value = '';
+            document.getElementById('p_item_price1').value = '';
+            document.getElementById('p_item_price2').value = '';
+            document.getElementById('p_item_note').value = '';
+            document.getElementById('btn_save_pitem').textContent = '➕ Thêm dòng giá';
+            document.getElementById('btn_cancel_pitem').style.display = 'none';
+            document.getElementById('priceItemFormHeading').textContent = '➕ Thêm dòng giá vào bảng:';
+        }
+
+        async function deletePriceItem(index) {
+            const confirmed = await customConfirm(`Bạn có chắc muốn xóa dòng "${priceItems[index].name}" không?`, {
+                title: 'Xác nhận xóa dòng giá',
+                okText: '🗑 Xóa dòng',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                priceItems.splice(index, 1);
+                if (editingPriceItemIndex === index) {
+                    cancelPriceItem();
+                } else if (editingPriceItemIndex > index) {
+                    editingPriceItemIndex--;
+                }
+                renderPricingTable();
+                syncPricingJson();
+            }
+        }
+
+        function movePriceItem(index, offset) {
+            const newIndex = index + offset;
+            if (newIndex < 0 || newIndex >= priceItems.length) return;
+            const temp = priceItems[index];
+            priceItems[index] = priceItems[newIndex];
+            priceItems[newIndex] = temp;
+            renderPricingTable();
+            syncPricingJson();
+        }
+
+        // Addons handlers
+        function saveAddon() {
+            const name = document.getElementById('addon_name').value.trim();
+            const price = document.getElementById('addon_price').value.trim();
+            if (!name) {
+                showToast('Vui lòng nhập tên dịch vụ phụ!', 'error');
+                document.getElementById('addon_name').focus();
+                return;
+            }
+            const item = { name, price: price ? formatMasterPriceToVnd(price) : 'Miễn phí' };
+            if (editingAddonIndex >= 0) {
+                priceAddons[editingAddonIndex] = item;
+                editingAddonIndex = -1;
+                document.getElementById('btn_save_addon').textContent = '➕ Thêm dịch vụ phụ';
+                document.getElementById('btn_cancel_addon').style.display = 'none';
+                document.getElementById('addonFormHeading').textContent = '➕ Thêm dịch vụ cộng thêm:';
+            } else {
+                priceAddons.push(item);
+            }
+            document.getElementById('addon_name').value = '';
+            document.getElementById('addon_price').value = '';
+            renderPricingTable();
+            syncPricingJson();
+        }
+
+        function editAddon(index) {
+            const item = priceAddons[index];
+            if (!item) return;
+            editingAddonIndex = index;
+            document.getElementById('addon_name').value = item.name;
+            document.getElementById('addon_price').value = item.price;
+            document.getElementById('btn_save_addon').textContent = '💾 Cập nhật dịch vụ phụ';
+            document.getElementById('btn_cancel_addon').style.display = 'inline-block';
+            document.getElementById('addonFormHeading').textContent = `✏️ Đang sửa dịch vụ phụ ${index + 1}:`;
+            document.getElementById('addon_name').focus();
+        }
+
+        function cancelAddon() {
+            editingAddonIndex = -1;
+            document.getElementById('addon_name').value = '';
+            document.getElementById('addon_price').value = '';
+            document.getElementById('btn_save_addon').textContent = '➕ Thêm dịch vụ phụ';
+            document.getElementById('btn_cancel_addon').style.display = 'none';
+            document.getElementById('addonFormHeading').textContent = '➕ Thêm dịch vụ cộng thêm:';
+        }
+
+        async function deleteAddon(index) {
+            const confirmed = await customConfirm(`Bạn có chắc muốn xóa dịch vụ phụ "${priceAddons[index].name}" không?`, {
+                title: 'Xác nhận xóa dịch vụ phụ',
+                okText: '🗑 Xóa dịch vụ',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                priceAddons.splice(index, 1);
+                if (editingAddonIndex === index) cancelAddon();
+                renderPricingTable();
+                syncPricingJson();
+            }
+        }
+
+        function syncPricingJson() {
+            const cols = ["Hạng mục", priceConfig.col1 || "Tiêu chuẩn"];
+            if (priceConfig.col2) cols.push(priceConfig.col2);
+
+            const jsonObj = {
+                Groups: [
+                    {
+                        Title: priceConfig.title || (document.getElementById('serviceNameInput').value.trim() ? "Bảng giá " + document.getElementById('serviceNameInput').value.trim() : "Bảng giá dịch vụ"),
+                        Columns: cols,
+                        Items: priceItems.map(x => ({
+                            Name: x.name,
+                            Price1: x.price1,
+                            ...(x.price2 ? { Price2: x.price2 } : {}),
+                            ...(x.note ? { Note: x.note } : {})
+                        }))
+                    }
+                ],
+                Addons: priceAddons.map(x => ({
+                    Name: x.name,
+                    Price: x.price
+                })),
+                Note: priceConfig.note || ""
+            };
+
+            const jsonStr = JSON.stringify(jsonObj, null, 2);
+            document.getElementById('pricingTableJsonInput').value = jsonStr;
+            document.getElementById('debugPricingJson').value = jsonStr;
+        }
+
+        // Helper to format master price list values (which omit 000 due to outside unit '1.000 VNĐ')
+        function formatMasterPriceToVnd(str) {
+            if (!str) return '';
+            str = String(str).trim();
+            if (!str) return '';
+
+            // If already formatted with .000 or 5+ digits or contains 'k', 'triệu'
+            if (/\b\d{1,3}\.000\b/.test(str) || /\b\d{5,}\b/.test(str) || /000\s*đ/i.test(str)) {
+                if (!str.includes('đ') && !str.includes('VNĐ') && !str.includes('k')) {
+                    return str + 'đ';
+                }
+                return str;
+            }
+
+            // Extract unit suffix like "/ sợi", "/ tép", "/ lần"
+            let unitSuffix = '';
+            const slashIdx = str.indexOf('/');
+            if (slashIdx >= 0) {
+                unitSuffix = ' ' + str.substring(slashIdx).trim();
+                str = str.substring(0, slashIdx).trim();
+            }
+
+            // Strip trailing 'đ' if already typed
+            str = str.replace(/\s*đ\s*$/i, '');
+
+            // 1. Handle X.YYY (e.g. 1.000, 1.200, 3.500) -> X.YYY.000
+            let res = str.replace(/\b(\d{1,2})\.(\d{3})\b/g, '$1.$2.000');
+
+            // 2. Handle standalone numbers 1 to 3 digits (e.g. 4, 25, 50, 100, 250, 350, 600)
+            res = res.replace(/(?<!\.)\b(\d{1,3})\b(?!\.\d)/g, '$1.000');
+
+            // Add 'đ'
+            if (!res.includes('đ') && !res.includes('VNĐ') && !res.includes('k')) {
+                res = res + 'đ';
+            }
+
+            if (unitSuffix) {
+                res = res + unitSuffix;
+            }
+
+            return res;
+        }
+
+        // =========================================================================
+        // IMPORT FROM MASTER PRICE LIST (BẢNG GIÁ GỐC)
+        // =========================================================================
+        async function importFromMasterPriceList() {
+            const select = document.getElementById('masterPriceGroupSelect');
+            const groupTitle = select.value;
+            if (!groupTitle) {
+                select.style.borderColor = '#ef4444';
+                select.focus();
+                showToast('Vui lòng chọn một nhóm dịch vụ từ danh sách!', 'error');
+                setTimeout(() => { select.style.borderColor = ''; }, 2000);
+                return;
+            }
+
+            const btn = document.getElementById('btnImportMaster');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spin-icon">⏳</span> Đang nạp...';
+            }
+
+            try {
+                const res = await fetch('/Admin/Services/GetMasterPriceList');
+                const data = await res.json();
+                if (!data.success || !data.groups) {
+                    showToast('Không thể tải dữ liệu bảng giá gốc.', 'error');
+                    return;
+                }
+
+                const group = data.groups.find(g => g.title === groupTitle);
+                if (!group) {
+                    showToast('Không tìm thấy nhóm giá này trong bảng giá gốc.', 'error');
+                    return;
+                }
+
+                if (priceItems.length > 0) {
+                    const confirmed = await customConfirm(
+                        `Bạn đã có ${priceItems.length} dòng giá. Bạn có muốn nạp đè dữ liệu từ nhóm "${groupTitle}" (${group.items.length} mục) vào không?`,
+                        {
+                            title: 'Xác nhận nạp bảng giá',
+                            okText: '📥 Đồng ý nạp đè',
+                            okClass: 'btn-modal-primary',
+                            cancelText: 'Hủy bỏ'
+                        }
+                    );
+                    if (!confirmed) {
+                        return;
+                    }
+                }
+
+                priceConfig.title = "Bảng giá " + group.title;
+                priceConfig.col1 = "Tiêu chuẩn";
+                priceConfig.col2 = "";
+                priceItems = (group.items || []).map(x => ({
+                    name: x.name,
+                    price1: formatMasterPriceToVnd(x.price),
+                    price2: '',
+                    note: ''
+                }));
+
+                renderPricingTable();
+                syncPricingJson();
+
+                // Auto suggest PriceTagText if empty
+                if (priceItems.length > 0 && !document.getElementById('servicePriceTagInput').value) {
+                    document.getElementById('servicePriceTagInput').value = 'Từ ' + priceItems[0].price1;
+                }
+
+                showToast(`Đã nạp thành công ${priceItems.length} mục giá từ nhóm "${groupTitle}"!`, 'success');
+            } catch(e) {
+                console.error(e);
+                showToast('Lỗi khi nạp từ bảng giá gốc. Vui lòng thử lại.', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '📥 Nạp vào bảng này';
+                }
+            }
+        }
+
+        async function reloadMasterPriceGroups() {
+            const select = document.getElementById('masterPriceGroupSelect');
+            const btn = document.getElementById('btnReloadMaster');
+            const currentVal = select.value;
+
+            // Show loading state
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spin-icon">🔄</span> Đang tải...';
+            }
+            select.disabled = true;
+            select.innerHTML = '<option value="">Đang tải lại dữ liệu...</option>';
+
+            try {
+                const res = await fetch('/Admin/Services/GetMasterPriceList');
+                const data = await res.json();
+                if (data.success && data.groups) {
+                    let html = '<option value="">-- Chọn nhóm từ Bảng giá gốc (Cắt, Uốn, Nhuộm, Nối...) --</option>';
+                    data.groups.forEach(g => {
+                        html += `<option value="${escapeHtml(g.title)}">${escapeHtml(g.title)} (${g.items ? g.items.length : 0} mục giá)</option>`;
+                    });
+                    select.innerHTML = html;
+                    if (currentVal) {
+                        select.value = currentVal;
+                    }
+
+                    // Loading done - show quick button confirmation, then auto-reset without alert!
+                    if (btn) {
+                        btn.innerHTML = '✅ Đã tải';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = '🔄 Tải lại';
+                        }, 1200);
+                    }
+                } else {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '🔄 Tải lại';
+                    }
+                    showToast('Không thể làm mới danh sách nhóm.', 'error');
+                }
+            } catch(e) {
+                console.error(e);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '🔄 Tải lại';
+                }
+                showToast('Không thể kết nối đến máy chủ để tải bảng giá.', 'error');
+            } finally {
+                select.disabled = false;
+            }
+        }
+
+        // =========================================================================
+        // METHODS LIST-OBJECT LOGIC
+        // =========================================================================
+        function renderMethodsTable() {
+            const tbody = document.getElementById('methodsTableBody');
+            if (methodsList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Chưa có phương pháp nào. Hãy thêm ở trên.</td></tr>';
+            } else {
+                tbody.innerHTML = methodsList.map((m, idx) => {
+                    const iconEmoji = iconEmojiMap[m.icon] || '✨';
+                    return `
+                        <tr>
+                            <td style="text-align:center; font-weight:600;">${idx + 1}</td>
+                            <td style="text-align:center; font-size:1.3rem;">${iconEmoji}</td>
+                            <td style="font-weight:700; color:var(--brand);">${escapeHtml(m.title)}</td>
+                            <td style="color:#4b5563; font-size:0.86rem;">${escapeHtml(m.description)}</td>
+                            <td style="text-align:center; white-space:nowrap;">
+                                <button type="button" class="btn-row-action btn-edit" onclick="editMethod(${idx})" title="Sửa">✏ Sửa</button>
+                                <button type="button" class="btn-row-action btn-del" onclick="deleteMethod(${idx})" title="Xóa">🗑 Xóa</button>
+                                <button type="button" class="btn-row-action" onclick="moveMethod(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''} title="Lên">⬆</button>
+                                <button type="button" class="btn-row-action" onclick="moveMethod(${idx}, 1)" ${idx === methodsList.length - 1 ? 'disabled style="opacity:0.4;"' : ''} title="Xuống">⬇</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function saveMethod() {
+            const title = document.getElementById('m_title').value.trim();
+            const icon = document.getElementById('m_icon').value;
+            const description = document.getElementById('m_desc').value.trim();
+
+            if (!title) {
+                showToast('Vui lòng nhập tên phương pháp / kỹ thuật!', 'error');
+                document.getElementById('m_title').focus();
+                return;
+            }
+            if (!description) {
+                showToast('Vui lòng nhập mô tả chi tiết cho kỹ thuật!', 'error');
+                document.getElementById('m_desc').focus();
+                return;
+            }
+
+            const item = { title, icon, description };
+            if (editingMethodIndex >= 0) {
+                methodsList[editingMethodIndex] = item;
+                cancelMethod();
+            } else {
+                methodsList.push(item);
+                document.getElementById('m_title').value = '';
+                document.getElementById('m_desc').value = '';
+            }
+
+            renderMethodsTable();
+            syncMethodsJson();
+        }
+
+        function editMethod(index) {
+            const item = methodsList[index];
+            if (!item) return;
+            editingMethodIndex = index;
+            document.getElementById('m_title').value = item.title;
+            document.getElementById('m_icon').value = item.icon || 'sparkles';
+            document.getElementById('m_desc').value = item.description;
+
+            document.getElementById('btn_save_method').textContent = '💾 Cập nhật kỹ thuật';
+            document.getElementById('btn_cancel_method').style.display = 'inline-block';
+            document.getElementById('methodFormHeading').textContent = `✏️ Đang sửa kỹ thuật số ${index + 1}:`;
+            document.getElementById('m_title').focus();
+        }
+
+        function cancelMethod() {
+            editingMethodIndex = -1;
+            document.getElementById('m_title').value = '';
+            document.getElementById('m_desc').value = '';
+            document.getElementById('btn_save_method').textContent = '➕ Thêm kỹ thuật';
+            document.getElementById('btn_cancel_method').style.display = 'none';
+            document.getElementById('methodFormHeading').textContent = '➕ Thêm phương pháp / kỹ thuật mới:';
+        }
+
+        async function deleteMethod(index) {
+            const confirmed = await customConfirm(`Bạn có chắc muốn xóa kỹ thuật "${methodsList[index].title}" không?`, {
+                title: 'Xác nhận xóa kỹ thuật',
+                okText: '🗑 Xóa kỹ thuật',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                methodsList.splice(index, 1);
+                if (editingMethodIndex === index) cancelMethod();
+                renderMethodsTable();
+                syncMethodsJson();
+            }
+        }
+
+        function moveMethod(index, offset) {
+            const newIndex = index + offset;
+            if (newIndex < 0 || newIndex >= methodsList.length) return;
+            const temp = methodsList[index];
+            methodsList[index] = methodsList[newIndex];
+            methodsList[newIndex] = temp;
+            renderMethodsTable();
+            syncMethodsJson();
+        }
+
+        function syncMethodsJson() {
+            const jsonStr = JSON.stringify(methodsList.map(x => ({
+                Title: x.title,
+                Description: x.description,
+                Icon: x.icon || 'sparkles'
+            })), null, 2);
+            document.getElementById('methodsJsonInput').value = jsonStr;
+            document.getElementById('debugMethodsJson').value = jsonStr;
+        }
+
+        // =========================================================================
+        // STEPS LIST-OBJECT LOGIC
+        // =========================================================================
+        function renderStepsTable() {
+            const tbody = document.getElementById('stepsTableBody');
+            if (stepsList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Chưa có bước thực hiện nào. Hãy thêm ở trên.</td></tr>';
+                document.getElementById('s_number').value = 1;
+            } else {
+                tbody.innerHTML = stepsList.map((s, idx) => `
+                    <tr>
+                        <td style="text-align:center;">
+                            <span style="background:#e0e7ff; color:#3730a3; font-weight:800; padding:0.2rem 0.5rem; border-radius:50px; font-size:0.8rem;">
+                                Bước ${s.stepNumber || idx + 1}
+                            </span>
+                        </td>
+                        <td style="font-weight:700; color:var(--brand);">${escapeHtml(s.title)}</td>
+                        <td style="color:#4b5563; font-size:0.86rem;">${escapeHtml(s.description)}</td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button type="button" class="btn-row-action btn-edit" onclick="editStep(${idx})" title="Sửa">✏ Sửa</button>
+                            <button type="button" class="btn-row-action btn-del" onclick="deleteStep(${idx})" title="Xóa">🗑 Xóa</button>
+                            <button type="button" class="btn-row-action" onclick="moveStep(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''} title="Lên">⬆</button>
+                            <button type="button" class="btn-row-action" onclick="moveStep(${idx}, 1)" ${idx === stepsList.length - 1 ? 'disabled style="opacity:0.4;"' : ''} title="Xuống">⬇</button>
+                        </td>
+                    </tr>
+                `).join('');
+                if (editingStepIndex < 0) {
+                    document.getElementById('s_number').value = stepsList.length + 1;
+                }
+            }
+        }
+
+        function saveStep() {
+            const stepNumber = parseInt(document.getElementById('s_number').value || '1', 10);
+            const title = document.getElementById('s_title').value.trim();
+            const description = document.getElementById('s_desc').value.trim();
+
+            if (!title) {
+                showToast('Vui lòng nhập tiêu đề bước!', 'error');
+                document.getElementById('s_title').focus();
+                return;
+            }
+            if (!description) {
+                showToast('Vui lòng nhập nội dung chi tiết bước!', 'error');
+                document.getElementById('s_desc').focus();
+                return;
+            }
+
+            const item = { stepNumber, title, description };
+            if (editingStepIndex >= 0) {
+                stepsList[editingStepIndex] = item;
+                cancelStep();
+            } else {
+                stepsList.push(item);
+                document.getElementById('s_title').value = '';
+                document.getElementById('s_desc').value = '';
+            }
+
+            renderStepsTable();
+            syncStepsJson();
+        }
+
+        function editStep(index) {
+            const item = stepsList[index];
+            if (!item) return;
+            editingStepIndex = index;
+            document.getElementById('s_number').value = item.stepNumber || index + 1;
+            document.getElementById('s_title').value = item.title;
+            document.getElementById('s_desc').value = item.description;
+
+            document.getElementById('btn_save_step').textContent = '💾 Cập nhật bước';
+            document.getElementById('btn_cancel_step').style.display = 'inline-block';
+            document.getElementById('stepFormHeading').textContent = `✏️ Đang sửa bước số ${item.stepNumber || index + 1}:`;
+            document.getElementById('s_title').focus();
+        }
+
+        function cancelStep() {
+            editingStepIndex = -1;
+            document.getElementById('s_number').value = stepsList.length + 1;
+            document.getElementById('s_title').value = '';
+            document.getElementById('s_desc').value = '';
+            document.getElementById('btn_save_step').textContent = '➕ Thêm bước';
+            document.getElementById('btn_cancel_step').style.display = 'none';
+            document.getElementById('stepFormHeading').textContent = '➕ Thêm bước thực hiện mới:';
+        }
+
+        async function deleteStep(index) {
+            const confirmed = await customConfirm(`Bạn có chắc muốn xóa bước "${stepsList[index].title}" không?`, {
+                title: 'Xác nhận xóa bước',
+                okText: '🗑 Xóa bước',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                stepsList.splice(index, 1);
+                // re-number remaining steps
+                stepsList.forEach((s, idx) => s.stepNumber = idx + 1);
+                if (editingStepIndex === index) cancelStep();
+                renderStepsTable();
+                syncStepsJson();
+            }
+        }
+
+        function moveStep(index, offset) {
+            const newIndex = index + offset;
+            if (newIndex < 0 || newIndex >= stepsList.length) return;
+            const temp = stepsList[index];
+            stepsList[index] = stepsList[newIndex];
+            stepsList[newIndex] = temp;
+            // re-number
+            stepsList.forEach((s, idx) => s.stepNumber = idx + 1);
+            renderStepsTable();
+            syncStepsJson();
+        }
+
+        function syncStepsJson() {
+            const jsonStr = JSON.stringify(stepsList.map(x => ({
+                StepNumber: x.stepNumber,
+                Title: x.title,
+                Description: x.description
+            })), null, 2);
+            document.getElementById('stepsJsonInput').value = jsonStr;
+            document.getElementById('debugStepsJson').value = jsonStr;
+        }
+
+        // =========================================================================
+        // FAQS LIST-OBJECT LOGIC
+        // =========================================================================
+        function renderFaqsTable() {
+            const tbody = document.getElementById('faqsTableBody');
+            if (faqsList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Chưa có câu hỏi nào. Hãy thêm ở trên.</td></tr>';
+            } else {
+                tbody.innerHTML = faqsList.map((f, idx) => `
+                    <tr>
+                        <td style="text-align:center; font-weight:600;">${idx + 1}</td>
+                        <td style="font-weight:700; color:var(--brand);">${escapeHtml(f.question)}</td>
+                        <td style="color:#4b5563; font-size:0.86rem;">${escapeHtml(f.answer)}</td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button type="button" class="btn-row-action btn-edit" onclick="editFaq(${idx})" title="Sửa">✏ Sửa</button>
+                            <button type="button" class="btn-row-action btn-del" onclick="deleteFaq(${idx})" title="Xóa">🗑 Xóa</button>
+                            <button type="button" class="btn-row-action" onclick="moveFaq(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.4;"' : ''} title="Lên">⬆</button>
+                            <button type="button" class="btn-row-action" onclick="moveFaq(${idx}, 1)" ${idx === faqsList.length - 1 ? 'disabled style="opacity:0.4;"' : ''} title="Xuống">⬇</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function saveFaq() {
+            const question = document.getElementById('f_question').value.trim();
+            const answer = document.getElementById('f_answer').value.trim();
+
+            if (!question) {
+                showToast('Vui lòng nhập câu hỏi!', 'error');
+                document.getElementById('f_question').focus();
+                return;
+            }
+            if (!answer) {
+                showToast('Vui lòng nhập câu trả lời!', 'error');
+                document.getElementById('f_answer').focus();
+                return;
+            }
+
+            const item = { question, answer };
+            if (editingFaqIndex >= 0) {
+                faqsList[editingFaqIndex] = item;
+                cancelFaq();
+            } else {
+                faqsList.push(item);
+                document.getElementById('f_question').value = '';
+                document.getElementById('f_answer').value = '';
+            }
+
+            renderFaqsTable();
+            syncFaqsJson();
+        }
+
+        function editFaq(index) {
+            const item = faqsList[index];
+            if (!item) return;
+            editingFaqIndex = index;
+            document.getElementById('f_question').value = item.question;
+            document.getElementById('f_answer').value = item.answer;
+
+            document.getElementById('btn_save_faq').textContent = '💾 Cập nhật câu hỏi';
+            document.getElementById('btn_cancel_faq').style.display = 'inline-block';
+            document.getElementById('faqFormHeading').textContent = `✏️ Đang sửa câu hỏi ${index + 1}:`;
+            document.getElementById('f_question').focus();
+        }
+
+        function cancelFaq() {
+            editingFaqIndex = -1;
+            document.getElementById('f_question').value = '';
+            document.getElementById('f_answer').value = '';
+            document.getElementById('btn_save_faq').textContent = '➕ Thêm câu hỏi';
+            document.getElementById('btn_cancel_faq').style.display = 'none';
+            document.getElementById('faqFormHeading').textContent = '➕ Thêm câu hỏi thường gặp:';
+        }
+
+        async function deleteFaq(index) {
+            const confirmed = await customConfirm(`Bạn có chắc muốn xóa câu hỏi "${faqsList[index].question}" không?`, {
+                title: 'Xác nhận xóa câu hỏi',
+                okText: '🗑 Xóa câu hỏi',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                faqsList.splice(index, 1);
+                if (editingFaqIndex === index) cancelFaq();
+                renderFaqsTable();
+                syncFaqsJson();
+            }
+        }
+
+        function moveFaq(index, offset) {
+            const newIndex = index + offset;
+            if (newIndex < 0 || newIndex >= faqsList.length) return;
+            const temp = faqsList[index];
+            faqsList[index] = faqsList[newIndex];
+            faqsList[newIndex] = temp;
+            renderFaqsTable();
+            syncFaqsJson();
+        }
+
+        function syncFaqsJson() {
+            const jsonStr = JSON.stringify(faqsList.map(x => ({
+                Question: x.question,
+                Answer: x.answer
+            })), null, 2);
+            document.getElementById('faqsJsonInput').value = jsonStr;
+            document.getElementById('debugFaqsJson').value = jsonStr;
+        }
+
+        function renderAllTables() {
+            renderPricingTable();
+            renderMethodsTable();
+            renderStepsTable();
+            renderFaqsTable();
+            syncPricingJson();
+            syncMethodsJson();
+            syncStepsJson();
+            syncFaqsJson();
+        }
+
+        // =========================================================================
+        // MANUAL RAW JSON APPLICATION
+        // =========================================================================
+        function applyRawJson(type) {
+            try {
+                if (type === 'pricing') {
+                    const raw = document.getElementById('debugPricingJson').value;
+                    document.getElementById('pricingTableJsonInput').value = raw;
+                    parseInitialJson();
+                    renderPricingTable();
+                } else if (type === 'methods') {
+                    const raw = document.getElementById('debugMethodsJson').value;
+                    document.getElementById('methodsJsonInput').value = raw;
+                    parseInitialJson();
+                    renderMethodsTable();
+                } else if (type === 'steps') {
+                    const raw = document.getElementById('debugStepsJson').value;
+                    document.getElementById('stepsJsonInput').value = raw;
+                    parseInitialJson();
+                    renderStepsTable();
+                } else if (type === 'faqs') {
+                    const raw = document.getElementById('debugFaqsJson').value;
+                    document.getElementById('faqsJsonInput').value = raw;
+                    parseInitialJson();
+                    renderFaqsTable();
+                }
+            } catch(e) {
+                console.warn('Invalid JSON format while editing raw textarea');
+            }
+        }
+
+        // =========================================================================
+        // AUTO-SAVE DRAFT & RECOVERY VIA LOCALSTORAGE
+        // =========================================================================
+        function setupAutoSave() {
+            const form = document.getElementById('serviceForm');
+            form.addEventListener('input', debounce(saveDraft, 1000));
+            form.addEventListener('change', debounce(saveDraft, 1000));
+
+            // Clear draft when submitting successfully
+            form.addEventListener('submit', function() {
+                localStorage.removeItem(draftStorageKey);
+            });
+        }
+
+        function saveDraft() {
+            const draft = {
+                timestamp: Date.now(),
+                name: document.getElementById('serviceNameInput').value,
+                slug: document.getElementById('serviceSlugInput').value,
+                headline: document.getElementById('serviceHeadlineInput').value,
+                shortDesc: document.getElementById('serviceShortDescInput').value,
+                desc: document.getElementById('serviceDescInput').value,
+                priceTag: document.getElementById('servicePriceTagInput').value,
+                priceFrom: document.getElementById('servicePriceFromInput').value,
+                duration: document.getElementById('serviceDurationInput').value,
+                badge: document.getElementById('serviceBadgeInput').value,
+                sortOrder: document.getElementById('serviceSortOrderInput').value,
+                isActive: document.getElementById('serviceIsActiveInput').checked,
+                priceConfig,
+                priceItems,
+                priceAddons,
+                methodsList,
+                stepsList,
+                faqsList
+            };
+            try {
+                localStorage.setItem(draftStorageKey, JSON.stringify(draft));
+            } catch(e) {
+                console.warn('Quota exceeded or error saving draft', e);
+            }
+        }
+
+        function checkAndPromptDraft() {
+            try {
+                const stored = localStorage.getItem(draftStorageKey);
+                if (!stored) return false;
+                const draft = JSON.parse(stored);
+                // If draft is within last 48 hours
+                if (draft && draft.timestamp && (Date.now() - draft.timestamp) < 48 * 3600 * 1000) {
+                    if (draft.name || draft.slug || (draft.priceItems && draft.priceItems.length > 0)) {
+                        // Restore draft data
+                        if (draft.name !== undefined) document.getElementById('serviceNameInput').value = draft.name;
+                        if (draft.slug !== undefined) document.getElementById('serviceSlugInput').value = draft.slug;
+                        if (draft.headline !== undefined) document.getElementById('serviceHeadlineInput').value = draft.headline;
+                        if (draft.shortDesc !== undefined) document.getElementById('serviceShortDescInput').value = draft.shortDesc;
+                        if (draft.desc !== undefined) document.getElementById('serviceDescInput').value = draft.desc;
+                        if (draft.priceTag !== undefined) document.getElementById('servicePriceTagInput').value = draft.priceTag;
+                        if (draft.priceFrom !== undefined) document.getElementById('servicePriceFromInput').value = draft.priceFrom;
+                        if (draft.duration !== undefined) document.getElementById('serviceDurationInput').value = draft.duration;
+                        if (draft.badge !== undefined) document.getElementById('serviceBadgeInput').value = draft.badge;
+                        if (draft.sortOrder !== undefined) document.getElementById('serviceSortOrderInput').value = draft.sortOrder;
+                        if (draft.isActive !== undefined) document.getElementById('serviceIsActiveInput').checked = draft.isActive;
+
+                        if (draft.priceConfig) priceConfig = draft.priceConfig;
+                        if (draft.priceItems) priceItems = draft.priceItems;
+                        if (draft.priceAddons) priceAddons = draft.priceAddons;
+                        if (draft.methodsList) methodsList = draft.methodsList;
+                        if (draft.stepsList) stepsList = draft.stepsList;
+                        if (draft.faqsList) faqsList = draft.faqsList;
+
+                        document.getElementById('draftAlert').style.display = 'flex';
+                        return true;
+                    }
+                }
+            } catch(e) {
+                console.warn('Error reading draft', e);
+            }
+            return false;
+        }
+
+        async function discardDraft() {
+            const confirmed = await customConfirm('Bạn có chắc muốn xóa bản nháp và quay về dữ liệu gốc không?', {
+                title: 'Xác nhận xóa bản nháp',
+                okText: '🗑 Xóa bản nháp',
+                okClass: 'btn-modal-danger'
+            });
+            if (confirmed) {
+                localStorage.removeItem(draftStorageKey);
+                window.location.reload();
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.toString().replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // =========================================================================
+        // SLUG GENERATION
+        // =========================================================================
+        function generateSlug(text) {
+            if (!text) return '';
+            let slug = text.toLowerCase().trim();
+            const vietnamese = ["áàảãạăắằẳẵặâấầẩẫậ", "đ", "éèẻẽẹêếềểễệ", "íìỉĩị", "óòỏõọôốồổỗộơớờởỡợ", "úùủũụưứừửữự", "ýỳỷỹỵ"];
+            const ascii = ["a", "d", "e", "i", "o", "u", "y"];
+            for (let i = 0; i < vietnamese.Length; i++) {
+                for (let c of vietnamese[i]) {
+                    slug = slug.replaceAll(c, ascii[i]);
+                }
+            }
+            slug = slug.replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            return slug;
+        }
+
+        function autoGenerateSlug() {
+            const name = document.getElementById('serviceNameInput').value;
+            const slugInput = document.getElementById('serviceSlugInput');
+            if (name) {
+                slugInput.value = generateSlug(name);
+                saveDraft();
+            }
+        }
+
+        document.getElementById('serviceNameInput').addEventListener('input', function() {
+            const slugInput = document.getElementById('serviceSlugInput');
+            if (!slugInput.dataset.manualEdited) {
+                slugInput.value = generateSlug(this.value);
+            }
+        });
+
+        document.getElementById('serviceSlugInput').addEventListener('input', function() {
+            this.dataset.manualEdited = "true";
+        });
+
+        // =========================================================================
+        // SAMPLE LOADERS
+        // =========================================================================
+        function loadSamplePricing() {
+            priceConfig.title = "Bảng giá " + (document.getElementById('serviceNameInput').value.trim() || "dịch vụ") + " theo độ dài tóc";
+            priceConfig.col1 = "Tiêu chuẩn";
+            priceConfig.col2 = "Cao cấp L'Oréal";
+            priceConfig.note = "Giá trên đã bao gồm tư vấn 1:1, kiểm tra chất tóc và bảo hành 15 ngày tại salon.";
+            priceItems = [
+                { name: "Tóc ngắn (Size S)", price1: "650.000đ", price2: "950.000đ", note: "Ngang cằm / bob" },
+                { name: "Tóc lửng (Size M)", price1: "850.000đ", price2: "1.250.000đ", note: "Chạm vai" },
+                { name: "Tóc dài (Size L)", price1: "1.050.000đ", price2: "1.550.000đ", note: "Ngang ngực trở xuống" }
+            ];
+            priceAddons = [
+                { name: "Hấp phục hồi Collagen khóa ẩm", price: "300.000đ" },
+                { name: "Cắt tạo form chuẩn tỉ lệ", price: "Miễn phí" }
+            ];
+            renderPricingTable();
+            syncPricingJson();
+        }
+
+        function loadSampleMethods() {
+            methodsList = [
+                { title: "Kỹ thuật chuyên sâu cao cấp", icon: "sparkles", description: "Áp dụng kỹ thuật định hình sợi tóc thế hệ mới, giữ form tự nhiên và mềm mại dài lâu." },
+                { title: "Bảo vệ liên kết sợi tóc", icon: "shield", description: "Bổ sung tinh chất khóa ẩm và bảo vệ màng da đầu, không rát và không hư tổn." },
+                { title: "Cá nhân hóa theo tỉ lệ gương mặt", icon: "user", description: "Stylist phân tích góc cạnh khuôn mặt để tạo kiểu che khuyết điểm hoàn hảo." }
+            ];
+            renderMethodsTable();
+            syncMethodsJson();
+        }
+
+        function loadSampleSteps() {
+            stepsList = [
+                { stepNumber: 1, title: "Khám tóc & Tư vấn 1:1", description: "Kiểm tra cấu trúc tóc và tư vấn phương án phù hợp nhất." },
+                { stepNumber: 2, title: "Chuẩn bị & Làm sạch", description: "Làm sạch tóc và da đầu bằng dầu gội chuyên dụng." },
+                { stepNumber: 3, title: "Thực hiện kỹ thuật chuyên sâu", description: "Kỹ thuật viên tay nghề cao tiến hành cẩn thận từng lọn tóc." },
+                { stepNumber: 4, title: "Khóa dưỡng & Tạo kiểu", description: "Cố định phom và sấy tạo kiểu bồng bềnh tự nhiên." },
+                { stepNumber: 5, title: "Hướng dẫn chăm sóc tại nhà", description: "Chia sẻ bí quyết giữ nếp và dưỡng tóc đơn giản tại nhà." }
+            ];
+            renderStepsTable();
+            syncStepsJson();
+        }
+
+        function loadSampleFaqs() {
+            faqsList = [
+                { question: "Dịch vụ này giữ nếp được bao lâu?", answer: "Thông thường giữ đẹp từ 3–6 tháng tùy theo chất tóc và cách chăm sóc tại nhà của bạn." },
+                { question: "Có cần đặt lịch trước khi đến không?", answer: "Bạn nên đặt lịch trước để được tiếp đón chu đáo và không mất thời gian chờ đợi." },
+                { question: "Salon có bảo hành dịch vụ không?", answer: "MC Hair cam kết bảo hành miễn phí chỉnh sửa trong vòng 15-30 ngày sau khi làm." }
+            ];
+            renderFaqsTable();
+            syncFaqsJson();
+        }
+    </script>
+}

@@ -1,11 +1,16 @@
+using Friday.MCHair.Web.Models;
 using Friday.MCHair.Web.Services;
 using Friday.Modules.Salon.Domain.Entities;
 using Friday.Modules.Salon.Domain.Repositories;
+using Friday.Modules.Salon.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Friday.MCHair.Web.Areas.Admin.Controllers;
 
-public sealed class ServicesController(ISalonRepository repository) : AdminControllerBase
+public sealed class ServicesController(
+    ISalonRepository repository,
+    IPriceListStore priceListStore
+) : AdminControllerBase
 {
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
@@ -21,7 +26,30 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
                 ? await repository.GetServiceByIdAsync(id.Value, cancellationToken)
                     ?? new HairService()
                 : new HairService { IsActive = true, RatingDisplay = 5 };
+
+        PriceListData masterPriceList = await priceListStore.GetAsync(cancellationToken);
+        ViewBag.MasterPriceGroups = masterPriceList.Groups;
+
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMasterPriceList(CancellationToken cancellationToken)
+    {
+        PriceListData masterPriceList = await priceListStore.GetAsync(cancellationToken);
+        return Json(new
+        {
+            success = true,
+            groups = masterPriceList.Groups.Select(g => new
+            {
+                title = g.Title,
+                items = g.Items.Select(i => new
+                {
+                    name = i.Name,
+                    price = i.Price
+                })
+            })
+        });
     }
 
     [HttpPost]
@@ -29,11 +57,24 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
     public async Task<IActionResult> Edit(
         HairService model,
         IFormFile? imageFile,
+        IFormFile? heroImageFile,
+        IFormFile? beforeImageFile,
+        IFormFile? afterImageFile,
         CancellationToken cancellationToken
     )
     {
         HairService? existing =
             model.Id > 0 ? await repository.GetServiceByIdAsync(model.Id, cancellationToken) : null;
+
+        // Auto generate slug if empty
+        if (string.IsNullOrWhiteSpace(model.Slug))
+        {
+            model.Slug = SalonDataSeeder.GenerateSlug(model.Name);
+        }
+        else
+        {
+            model.Slug = SalonDataSeeder.GenerateSlug(model.Slug);
+        }
 
         try
         {
@@ -42,6 +83,30 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
                 "dich_vu",
                 existing?.ImageUrl,
                 model.ImageUrl,
+                cancellationToken
+            );
+
+            model.HeroImageUrl = await this.ResolveImageUrlAsync(
+                heroImageFile,
+                "dich_vu",
+                existing?.HeroImageUrl,
+                model.HeroImageUrl,
+                cancellationToken
+            );
+
+            model.BeforeImageUrl = await this.ResolveImageUrlAsync(
+                beforeImageFile,
+                "before_after",
+                existing?.BeforeImageUrl,
+                model.BeforeImageUrl,
+                cancellationToken
+            );
+
+            model.AfterImageUrl = await this.ResolveImageUrlAsync(
+                afterImageFile,
+                "before_after",
+                existing?.AfterImageUrl,
+                model.AfterImageUrl,
                 cancellationToken
             );
         }
@@ -53,7 +118,7 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
 
         await repository.AddServiceAsync(model, cancellationToken);
         await CommitAsync(cancellationToken);
-        TempData["Success"] = "Đã lưu dịch vụ.";
+        TempData["Success"] = "Đã lưu dịch vụ thành công.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -67,6 +132,7 @@ public sealed class ServicesController(ISalonRepository repository) : AdminContr
             IImageUploadService uploadService =
                 HttpContext.RequestServices.GetRequiredService<IImageUploadService>();
             uploadService.TryDeleteResourceFile(item.ImageUrl);
+            uploadService.TryDeleteResourceFile(item.HeroImageUrl);
 
             await repository.DeleteServiceAsync(item, cancellationToken);
             await CommitAsync(cancellationToken);

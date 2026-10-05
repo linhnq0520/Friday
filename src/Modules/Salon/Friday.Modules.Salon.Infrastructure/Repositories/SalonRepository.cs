@@ -31,15 +31,32 @@ public sealed class SalonRepository(SalonDbContext dbContext) : ISalonRepository
     public Task<HairService?> GetServiceByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.Set<HairService>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    public Task<HairService?> GetServiceBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
+        dbContext.Set<HairService>().FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+
     public Task AddServiceAsync(HairService service, CancellationToken cancellationToken = default) =>
         UpsertAsync(
             service,
             static (source, target) =>
             {
                 target.Name = source.Name;
+                target.Slug = source.Slug;
+                target.Headline = source.Headline;
+                target.ShortDescription = source.ShortDescription;
                 target.Description = source.Description;
                 target.PriceFrom = source.PriceFrom;
+                target.PriceTagText = source.PriceTagText;
+                target.DurationText = source.DurationText;
+                target.BadgeText = source.BadgeText;
                 target.ImageUrl = source.ImageUrl;
+                target.HeroImageUrl = source.HeroImageUrl;
+                target.BeforeImageUrl = source.BeforeImageUrl;
+                target.AfterImageUrl = source.AfterImageUrl;
+                target.PricingTableJson = source.PricingTableJson;
+                target.MethodsJson = source.MethodsJson;
+                target.StepsJson = source.StepsJson;
+                target.FaqsJson = source.FaqsJson;
+                target.ContentHtml = source.ContentHtml;
                 target.SortOrder = source.SortOrder;
                 target.IsActive = source.IsActive;
                 target.RatingDisplay = source.RatingDisplay;

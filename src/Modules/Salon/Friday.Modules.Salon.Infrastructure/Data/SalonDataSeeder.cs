@@ -726,6 +726,43 @@ public static class SalonDataSeeder
             // Ignore if column already exists
         }
 
+        string[] serviceColumns = [
+            "ALTER TABLE salon_services ADD COLUMN Slug TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN Headline TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN ShortDescription TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN PriceTagText TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN DurationText TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN BadgeText TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN HeroImageUrl TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN BeforeImageUrl TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN AfterImageUrl TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN PricingTableJson TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN MethodsJson TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN StepsJson TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN FaqsJson TEXT;",
+            "ALTER TABLE salon_services ADD COLUMN ContentHtml TEXT;"
+        ];
+        foreach (string sql in serviceColumns)
+        {
+            try
+            {
+                await db.Database.ExecuteSqlRawAsync(sql, ct);
+            }
+            catch
+            {
+                // Ignore if column already exists
+            }
+        }
+
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync("UPDATE salon_services SET Slug = 'dich-vu-' || Id WHERE Slug IS NULL OR Slug = '';", ct);
+        }
+        catch
+        {
+            // Ignore if error updating null slugs
+        }
+
         try
         {
             BlogPost? existingVideoPost = await db.BlogPosts.FirstOrDefaultAsync(
@@ -777,6 +814,439 @@ public static class SalonDataSeeder
         {
             // Ignore if error during seed
         }
+    }
+
+    public static async Task EnsureServiceDetailsSeededAsync(
+        IServiceProvider services,
+        CancellationToken ct = default
+    )
+    {
+        await using AsyncServiceScope scope = services.CreateAsyncScope();
+        ISalonRepository repository = scope.ServiceProvider.GetRequiredService<ISalonRepository>();
+        SalonDbContext db = scope.ServiceProvider.GetRequiredService<SalonDbContext>();
+
+        IReadOnlyList<HairService> servicesList = await repository.GetAllServicesAsync(ct);
+        if (servicesList.Count == 0)
+        {
+            return;
+        }
+
+        bool changed = false;
+
+        foreach (HairService s in servicesList)
+        {
+            if (!string.IsNullOrWhiteSpace(s.Slug) && !string.IsNullOrWhiteSpace(s.Headline))
+            {
+                continue;
+            }
+
+            string normalizedName = s.Name.Trim().ToLowerInvariant();
+            if (normalizedName.Contains("nối") || normalizedName.Contains("noi"))
+            {
+                s.Slug = "noi-toc";
+                s.Headline = "Nối tóc dài tự nhiên, mối nối gọn khó nhận ra";
+                s.ShortDescription = "Tóc dài, dày tự nhiên trong 2-3h với kỹ thuật không đau, không lộ mối nối";
+                s.Description = "Nối keo, nối light, nối lông vũ — MC Hair Salon tư vấn phương pháp phù hợp với tình trạng tóc thật của bạn, mối nối nhỏ gọn tự nhiên, hướng dẫn chăm sóc để tóc nối bền đẹp.";
+                s.PriceTagText = "Từ 16K/tép";
+                s.DurationText = "2–3 giờ";
+                s.BadgeText = "Tìm nhiều nhất";
+                s.ImageUrl ??= "/resources/dich_vu/noi_toc.jpg";
+                s.HeroImageUrl = "/resources/bo_suu_tap/noi_toc/eac43f0bcf694829bc1a822034ab0937.png";
+                s.BeforeImageUrl = "/resources/before_after/5c14189be5f248a0a65c847d169a0c6c.jpg";
+                s.AfterImageUrl = "/resources/before_after/69c14f69b5b144428ed075bbd48823f8.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Theo độ dài tóc nối (giá / tép)",
+                            "Columns": ["", "Loại 1", "VIP"],
+                            "Items": [
+                                { "Name": "45cm", "Price1": "16K/tép", "Price2": "19K/tép", "Note": "" },
+                                { "Name": "55cm", "Price1": "19K/tép", "Price2": "22K/tép", "Note": "" },
+                                { "Name": "60cm", "Price1": "22K/tép", "Price2": "25K/tép", "Note": "" },
+                                { "Name": "Tóc tẩy 50–60cm", "Price1": "", "Price2": "28K/tép", "Note": "Tẩy lên level 9-10" },
+                                { "Name": "Tóc Balayage", "Price1": "", "Price2": "32K/tép", "Note": "Hiệu ứng Balayage đã bao gồm lên màu" }
+                            ]
+                        },
+                        {
+                            "Title": "Theo phương pháp nối",
+                            "Columns": ["", "S", "M", "L"],
+                            "Items": [
+                                { "Name": "Nối light (highlight)", "Price1": "60K", "Price2": "70K / 80K", "Note": "" },
+                                { "Name": "Nối lông vũ", "Price1": "Từ 16K/tép", "Price2": "", "Note": "Mối siêu nhỏ, không đau" },
+                                { "Name": "Nối tóc dài (trên 50cm)", "Price1": "Từ 19K/tép", "Price2": "", "Note": "Tóc thật 100%" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Nâng mối nối (bảo trì định kỳ)", "Price": "6K/tép" },
+                        { "Name": "Tháo tóc nối chuyên dụng", "Price": "300K – 600K" },
+                        { "Name": "Dưỡng phục hồi chuyên sâu tóc nối", "Price": "350K – 450K" },
+                        { "Name": "Nối kèm nhuộm light thiết kế", "Price": "60K – 80K" }
+                    ],
+                    "Note": "Giá trên đã bao gồm tư vấn 1:1, kiểm tra chất tóc và bảo hành mối nối 30 ngày tại salon."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Nối lông vũ siêu vi", "Description": "Mối nối siêu nhỏ chỉ bằng hạt gạo, nhẹ êm, không cộm, buộc tóc cao hoàn toàn không lộ.", "Icon": "feather" },
+                    { "Title": "Nối keo Fusion nhiệt", "Description": "Dùng keratin sinh học gắn từng lọn tỉ mỉ, mối chắc chắn, phù hợp nối dày cả đầu.", "Icon": "link" },
+                    { "Title": "Nối light tạo điểm nhấn", "Description": "Kết hợp nối dài và tạo highlight đa sắc màu mà không cần tẩy tóc thật.", "Icon": "sparkles" },
+                    { "Title": "Nối tóc dài VIP", "Description": "Nối thêm độ dài lớn (50-70cm) cho tóc ngắn, sử dụng 100% tóc thật loại 1 tuyển chọn.", "Icon": "maximize" },
+                    { "Title": "Nối mái / dặm thưa", "Description": "Bổ sung phần tóc mái hoặc vùng thái dương thưa mỏng giúp gương mặt đầy đặn tự nhiên.", "Icon": "user" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Kiểm tra chất tóc & Tư vấn 1:1", "Description": "Đánh giá độ chắc khỏe của chân tóc thật và tư vấn kỹ thuật nối cũng như độ dài, mật độ phù hợp." },
+                    { "StepNumber": 2, "Title": "Lựa chọn tép tóc chuẩn màu", "Description": "Tuyển chọn tóc nối tương đồng 100% về chất sợi, độ bóng và tone màu với tóc của bạn." },
+                    { "StepNumber": 3, "Title": "Thực hiện nối tỉ mỉ", "Description": "Kỹ thuật viên tay nghề cao phân chia từng phân khu và trau chuốt từng mối nối đều tăm tắp." },
+                    { "StepNumber": 4, "Title": "Cắt tỉa & Tạo kiểu hoàn thiện", "Description": "Tỉa layer chuyển tiếp giữa tóc thật và tóc nối để tạo hiệu ứng suôn mượt liền mạch tự nhiên." },
+                    { "StepNumber": 5, "Title": "Hướng dẫn chăm sóc & Hẹn lịch nâng mối", "Description": "Chia sẻ bí quyết gội sấy, chải tóc tại nhà và hẹn lịch kiểm tra, nâng mối định kỳ 2-3 tháng." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Nối tóc bao nhiêu tiền?", "Answer": "Chi phí nối tóc tại MC Hair từ 16K/tép tùy theo độ dài tóc nối (45cm - 60cm) và kỹ thuật bạn chọn. Bạn có thể ghé salon để được báo giá chính xác theo lượng tóc cần nối." },
+                    { "Question": "Nối tóc giữ được bao lâu?", "Answer": "Trung bình mối nối giữ chắc đẹp từ 3–6 tháng. Sau khoảng 2–3 tháng khi tóc thật dài ra, bạn chỉ cần quay lại salon nâng mối để giữ form đẹp nhất." },
+                    { "Question": "Nối tóc có hại hoặc làm đứt gãy tóc thật không?", "Answer": "Hoàn toàn không nếu được thực hiện chuẩn kỹ thuật và chia đều trọng lượng tép tóc. MC Hair cam kết không giật chân tóc và sử dụng chất liệu kết nối an toàn cho da đầu." },
+                    { "Question": "Nối light tóc bao nhiêu tiền?", "Answer": "Nối light chỉ từ 60K - 80K/tép đã bao gồm màu nhuộm thời trang (khói, hồng đào, bạch kim...) không cần tẩy tóc thật." },
+                    { "Question": "Thời gian hoàn thành một bộ tóc nối mất bao lâu?", "Answer": "Thông thường mất khoảng 2 – 3.5 giờ tùy theo số lượng tép nối (nối dặm, nối nửa đầu hoặc nối dày cả đầu)." }
+                ]
+                """;
+                changed = true;
+            }
+            else if (normalizedName.Contains("uốn") || normalizedName.Contains("uon"))
+            {
+                s.Slug = "uon-toc";
+                s.Headline = "Uốn tóc bồng bềnh chuẩn nếp, mềm mượt tự nhiên";
+                s.ShortDescription = "Uốn xoăn layer, sóng lơi, cúp phồng giữ nếp 3-6 tháng với thuốc cao cấp";
+                s.Description = "MC Hair Salon ứng dụng công nghệ uốn định hình tiên tiến bảo vệ sợi tóc, tư vấn sóng xoăn phù hợp dáng mặt, đảm bảo lọn sóng bồng bềnh tự nhiên và dễ chăm sóc tại nhà.";
+                s.PriceTagText = "Từ 650K";
+                s.DurationText = "2–3 giờ";
+                s.BadgeText = "Ưa chuộng";
+                s.ImageUrl ??= "/resources/dich_vu/uon_duoi.jpg";
+                s.HeroImageUrl = "/resources/bo_suu_tap/kieu_toc_thinh_hanh/3ce69e1269214dc9b860fc93da1a7f7b.jpg";
+                s.BeforeImageUrl = "/resources/before_after/2598f3a1d9a243d89d1af6eff0ffa8ef.jpg";
+                s.AfterImageUrl = "/resources/before_after/2d074cb0bbf24092a662cc4ba485bb7e.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Bảng giá uốn tóc theo độ dài & dòng thuốc",
+                            "Columns": ["Dịch vụ", "Tiêu chuẩn", "Cao cấp L'Oréal"],
+                            "Items": [
+                                { "Name": "Uốn tóc ngắn (Size S)", "Price1": "650.000đ", "Price2": "950.000đ", "Note": "Tóc ngang cằm / bob" },
+                                { "Name": "Uốn tóc lửng (Size M)", "Price1": "850.000đ", "Price2": "1.250.000đ", "Note": "Tóc chạm vai / xương quai xanh" },
+                                { "Name": "Uốn tóc dài (Size L)", "Price1": "1.050.000đ", "Price2": "1.550.000đ", "Note": "Tóc ngang ngực trở xuống" },
+                                { "Name": "Uốn phục hồi Collagen/Keratin", "Price1": "1.200.000đ", "Price2": "1.800.000đ", "Note": "Dành riêng tóc hư tổn / tẩy" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Cắt tạo form layer trước khi uốn", "Price": "Miễn phí" },
+                        { "Name": "Hấp phục hồi khóa nếp Olaplex", "Price": "350.000đ" },
+                        { "Name": "Uốn phồng chân tóc không lộ mối", "Price": "300.000đ" }
+                    ],
+                    "Note": "Cam kết bảo hành nếp uốn trong vòng 15 ngày, hỗ trợ chỉnh sửa miễn phí nếu chưa vừa ý."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Uốn sóng lơi Hàn Quốc", "Description": "Tạo lọn xoăn tự nhiên, nhẹ nhàng như gió thoảng, mang lại vẻ đẹp thanh lịch nữ tính.", "Icon": "wind" },
+                    { "Title": "Uốn xoăn Layer bồng bềnh", "Description": "Từng lớp tóc so le ôm trọn khung xương hàm, tạo hiệu ứng tóc dày và bồng bềnh gấp đôi.", "Icon": "layers" },
+                    { "Title": "Uốn cúp chữ C / J", "Description": "Phần ngọn tóc cụp nhẹ ôm lấy gương mặt, phong cách trẻ trung, năng động và thanh thoát.", "Icon": "smile" },
+                    { "Title": "Uốn phồng chân tóc chân ái", "Description": "Khắc phục triệt để tình trạng tóc xẹp dính da đầu, tạo độ phồng tự nhiên cả ngày.", "Icon": "sparkles" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Tư vấn dáng sóng theo khuôn mặt", "Description": "Stylist xem xét chất tóc và hình dáng khuôn mặt để chọn kích thước trục uốn lý tưởng." },
+                    { "StepNumber": 2, "Title": "Cắt tạo tầng Layer chuẩn tỉ lệ", "Description": "Tỉa phom tóc tạo độ so le chuẩn xác để khi uốn các lọn tóc bung lớp tự nhiên." },
+                    { "StepNumber": 3, "Title": "Vào thuốc định hình & Chạy nhiệt kỹ thuật số", "Description": "Sử dụng dòng thuốc uốn giàu dưỡng chất và máy uốn setting kiểm soát nhiệt độ an toàn." },
+                    { "StepNumber": 4, "Title": "Dập định hình sóng & Xả dưỡng", "Description": "Khóa form lọn xoăn bền lâu và bổ sung tinh chất dưỡng ẩm sâu cho sợi tóc bóng khỏe." },
+                    { "StepNumber": 5, "Title": "Sấy tạo kiểu & Hướng dẫn quấn tay tại nhà", "Description": "Hướng dẫn chi tiết thao tác sấy khô và quấn tay đơn giản để bạn tự chăm sóc ở nhà 5 phút mỗi ngày." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Uốn tóc tại MC Hair giữ nếp được bao lâu?", "Answer": "Thông thường nếp uốn giữ đẹp từ 3–6 tháng hoặc lâu hơn tùy cơ địa sợi tóc và cách bạn chăm sóc." },
+                    { "Question": "Tóc từng tẩy hoặc yếu có uốn được không?", "Answer": "Stylist sẽ test độ đàn hồi tóc trước. Với tóc yếu, MC Hair áp dụng liệu trình bọc dưỡng phục hồi trước khi vào thuốc để đảm bảo an toàn cho mái tóc." },
+                    { "Question": "Sau khi uốn về nhà có khó chăm sóc không?", "Answer": "Rất đơn giản, stylist sẽ hướng dẫn bạn cách quấn tay và sấy khô tự nhiên mà không cần dùng lô cuốn phức tạp." }
+                ]
+                """;
+                changed = true;
+            }
+            else if (normalizedName.Contains("nhuộm") || normalizedName.Contains("nhuom"))
+            {
+                s.Slug = "nhuom-toc";
+                s.Headline = "Nhuộm màu chuẩn sắc hot trend, bền màu sáng bóng";
+                s.ShortDescription = "Nhuộm màu thời trang, Balayage, Ombre bền màu lâu với thuốc nhuộm cao cấp L'Oréal";
+                s.Description = "MC Hair Salon chuyên các tone màu thời thượng: nâu trà sữa, xám khói, beige tây, kỹ thuật Balayage chuyển sắc mượt mà không lo lộ chân tóc khi mọc dài.";
+                s.PriceTagText = "Từ 650K";
+                s.DurationText = "1.5–2.5 giờ";
+                s.BadgeText = "Phổ biến nhất";
+                s.ImageUrl ??= "/resources/dich_vu/nhuom_tay.jpg";
+                s.HeroImageUrl = "/resources/bo_suu_tap/mau_thoi_trang/744ee6efea71440cb9fbd1bed3210abc.jpg";
+                s.BeforeImageUrl = "/resources/before_after/73f20300051c4ea683b1e449bd39d348.jpg";
+                s.AfterImageUrl = "/resources/before_after/74a48592d0854e49a8fa934bb703064d.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Bảng giá nhuộm tóc thời trang",
+                            "Columns": ["Dịch vụ", "Tiêu chuẩn", "Cao cấp L'Oréal"],
+                            "Items": [
+                                { "Name": "Nhuộm tóc ngắn (Size S)", "Price1": "650.000đ", "Price2": "900.000đ", "Note": "Tone màu thời trang tôn da" },
+                                { "Name": "Nhuộm tóc lửng (Size M)", "Price1": "850.000đ", "Price2": "1.200.000đ", "Note": "Đồng đều màu từ chân đến ngọn" },
+                                { "Name": "Nhuộm tóc dài (Size L)", "Price1": "1.050.000đ", "Price2": "1.500.000đ", "Note": "Bao phủ dưỡng bóng mềm" },
+                                { "Name": "Nhuộm thiết kế Balayage / Ombre", "Price1": "1.500.000đ", "Price2": "2.500.000đ", "Note": "Kỹ thuật cọ vẽ chuyển sắc độc bản" },
+                                { "Name": "Tẩy tóc / Nâng tone an toàn", "Price1": "300.000đ / lần", "Price2": "450.000đ / lần", "Note": "Thuốc tẩy bảo vệ tủy tóc Olaplex" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Bọc dưỡng Olaplex số 1 & 2 khi nhuộm", "Price": "350.000đ" },
+                        { "Name": "Khóa màu phủ bóng công nghệ Nano", "Price": "250.000đ" }
+                    ],
+                    "Note": "Tất cả sản phẩm nhuộm nhập khẩu chính hãng L'Oréal, Moroccanoil, đảm bảo không rát da đầu."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Nhuộm Balayage nghệ thuật", "Description": "Kỹ thuật quét cọ Pháp tạo độ loang tự nhiên, chân tóc sẫm màu mọc dài ra vẫn giữ nét đẹp sang trọng.", "Icon": "brush" },
+                    { "Title": "Nhuộm Highlight / Babylights", "Description": "Các dải sợi sáng mảnh xen kẽ mái tóc tạo độ sâu và lấp lánh khi có ánh nắng phản chiếu.", "Icon": "sun" },
+                    { "Title": "Nhuộm tone Tây không tẩy", "Description": "Các gam màu nâu tây, nâu lạnh, nâu hạt dẻ sáng bóng tôn sáng làn da mà không cần tẩy hại tóc.", "Icon": "heart" },
+                    { "Title": "Nhuộm thời trang khói / pastel", "Description": "Sở hữu các màu trendy như xám khói, trà sữa, hồng trà với công thức giữ hạt màu độc quyền.", "Icon": "palette" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Tư vấn màu sắc theo sắc tố da (Personal Color)", "Description": "Stylist giúp bạn chọn tone màu phù hợp nhất với màu da và phong cách cá nhân." },
+                    { "StepNumber": 2, "Title": "Bảo vệ da đầu & Bọc dưỡng", "Description": "Xịt tinh chất chống rát da đầu và bổ sung tinh chất bảo vệ biểu bì tóc." },
+                    { "StepNumber": 3, "Title": "Pha màu chuẩn sắc & Tiến hành nhuộm", "Description": "Cân đo tỉ lệ thuốc nhuộm chuẩn xác và thao tác nhuộm đều tay từng lớp tóc." },
+                    { "StepNumber": 4, "Title": "Khử kiềm, Khóa màu & Phục hồi", "Description": "Gội xả chuyên biệt khóa hạt màu sâu trong lõi tóc giúp màu bền lâu và sáng bóng." },
+                    { "StepNumber": 5, "Title": "Sấy tạo kiểu & Hướng dẫn dưỡng màu tại nhà", "Description": "Tạo kiểu nhẹ nhàng và tư vấn dầu gội tím/dưỡng màu phù hợp cho tóc nhuộm." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Nhuộm tóc có cần tẩy không?", "Answer": "Phụ thuộc vào màu tóc bạn muốn. Các màu tone nâu tây, nâu lạnh, chocolate không cần tẩy. Các màu pastel, xám khói, rêu sáng cần tẩy nhẹ." },
+                    { "Question": "Nhuộm tóc tại MC Hair có bị rát da đầu không?", "Answer": "MC Hair luôn sử dụng thuốc nhuộm chất lượng cao kèm xịt bảo vệ màng da đầu chuyên dụng nên bạn hoàn toàn yên tâm êm dịu." },
+                    { "Question": "Nhuộm Balayage có bền màu hơn nhuộm thông thường không?", "Answer": "Balayage có ưu điểm vượt trội là khi chân tóc thật mọc dài ra trông vẫn tự nhiên, bạn có thể để 6-9 tháng mới cần dặm lại." }
+                ]
+                """;
+                changed = true;
+            }
+            else if (normalizedName.Contains("cắt") || normalizedName.Contains("cat"))
+            {
+                s.Slug = "cat-toc-nu";
+                s.Headline = "Cắt tóc tỉa layer chuẩn form, tôn đường nét gương mặt";
+                s.ShortDescription = "Cắt layer tầng, tỉa mái bay, tạo form tóc bồng bềnh phù hợp từng cá nhân";
+                s.Description = "MC Hair Salon tư vấn 1:1 theo tỉ lệ gương mặt, thiết kế các phom tóc Layer, Bob, Pixie thời thượng, che khuyết điểm gò má hay cằm thô một cách hoàn hảo.";
+                s.PriceTagText = "Từ 150K";
+                s.DurationText = "30–60 phút";
+                s.BadgeText = "Thiết kế 1:1";
+                s.ImageUrl ??= "/resources/dich_vu/cat_toc.jpg";
+                s.HeroImageUrl = "/resources/bo_suu_tap/kieu_toc_thinh_hanh/6ec194de5a3b4f80806342288ed06a3a.jpg";
+                s.BeforeImageUrl = "/resources/before_after/968f8796dca943abb3ecc66044837a05.jpg";
+                s.AfterImageUrl = "/resources/before_after/b210fb159e384341ae8271731f6aaf47.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Bảng giá cắt tạo kiểu tóc nữ",
+                            "Columns": ["Hạng mục", "Stylist", "Master Art"],
+                            "Items": [
+                                { "Name": "Cắt tạo kiểu tóc nữ cơ bản", "Price1": "150.000đ", "Price2": "250.000đ", "Note": "Bao gồm gội sấy cơ bản" },
+                                { "Name": "Cắt thiết kế Layer / Wolf Cut", "Price1": "200.000đ", "Price2": "300.000đ", "Note": "Tỉa đa tầng tạo độ bay" },
+                                { "Name": "Cắt tóc ngắn Pixie / Bob cá tính", "Price1": "200.000đ", "Price2": "350.000đ", "Note": "Căn chỉnh tỉ lệ cằm & gáy" },
+                                { "Name": "Cắt tỉa mái bay / mái thưa Hàn Quốc", "Price1": "50.000đ", "Price2": "80.000đ", "Note": "Tạo đường cong che gò má" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Gội massage thư giãn tinh dầu thảo mộc", "Price": "100.000đ" },
+                        { "Name": "Sấy tạo phom sóng bay dự tiệc", "Price": "120.000đ" }
+                    ],
+                    "Note": "Đã bao gồm gội xả thư giãn và sấy tạo kiểu hoàn thiện."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Cắt Layer bay bổng", "Description": "Từng lớp tóc so le tạo cảm giác thanh thoát, tự ôm cúp tự nhiên sau khi gội đầu.", "Icon": "scissors" },
+                    { "Title": "Mái bay Hàn Quốc tôn đường nét", "Description": "Độ dài mái ôm nhẹ xương gò má, che gò má cao và góc hàm thô hiệu quả diệu kỳ.", "Icon": "sparkles" },
+                    { "Title": "Short Bob & Pixie thời thượng", "Description": "Khoe trọn cần cổ thon gọn và góc nghiêng quyến rũ, trẻ trung và năng động.", "Icon": "star" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Lắng nghe mong muốn & Tư vấn khuôn mặt", "Description": "Trao đổi kỹ lưỡng để chọn kiểu tóc vừa đẹp vừa hợp tính chất công việc của bạn." },
+                    { "StepNumber": 2, "Title": "Gội xả làm sạch & Thư giãn", "Description": "Làm sạch tóc và da đầu bằng dầu gội cao cấp giúp tóc ẩm mềm chuẩn bị cắt." },
+                    { "StepNumber": 3, "Title": "Cắt tạo cấu trúc phom dáng", "Description": "Hair Artist cắt định hình phom và tỉa tầng chuẩn xác theo từng góc độ." },
+                    { "StepNumber": 4, "Title": "Sấy khô & Tỉa chi tiết (Dry Cut)", "Description": "Kiểm tra độ rơi tự nhiên của tóc khi khô để tỉa lại những sợi tóc chưa mượt mà." },
+                    { "StepNumber": 5, "Title": "Tạo kiểu & Hướng dẫn sấy tại nhà", "Description": "Sấy phồng bồng bềnh và hướng dẫn cách giữ form đơn giản khi ở nhà." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Cắt tóc layer có cần phải sấy chải nhiều không?", "Answer": "MC Hair cắt theo nếp rơi tự nhiên của sợi tóc nên khi gội xong bạn chỉ cần sấy khô là tóc đã tự động vào nếp đẹp." },
+                    { "Question": "Mặt tròn thì cắt kiểu nào hợp nhất?", "Answer": "Tóc layer ngang vai kết hợp mái bay dài ôm sát má là lựa chọn hoàn hảo giúp mặt bạn trông thon gọn hơn đáng kể." }
+                ]
+                """;
+                changed = true;
+            }
+            else if (normalizedName.Contains("duỗi") || normalizedName.Contains("duoi"))
+            {
+                s.Slug = "duoi-toc";
+                s.Headline = "Duỗi tóc thẳng mượt tự nhiên, suôn mềm không đơ cứng";
+                s.ShortDescription = "Duỗi thẳng tự nhiên, duỗi cúp ngọn với công nghệ ion nano siêu bóng";
+                s.Description = "Công nghệ duỗi tóc thông minh tại MC Hair giúp giải quyết triệt để tình trạng tóc xù rối, mang lại mái tóc suôn mượt óng ả, mềm mại tự nhiên chứ không hề đơ cứng.";
+                s.PriceTagText = "Từ 650K";
+                s.DurationText = "2–3 giờ";
+                s.BadgeText = "Mềm mượt";
+                s.ImageUrl ??= "/resources/dich_vu/313954147c4b4a2084c5809db98a7c0c.png";
+                s.HeroImageUrl = "/resources/bo_suu_tap/kieu_toc_thinh_hanh/88d779aa38264581a65c95dd0f752bff.jpeg";
+                s.BeforeImageUrl = "/resources/before_after/4467bfd7e5434736851b9a5ce7a567d8.jpg";
+                s.AfterImageUrl = "/resources/before_after/500f95c6900d42008d96839267d15bcf.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Bảng giá duỗi tóc suôn mượt",
+                            "Columns": ["Dịch vụ", "Tiêu chuẩn", "Cao cấp L'Oréal"],
+                            "Items": [
+                                { "Name": "Duỗi tóc ngắn (Size S)", "Price1": "650.000đ", "Price2": "950.000đ", "Note": "Tóc tự nhiên không xù" },
+                                { "Name": "Duỗi tóc lửng (Size M)", "Price1": "850.000đ", "Price2": "1.250.000đ", "Note": "Suôn mượt từ gốc tới ngọn" },
+                                { "Name": "Duỗi tóc dài (Size L)", "Price1": "1.050.000đ", "Price2": "1.550.000đ", "Note": "Mềm mại như dải lụa" },
+                                { "Name": "Duỗi cúp ngọn tự nhiên", "Price1": "950.000đ", "Price2": "1.400.000đ", "Note": "Thân thẳng mượt, ngọn cụp nhẹ" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Hấp phục hồi Collagen khóa ẩm", "Price": "300.000đ" },
+                        { "Name": "Cắt tỉa phom tóc", "Price": "Miễn phí" }
+                    ],
+                    "Note": "Bảo hành thẳng mượt 30 ngày, cam kết không gãy nếp khi buộc."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Duỗi thẳng tự nhiên", "Description": "Giữ lại độ phồng tự nhiên của tóc, loại bỏ hoàn toàn cảm giác đơ cứng giả tạo.", "Icon": "activity" },
+                    { "Title": "Duỗi cúp đuôi chữ C", "Description": "Thân tóc thẳng suôn mượt kết hợp phần đuôi cụp nhẹ nhàng ôm dáng vai.", "Icon": "check" },
+                    { "Title": "Duỗi phục hồi Keratin", "Description": "Dành cho tóc hư tổn xù rối, nạp đầy protein giúp sợi tóc chắc khỏe và mượt mà.", "Icon": "shield" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Khám tóc & Kiểm tra độ khỏe", "Description": "Xác định nồng độ thuốc duỗi tương ứng với từng đoạn thân và ngọn tóc." },
+                    { "StepNumber": 2, "Title": "Bôi thuốc mềm hóa & Canh giãn nở", "Description": "Theo dõi sát sao từng phút để thuốc phát huy tác dụng mà không làm tổn thương biểu bì." },
+                    { "StepNumber": 3, "Title": "Kẹp là nhiệt ion nano mịn màng", "Description": "Sử dụng máy kẹp nhiệt titan phủ ceramic là nhẹ nhàng từng lọn mỏng." },
+                    { "StepNumber": 4, "Title": "Dập định hình liên kết sợi tóc", "Description": "Cố định phom thẳng vĩnh viễn và cấp ẩm bù nước cho tóc." },
+                    { "StepNumber": 5, "Title": "Xả dưỡng & Sấy khô hoàn thiện", "Description": "Mái tóc suôn óng ả, mềm như tơ lụa ngay khi vừa hoàn thành." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Duỗi tóc xong bao lâu thì được gội đầu?", "Answer": "Sau 48 giờ bạn có thể gội đầu bình thường bằng dầu gội dịu nhẹ không chứa sulfate." },
+                    { "Question": "Duỗi tóc có bị xẹp dính vào da đầu không?", "Answer": "Kỹ thuật duỗi cách chân tóc 1.5 - 2cm tại MC Hair giúp tóc thẳng mượt mà vẫn giữ được độ phồng bồng bềnh." }
+                ]
+                """;
+                changed = true;
+            }
+            else if (normalizedName.Contains("phục hồi") || normalizedName.Contains("phuc hoi") || normalizedName.Contains("olaplex"))
+            {
+                s.Slug = "phuc-hoi-toc";
+                s.Headline = "Phục hồi hư tổn chuyên sâu đa tầng Olaplex & Keratin";
+                s.ShortDescription = "Tái tạo liên kết tóc đứt gãy, trả lại mái tóc chắc khỏe đàn hồi ngay sau 1 liệu trình";
+                s.Description = "Liệu trình phục hồi độc quyền với sản phẩm chính hãng Olaplex số 1 & 2 từ Mỹ, hàn gắn các liên kết lưu huỳnh bị đứt gãy do hóa chất, mang lại sức sống mới cho mái tóc tưởng chừng phải cắt bỏ.";
+                s.PriceTagText = "Từ 350K";
+                s.DurationText = "1–2 giờ";
+                s.BadgeText = "Cứu tinh tóc xơ";
+                s.ImageUrl ??= "/resources/dich_vu/phuc_hoi.jpg";
+                s.HeroImageUrl = "/resources/bo_suu_tap/kieu_toc_thinh_hanh/a332180364f04545890e372ac24bc37b.jpeg";
+                s.BeforeImageUrl = "/resources/before_after/75377bf482d64991a65133ce4babe449.jpg";
+                s.AfterImageUrl = "/resources/before_after/906c164c51af4e7f9aad2cebc59ea6e3.jpg";
+                s.PricingTableJson = """
+                {
+                    "Groups": [
+                        {
+                            "Title": "Bảng giá liệu trình phục hồi tóc hư tổn",
+                            "Columns": ["Liệu trình", "Cơ bản", "Chuyên sâu Olaplex"],
+                            "Items": [
+                                { "Name": "Phục hồi tóc ngắn (Size S)", "Price1": "350.000đ", "Price2": "600.000đ", "Note": "Bổ sung độ ẩm & protein" },
+                                { "Name": "Phục hồi tóc lửng (Size M)", "Price1": "450.000đ", "Price2": "800.000đ", "Note": "Tái tạo liên kết đứt gãy" },
+                                { "Name": "Phục hồi tóc dài (Size L)", "Price1": "600.000đ", "Price2": "1.000.000đ", "Note": "Chống chẻ ngọn đứt rụng" },
+                                { "Name": "Cấp cứu tóc nát do tẩy nhuộm", "Price1": "800.000đ", "Price2": "1.400.000đ", "Note": "Công nghệ hàn gắn đa tầng" }
+                            ]
+                        }
+                    ],
+                    "Addons": [
+                        { "Name": "Tỉa ngọn tóc chẻ ngọn", "Price": "Miễn phí" },
+                        { "Name": "Xịt dưỡng bảo vệ nhiệt tại nhà", "Price": "280.000đ" }
+                    ],
+                    "Note": "Hiệu quả tóc mềm mượt, dai sợi cảm nhận rõ rệt ngay từ buổi đầu tiên."
+                }
+                """;
+                s.MethodsJson = """
+                [
+                    { "Title": "Hàn gắn liên kết Olaplex", "Description": "Công nghệ được cấp bằng sáng chế tái tạo các liên kết disulfide bị phá vỡ trong lõi tóc.", "Icon": "zap" },
+                    { "Title": "Bổ sung Keratin sinh học", "Description": "Lấp đầy các lỗ hổng trên lớp biểu bì, giúp sợi tóc dày dặn và chống lại tác động môi trường.", "Icon": "shield" },
+                    { "Title": "Hấp thủy phân Nano Ion", "Description": "Hạt sương siêu nhỏ đưa dưỡng chất thẩm thấu sâu tận tủy tóc mà không làm bết dính.", "Icon": "droplet" }
+                ]
+                """;
+                s.StepsJson = """
+                [
+                    { "StepNumber": 1, "Title": "Soi và kiểm tra mức độ hư tổn", "Description": "Kiểm tra độ đàn hồi khi tóc ướt để xác định tóc thiếu ẩm, thiếu đạm hay gãy liên kết." },
+                    { "StepNumber": 2, "Title": "Thanh lọc tóc & Mở biểu bì", "Description": "Gội sạch cặn hóa chất và kim loại nặng bám trên sợi tóc." },
+                    { "StepNumber": 3, "Title": "Đưa tinh chất phục hồi vào lõi tóc", "Description": "Thoa đều tinh chất phục hồi nồng độ cao và massage kích hoạt dưỡng chất." },
+                    { "StepNumber": 4, "Title": "Chiếu máy hấp ánh sáng sinh học", "Description": "Nhiệt độ ổn định giúp dưỡng chất liên kết chặt chẽ vào sâu bên trong sợi tóc." },
+                    { "StepNumber": 5, "Title": "Khóa biểu bì & Hoàn thiện", "Description": "Xả lạnh khóa chặt dưỡng chất bên trong, sấy khô tạo kiểu nhẹ nhàng." }
+                ]
+                """;
+                s.FaqsJson = """
+                [
+                    { "Question": "Sau khi phục hồi hiệu quả giữ được bao lâu?", "Answer": "Thông thường giữ từ 4–6 tuần. Để duy trì lâu dài, bạn nên kết hợp dùng kem xả hoặc ủ tóc tại nhà theo hướng dẫn của salon." },
+                    { "Question": "Tóc hư tổn nặng có cần làm nhiều lần không?", "Answer": "Với tóc quá nát, liệu trình 2-3 buổi cách nhau 2 tuần sẽ giúp mái tóc hồi sinh hoàn toàn." }
+                ]
+                """;
+                changed = true;
+            }
+            else
+            {
+                s.Slug = GenerateSlug(s.Name);
+                s.Headline ??= $"{s.Name} chuyên nghiệp tại MC Hair Salon";
+                s.ShortDescription ??= s.Description;
+                s.PriceTagText ??= $"Từ {s.PriceFrom:N0}đ";
+                s.DurationText ??= "1–2 giờ";
+                changed = true;
+            }
+
+            await repository.AddServiceAsync(s, ct);
+        }
+
+        if (changed)
+        {
+            await db.SaveChangesAsync(ct);
+        }
+    }
+
+    public static string GenerateSlug(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return "dich-vu";
+        string slug = text.ToLowerInvariant().Trim();
+        string[] vietnamese = ["áàảãạăắằẳẵặâấầẩẫậ", "đ", "éèẻẽẹêếềểễệ", "íìỉĩị", "óòỏõọôốồổỗộơớờởỡợ", "úùủũụưứừửữự", "ýỳỷỹỵ"];
+        string[] ascii = ["a", "d", "e", "i", "o", "u", "y"];
+        for (int i = 0; i < vietnamese.Length; i++)
+        {
+            foreach (char c in vietnamese[i])
+            {
+                slug = slug.Replace(c.ToString(), ascii[i]);
+            }
+        }
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"\s+", "-").Trim('-');
+        return string.IsNullOrWhiteSpace(slug) ? "dich-vu" : slug;
     }
 }
 

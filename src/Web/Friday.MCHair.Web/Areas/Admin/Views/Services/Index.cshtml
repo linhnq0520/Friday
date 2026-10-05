@@ -1,29 +1,98 @@
 @model IReadOnlyList<Friday.Modules.Salon.Domain.Entities.HairService>
 @{
-    ViewData["Title"] = "Dịch vụ";
+    ViewData["Title"] = "Quản lý Dịch vụ";
 }
 
-<a class="btn btn-primary" asp-action="Edit">Thêm dịch vụ</a>
-<table class="admin-table">
-    <thead>
-        <tr><th>Tên</th><th>Giá từ</th><th>Hiển thị</th><th></th></tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="admin-page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div>
+        <p class="text-muted" style="margin:0;">Quản lý danh sách dịch vụ, đường dẫn URL riêng, hình ảnh và bảng giá chi tiết.</p>
+    </div>
+    <div style="display:flex; gap:0.5rem;">
+        <a class="btn btn-outline" href="/dich-vu" target="_blank" rel="noopener">↗ Xem trang Dịch vụ</a>
+        <a class="btn btn-primary" asp-action="Edit">➕ Thêm dịch vụ mới</a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <table class="admin-table">
+        <thead>
             <tr>
-                <td>@item.Name</td>
-                <td>@item.PriceFrom.ToString("N0")</td>
-                <td>@(item.IsActive ? "Có" : "Ẩn")</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
-                    <form asp-action="Delete" method="post" class="inline-form">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.Id" />
-                        <button type="submit" onclick="return confirm('Xóa dịch vụ?')">Xóa</button>
-                    </form>
-                </td>
+                <th style="width: 70px;">Ảnh</th>
+                <th>Tên dịch vụ</th>
+                <th>URL riêng</th>
+                <th>Mức giá</th>
+                <th>Thời gian</th>
+                <th>Huy hiệu</th>
+                <th>Thứ tự</th>
+                <th>Hiển thị</th>
+                <th style="width: 170px;">Thao tác</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="9" style="text-align:center; padding:2rem; color:#6b7280;">Chưa có dịch vụ nào. Hãy bấm "Thêm dịch vụ mới" để tạo.</td>
+                </tr>
+            }
+            @foreach (var item in Model.OrderBy(x => x.SortOrder))
+            {
+                string detailUrl = !string.IsNullOrWhiteSpace(item.Slug) ? $"/dich-vu/{item.Slug}" : $"/dich-vu/{item.Id}";
+                string thumb = !string.IsNullOrWhiteSpace(item.ImageUrl) ? item.ImageUrl : "/resources/dich_vu/cat_toc.jpg";
+                string priceDisplay = !string.IsNullOrWhiteSpace(item.PriceTagText) ? item.PriceTagText : $"{item.PriceFrom:N0}đ";
+
+                <tr>
+                    <td>
+                        <img src="@thumb" alt="@item.Name" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;" />
+                    </td>
+                    <td>
+                        <strong>@item.Name</strong>
+                        @if (!string.IsNullOrWhiteSpace(item.Headline))
+                        {
+                            <div style="font-size:0.8rem; color:#6b7280; max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">@item.Headline</div>
+                        }
+                    </td>
+                    <td>
+                        <a href="@detailUrl" target="_blank" rel="noopener" style="font-size:0.85rem; color:#2563eb; display:inline-flex; align-items:center; gap:3px;">
+                            <span>@(item.Slug ?? item.Id.ToString())</span> ↗
+                        </a>
+                    </td>
+                    <td><strong>@priceDisplay</strong></td>
+                    <td>@(item.DurationText ?? "—")</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.BadgeText))
+                        {
+                            <span style="background:#fef3c7; color:#92400e; padding:0.15rem 0.5rem; border-radius:4px; font-size:0.75rem; font-weight:600;">@item.BadgeText</span>
+                        }
+                        else
+                        {
+                            <span style="color:#9ca3af;">—</span>
+                        }
+                    </td>
+                    <td>@item.SortOrder</td>
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span style="color:#16a34a; font-weight:600;">✓ Hiển thị</span>
+                        }
+                        else
+                        {
+                            <span style="color:#dc2626;">✕ Ẩn</span>
+                        }
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:0.4rem; align-items:center;">
+                            <a class="btn btn-sm btn-secondary" asp-action="Edit" asp-route-id="@item.Id">Sửa</a>
+                            <a class="btn btn-sm btn-outline" href="@detailUrl" target="_blank" rel="noopener" title="Xem trang">↗</a>
+                            <form asp-action="Delete" method="post" class="inline-form" onsubmit="return confirm('Bạn có chắc muốn xóa dịch vụ này không?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

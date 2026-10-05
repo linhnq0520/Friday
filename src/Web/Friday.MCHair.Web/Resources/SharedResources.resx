@@ -7,6 +7,7 @@
   <data name="Nav_Home" xml:space="preserve"><value>Trang chủ</value></data>
   <data name="Nav_About" xml:space="preserve"><value>Giới thiệu</value></data>
   <data name="Nav_Services" xml:space="preserve"><value>Dịch vụ</value></data>
+  <data name="Nav_PriceList" xml:space="preserve"><value>Bảng giá</value></data>
   <data name="Nav_Gallery" xml:space="preserve"><value>Bộ sưu tập</value></data>
   <data name="Nav_News" xml:space="preserve"><value>Bài viết</value></data>
   <data name="Nav_Promotions" xml:space="preserve"><value>Khuyến mãi</value></data>
@@ -90,7 +91,12 @@
   <data name="Booking_Success" xml:space="preserve"><value>Đặt lịch thành công! Salon sẽ liên hệ xác nhận sớm nhất.</value></data>
   <data name="Meta_Home" xml:space="preserve"><value>MC Hair Salon | Salon làm tóc TP.HCM</value></data>
   <data name="Meta_About" xml:space="preserve"><value>Giới thiệu | MC Hair Salon</value></data>
-  <data name="Meta_Services" xml:space="preserve"><value>Dịch vụ &amp; bảng giá | MC Hair Salon</value></data>
+  <data name="Meta_Services" xml:space="preserve"><value>Dịch vụ làm tóc chuyên nghiệp | MC Hair Salon TP.HCM</value></data>
+  <data name="Meta_PriceList" xml:space="preserve"><value>Bảng giá dịch vụ làm tóc | MC Hair Salon</value></data>
+  <data name="PriceList_Title" xml:space="preserve"><value>Bảng giá dịch vụ</value></data>
+  <data name="PriceList_Lead" xml:space="preserve"><value>Bảng giá minh bạch — tư vấn và thiết kế phù hợp từng khách hàng.</value></data>
+  <data name="Services_HubTitle" xml:space="preserve"><value>Dịch vụ làm tóc</value></data>
+  <data name="Services_HubLead" xml:space="preserve"><value>Tư vấn theo khuôn mặt và tình trạng tóc thật, báo giá rõ ràng không phát sinh.</value></data>
   <data name="Meta_Gallery" xml:space="preserve"><value>Bộ sưu tập | MC Hair Salon</value></data>
   <data name="Meta_News" xml:space="preserve"><value>Tin tức | MC Hair Salon</value></data>
   <data name="Meta_Booking" xml:space="preserve"><value>Đặt lịch | MC Hair Salon</value></data>

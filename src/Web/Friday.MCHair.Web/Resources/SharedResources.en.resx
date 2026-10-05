@@ -7,6 +7,7 @@
   <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
   <data name="Nav_About" xml:space="preserve"><value>About</value></data>
   <data name="Nav_Services" xml:space="preserve"><value>Services</value></data>
+  <data name="Nav_PriceList" xml:space="preserve"><value>Price List</value></data>
   <data name="Nav_Gallery" xml:space="preserve"><value>Gallery</value></data>
   <data name="Nav_News" xml:space="preserve"><value>Blog</value></data>
   <data name="Nav_Promotions" xml:space="preserve"><value>Promotions</value></data>
@@ -90,7 +91,12 @@
   <data name="Booking_Success" xml:space="preserve"><value>Booking received! We will contact you to confirm shortly.</value></data>
   <data name="Meta_Home" xml:space="preserve"><value>MC Hair Salon | Hair salon in Ho Chi Minh City</value></data>
   <data name="Meta_About" xml:space="preserve"><value>About | MC Hair Salon</value></data>
-  <data name="Meta_Services" xml:space="preserve"><value>Services &amp; pricing | MC Hair Salon</value></data>
+  <data name="Meta_Services" xml:space="preserve"><value>Hair Salon Services | MC Hair Salon TP.HCM</value></data>
+  <data name="Meta_PriceList" xml:space="preserve"><value>Hair Salon Price List | MC Hair Salon</value></data>
+  <data name="PriceList_Title" xml:space="preserve"><value>Service Price List</value></data>
+  <data name="PriceList_Lead" xml:space="preserve"><value>Transparent pricing — personalized consultation and design.</value></data>
+  <data name="Services_HubTitle" xml:space="preserve"><value>Hair Services</value></data>
+  <data name="Services_HubLead" xml:space="preserve"><value>Tailored styling based on face shape &amp; hair condition with upfront pricing.</value></data>
   <data name="Meta_Gallery" xml:space="preserve"><value>Gallery | MC Hair Salon</value></data>
   <data name="Meta_News" xml:space="preserve"><value>News | MC Hair Salon</value></data>
   <data name="Meta_Booking" xml:space="preserve"><value>Book appointment | MC Hair Salon</value></data>

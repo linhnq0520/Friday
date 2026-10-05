@@ -74,7 +74,28 @@ public sealed class GetHomePageHandler(ISalonRepository repository)
         new(x.Id, x.SectionKey, x.Title, x.Subtitle, x.Body, x.ImageUrl);
 
     internal static HairServiceDto MapService(HairService x) =>
-        new(x.Id, x.Name, x.Description, x.PriceFrom, x.ImageUrl, x.RatingDisplay);
+        new(
+            x.Id,
+            x.Name,
+            x.Description,
+            x.PriceFrom,
+            x.ImageUrl,
+            x.RatingDisplay,
+            x.Slug,
+            x.Headline,
+            x.ShortDescription,
+            x.PriceTagText,
+            x.DurationText,
+            x.BadgeText,
+            x.HeroImageUrl,
+            x.BeforeImageUrl,
+            x.AfterImageUrl,
+            x.PricingTableJson,
+            x.MethodsJson,
+            x.StepsJson,
+            x.FaqsJson,
+            x.ContentHtml
+        );
 
     internal static StylistDto MapStylist(Stylist x) =>
         new(x.Id, x.Name, x.Title, x.Bio, x.ImageUrl);
@@ -162,6 +183,24 @@ public sealed class GetServicesPageHandler(ISalonRepository repository)
             cancellationToken
         );
         return services.Select(GetHomePageHandler.MapService).ToList();
+    }
+}
+
+public sealed record GetServiceDetailBySlugQuery(string Slug) : IQuery<HairServiceDto?>;
+
+public sealed class GetServiceDetailBySlugHandler(ISalonRepository repository)
+    : IQueryHandler<GetServiceDetailBySlugQuery, HairServiceDto?>
+{
+    public async Task<HairServiceDto?> HandleAsync(
+        GetServiceDetailBySlugQuery request,
+        CancellationToken cancellationToken
+    )
+    {
+        HairService? service = await repository.GetServiceBySlugAsync(
+            request.Slug,
+            cancellationToken
+        );
+        return service is not null ? GetHomePageHandler.MapService(service) : null;
     }
 }
 

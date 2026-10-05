@@ -8,8 +8,30 @@ public sealed record HairServiceDto(
     string? Description,
     decimal PriceFrom,
     string? ImageUrl,
-    int RatingDisplay
+    int RatingDisplay,
+    string? Slug = null,
+    string? Headline = null,
+    string? ShortDescription = null,
+    string? PriceTagText = null,
+    string? DurationText = null,
+    string? BadgeText = null,
+    string? HeroImageUrl = null,
+    string? BeforeImageUrl = null,
+    string? AfterImageUrl = null,
+    string? PricingTableJson = null,
+    string? MethodsJson = null,
+    string? StepsJson = null,
+    string? FaqsJson = null,
+    string? ContentHtml = null
 );
+
+public sealed record ServicePriceItem(string Name, string? Price1, string? Price2, string? Note);
+public sealed record ServicePriceGroup(string Title, IReadOnlyList<string> Columns, IReadOnlyList<ServicePriceItem> Items);
+public sealed record ServicePriceAddon(string Name, string Price);
+public sealed record ServicePricingData(IReadOnlyList<ServicePriceGroup> Groups, IReadOnlyList<ServicePriceAddon> Addons, string? Note);
+public sealed record ServiceMethodItem(string Title, string Description, string? Icon);
+public sealed record ServiceStepItem(int StepNumber, string Title, string Description);
+public sealed record ServiceFaqItem(string Question, string Answer);
 
 public sealed record StylistDto(int Id, string Name, string? Title, string? Bio, string? ImageUrl);
 

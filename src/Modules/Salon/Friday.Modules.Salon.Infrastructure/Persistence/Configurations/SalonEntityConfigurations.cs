@@ -16,9 +16,24 @@ public sealed class HairServiceConfiguration : IEntityTypeConfiguration<HairServ
         builder.ToTable($"{SalonTable.Prefix}services");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
-        builder.Property(x => x.Description).HasMaxLength(2000);
+        builder.Property(x => x.Slug).HasMaxLength(200).HasDefaultValue("").IsRequired();
+        builder.HasIndex(x => x.Slug);
+        builder.Property(x => x.Headline).HasMaxLength(300);
+        builder.Property(x => x.ShortDescription).HasMaxLength(1000);
+        builder.Property(x => x.Description).HasMaxLength(4000);
         builder.Property(x => x.PriceFrom).HasPrecision(18, 2);
+        builder.Property(x => x.PriceTagText).HasMaxLength(100);
+        builder.Property(x => x.DurationText).HasMaxLength(100);
+        builder.Property(x => x.BadgeText).HasMaxLength(100);
         builder.Property(x => x.ImageUrl).HasMaxLength(500);
+        builder.Property(x => x.HeroImageUrl).HasMaxLength(500);
+        builder.Property(x => x.BeforeImageUrl).HasMaxLength(500);
+        builder.Property(x => x.AfterImageUrl).HasMaxLength(500);
+        builder.Property(x => x.PricingTableJson);
+        builder.Property(x => x.MethodsJson);
+        builder.Property(x => x.StepsJson);
+        builder.Property(x => x.FaqsJson);
+        builder.Property(x => x.ContentHtml);
         builder.Ignore(x => x.DomainEvents);
     }
 }
