@@ -13,8 +13,8 @@
 
     string heroImage = !string.IsNullOrWhiteSpace(s.HeroImageUrl) ? s.HeroImageUrl : (!string.IsNullOrWhiteSpace(s.ImageUrl) ? s.ImageUrl : "/resources/dich_vu/cat_toc.jpg");
     string beforeImage = !string.IsNullOrWhiteSpace(s.BeforeImageUrl) ? s.BeforeImageUrl : "/resources/before_after/5c14189be5f248a0a65c847d169a0c6c.jpg";
-    string afterImage = !string.IsNullOrWhiteSpace(s.AfterImageUrl) ? s.AfterImageUrl : "/resources/before_after/69c14f69b5b144428ed075bbd48823f8.jpg";
     string priceText = !string.IsNullOrWhiteSpace(s.PriceTagText) ? s.PriceTagText : (s.PriceFrom > 0 ? $"Từ {s.PriceFrom:N0}đ" : "Liên hệ báo giá");
+    bool hasBeforeAfter = !string.IsNullOrWhiteSpace(s.BeforeImageUrl) && !string.IsNullOrWhiteSpace(s.AfterImageUrl);
 }
 
 <!-- Breadcrumb -->
@@ -76,35 +76,38 @@
 </section>
 
 <!-- Interactive Before & After Slider Section -->
-<section class="section svc-ba-section" id="gallery">
-    <div class="container">
-        <div class="section-head center">
-            <span class="badge-eyebrow">Bằng chứng thật, không chỉnh sửa</span>
-            <h2>Trước và <em>sau</em> khi làm @s.Name tại MC Hair</h2>
-            <p class="lead">Tóc thật của khách hàng thực tế — kéo thanh trượt để cảm nhận sự thay đổi kỳ diệu.</p>
-        </div>
-
-        <div class="ba-slider-container">
-            <div class="ba-slider-box" id="baSlider">
-                <div class="ba-img-layer ba-before">
-                    <img src="@beforeImage" alt="@s.Name - Trước khi làm" />
-                    <span class="ba-tag ba-tag-before">TRƯỚC</span>
-                </div>
-                <div class="ba-img-layer ba-after" id="baAfterLayer">
-                    <img src="@afterImage" alt="@s.Name - Sau khi làm" />
-                    <span class="ba-tag ba-tag-after">SAU</span>
-                    <span class="ba-badge-result">@s.Name</span>
-                </div>
-                <div class="ba-handle" id="baHandle">
-                    <div class="ba-handle-line"></div>
-                    <div class="ba-handle-circle"><i class="ri-arrow-left-right-line" style="font-size:1.2rem;"></i></div>
-                </div>
-                <input type="range" min="0" max="100" value="50" class="ba-range-slider" id="baRange" aria-label="Kéo để so sánh trước và sau" />
+@if (hasBeforeAfter)
+{
+    <section class="section svc-ba-section" id="gallery">
+        <div class="container">
+            <div class="section-head center">
+                <span class="badge-eyebrow">Bằng chứng thật, không chỉnh sửa</span>
+                <h2>Trước và <em>sau</em> khi làm @s.Name tại MC Hair</h2>
+                <p class="lead">Tóc thật của khách hàng thực tế — kéo thanh trượt để cảm nhận sự thay đổi kỳ diệu.</p>
             </div>
-            <p class="ba-hint">← Kéo thanh trượt để so sánh kết quả Trước & Sau →</p>
+
+            <div class="ba-slider-container">
+                <div class="ba-slider-box" id="baSlider">
+                    <div class="ba-img-layer ba-before">
+                        <img src="@s.BeforeImageUrl" alt="@s.Name - Trước khi làm" loading="lazy" onerror="var s=this.closest('.svc-ba-section');if(s)s.style.display='none';" />
+                        <span class="ba-tag ba-tag-before">TRƯỚC</span>
+                    </div>
+                    <div class="ba-img-layer ba-after" id="baAfterLayer">
+                        <img src="@s.AfterImageUrl" alt="@s.Name - Sau khi làm" loading="lazy" onerror="var s=this.closest('.svc-ba-section');if(s)s.style.display='none';" />
+                        <span class="ba-tag ba-tag-after">SAU</span>
+                        <span class="ba-badge-result">@s.Name</span>
+                    </div>
+                    <div class="ba-handle" id="baHandle">
+                        <div class="ba-handle-line"></div>
+                        <div class="ba-handle-circle"><i class="ri-arrow-left-right-line" style="font-size:1.2rem;"></i></div>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="ba-range-slider" id="baRange" aria-label="Kéo để so sánh trước và sau" />
+                </div>
+                <p class="ba-hint">← Kéo thanh trượt để so sánh kết quả Trước & Sau →</p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 <!-- Detailed Pricing Section -->
 <section class="section section-alt svc-pricing-section" id="pricing">
@@ -120,24 +123,31 @@
             <div class="svc-price-tables-wrap">
                 @foreach (var group in pricing.Groups)
                 {
+                    var col1Title = group.Columns.Count > 1 && !string.IsNullOrWhiteSpace(group.Columns[1]) ? group.Columns[1] : "Tiêu chuẩn";
+                    var col2Title = group.Columns.Count > 2 && !string.IsNullOrWhiteSpace(group.Columns[2]) ? group.Columns[2] : "Cao cấp";
+                    bool hasPrice2InGroup = group.Items.Any(i => !string.IsNullOrWhiteSpace(i.Price2));
+
                     <div class="svc-table-box">
                         <h3 class="svc-table-title">@group.Title</h3>
                         <div class="svc-table-responsive">
-                            <table class="svc-table">
+                            <table class="svc-table @(hasPrice2InGroup ? "svc-table-dual-price" : "svc-table-single-price")">
                                 <thead>
                                     <tr>
-                                        @foreach (var col in group.Columns)
+                                        <th class="col-svc-name">@(group.Columns.ElementAtOrDefault(0) ?? "Hạng mục")</th>
+                                        <th class="col-svc-price1">@col1Title</th>
+                                        @if (hasPrice2InGroup)
                                         {
-                                            <th>@col</th>
+                                            <th class="col-svc-price2">@col2Title</th>
                                         }
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var item in group.Items)
                                     {
-                                        <tr>
-                                            <td>
-                                                <strong>@item.Name</strong>
+                                        bool itemHasPrice2 = !string.IsNullOrWhiteSpace(item.Price2);
+                                        <tr class="svc-tr-item @(itemHasPrice2 ? "has-two-prices" : "has-one-price")">
+                                            <td class="svc-td-name">
+                                                <strong class="svc-item-name">@item.Name</strong>
                                                 @if (!string.IsNullOrWhiteSpace(item.Note))
                                                 {
                                                     <span class="table-row-note">@item.Note</span>
@@ -145,11 +155,26 @@
                                             </td>
                                             @if (!string.IsNullOrWhiteSpace(item.Price1))
                                             {
-                                                <td><span class="price-val">@item.Price1</span></td>
+                                                <td class="svc-td-price svc-td-price1" data-label="@col1Title">
+                                                    <span class="mobile-col-label">@col1Title</span>
+                                                    <span class="price-val">@item.Price1</span>
+                                                </td>
                                             }
-                                            @if (!string.IsNullOrWhiteSpace(item.Price2))
+                                            @if (hasPrice2InGroup)
                                             {
-                                                <td><span class="price-val price-vip">@item.Price2</span></td>
+                                                @if (itemHasPrice2)
+                                                {
+                                                    <td class="svc-td-price svc-td-price2" data-label="@col2Title">
+                                                        <span class="mobile-col-label">@col2Title</span>
+                                                        <span class="price-val price-vip">@item.Price2</span>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td class="svc-td-price svc-td-empty">
+                                                        <span class="price-dash">—</span>
+                                                    </td>
+                                                }
                                             }
                                         </tr>
                                     }
@@ -168,8 +193,8 @@
                         @foreach (var addon in pricing.Addons)
                         {
                             <div class="svc-addon-item">
-                                <span>@addon.Name</span>
-                                <b>@addon.Price</b>
+                                <span class="addon-name">@addon.Name</span>
+                                <b class="addon-price">@addon.Price</b>
                             </div>
                         }
                     </div>

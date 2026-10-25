@@ -1156,21 +1156,70 @@ input, select, textarea {
     .top-bar-separator,
     .top-bar-address { display: none; }
     .float-actions {
-        right: 0.75rem;
+        position: fixed;
+        right: 0.5rem;
         bottom: 0.75rem;
-        gap: 0.55rem;
+        z-index: 99;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.35rem;
+        pointer-events: none;
     }
     .float-social {
-        gap: 0.4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        pointer-events: none;
     }
     .float-social-btn {
-        width: 2.5rem;
-        height: 2.5rem;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        width: 2.15rem;
+        height: 2.15rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+        padding: 0;
+        pointer-events: auto;
+        transition: transform 0.15s ease;
+    }
+    .float-social-btn:active {
+        transform: scale(0.92);
+    }
+    .float-social-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .float-social-youtube {
+        background: #ff0000;
+        display: grid !important;
+    }
+    .float-social-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+    .float-book-wrap {
+        pointer-events: auto;
     }
     .float-actions .float-book {
-        padding: 0.65rem 1rem;
-        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.76rem;
+        font-weight: 700;
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(196, 92, 38, 0.45);
+        white-space: nowrap;
+        border: 1.5px solid rgba(255, 255, 255, 0.9);
+    }
+    .float-actions .float-book:active {
+        transform: scale(0.95);
+    }
+    body.nav-open .float-actions {
+        display: none !important;
     }
     .main-nav {
         position: absolute;
@@ -2220,29 +2269,6 @@ body.gallery-lightbox-open { overflow: hidden; }
     }
 }
 
-@media (max-width: 768px) {
-    .float-actions {
-        right: 0.6rem;
-        bottom: 0.6rem;
-        gap: 0.35rem;
-    }
-    .float-social {
-        gap: 0.3rem;
-    }
-    .float-social-btn {
-        width: 2.25rem;
-        height: 2.25rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
-    }
-    .float-social-btn svg {
-        width: 16px;
-        height: 16px;
-    }
-    .float-actions .float-book {
-        padding: 0.5rem 0.85rem;
-        font-size: 0.8rem;
-    }
-}
 
 @media (max-width: 640px) {
     .top-bar-social {
@@ -3477,21 +3503,40 @@ body.gallery-lightbox-open { overflow: hidden; }
 }
 .svc-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 .svc-table th {
     text-align: left;
-    padding: 0.85rem 1rem;
+    padding: 0.85rem 1.15rem;
     background: var(--bg-alt);
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--text);
     border-bottom: 2px solid var(--border);
 }
+.svc-table th.col-svc-price1,
+.svc-table th.col-svc-price2 {
+    text-align: right;
+    white-space: nowrap;
+    width: 140px;
+}
 .svc-table td {
-    padding: 1rem;
+    padding: 0.95rem 1.15rem;
     border-bottom: 1px solid var(--border);
     font-size: 0.95rem;
+    vertical-align: middle;
+}
+.svc-td-price {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.svc-td-empty .price-dash {
+    color: var(--border);
+}
+.mobile-col-label {
+    display: none;
 }
 .table-row-note {
     display: block;
@@ -3833,6 +3878,315 @@ body.gallery-lightbox-open { overflow: hidden; }
     }
     .cta-card-actions {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 680px) {
+    /* Service Detail Hero on Mobile */
+    .svc-detail-hero {
+        padding: 1.75rem 0 1.75rem;
+    }
+    .svc-detail-title {
+        font-size: 1.65rem;
+        line-height: 1.28;
+        margin: 0.4rem 0 0.75rem;
+    }
+    .svc-detail-pricetag {
+        padding: 0.35rem 0.95rem;
+        margin-bottom: 1rem;
+    }
+    .pricetag-val {
+        font-size: 1.25rem;
+    }
+    .svc-detail-lede {
+        font-size: 0.92rem;
+        line-height: 1.55;
+        margin-bottom: 1.25rem;
+    }
+    .svc-detail-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.65rem;
+        margin-bottom: 1.25rem;
+    }
+    .svc-detail-actions .btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+    }
+    .svc-trust-strip {
+        font-size: 0.78rem;
+        gap: 0.65rem;
+        padding-top: 1rem;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Before & After Interactive Slider on Mobile */
+    .ba-slider-container {
+        margin-top: 1.25rem;
+    }
+    .ba-slider-box {
+        border-radius: 14px;
+        background: #24201d;
+    }
+    .ba-tag {
+        top: 12px;
+        padding: 0.25rem 0.65rem;
+        font-size: 0.72rem;
+    }
+    .ba-tag-before {
+        left: 12px;
+    }
+    .ba-tag-after {
+        right: 12px;
+    }
+    .ba-badge-result {
+        bottom: 12px;
+        right: 12px;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.65rem;
+    }
+    .ba-handle-circle {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+    .ba-hint {
+        font-size: 0.8rem;
+        margin-top: 0.65rem;
+    }
+
+    /* Service Pricing Tables Redesigned for Mobile (Card Layout) */
+    .svc-price-tables-wrap {
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+    }
+    .svc-table-box {
+        padding: 1.15rem 0.95rem;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 4px 20px rgba(44, 33, 24, 0.05);
+        border: 1px solid rgba(229, 221, 211, 0.7);
+    }
+    .svc-table-title {
+        font-size: 1.15rem;
+        margin-bottom: 0.85rem;
+        font-weight: 700;
+        color: #2c2118;
+    }
+    .svc-table thead {
+        display: none !important;
+    }
+    .svc-table,
+    .svc-table tbody {
+        display: block;
+        width: 100%;
+    }
+    .svc-tr-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        background: #faf7f4;
+        border: 1px solid rgba(229, 221, 211, 0.85);
+        border-radius: 12px;
+        padding: 0.85rem 0.85rem;
+        margin-bottom: 0.65rem;
+    }
+    .svc-tr-item:last-child {
+        margin-bottom: 0;
+    }
+    .svc-td-name {
+        grid-column: 1 / -1;
+        padding: 0 0 0.35rem 0;
+        border: none;
+    }
+    .svc-item-name {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #231f1e;
+        line-height: 1.35;
+        display: block;
+    }
+    .table-row-note {
+        font-size: 0.82rem;
+        color: #766d66;
+        margin-top: 0.25rem;
+        line-height: 1.4;
+        display: block;
+    }
+    .svc-td-price {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 2px;
+        padding: 0.5rem 0.65rem;
+        background: #ffffff;
+        border: 1px solid rgba(215, 205, 195, 0.75);
+        border-radius: 8px;
+        min-height: 48px;
+        border-bottom: 1px solid rgba(215, 205, 195, 0.75);
+        text-align: left;
+    }
+    .svc-tr-item.has-one-price .svc-td-price1 {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0.85rem;
+    }
+    .mobile-col-label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #8c7b70;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        line-height: 1.2;
+    }
+    .price-val {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: var(--brand);
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+    .price-vip {
+        color: #c25e19;
+    }
+    .svc-td-price2 {
+        background: #fff9f5;
+        border-color: rgba(194, 94, 25, 0.3);
+    }
+    .svc-td-price2 .mobile-col-label {
+        color: #b45309;
+    }
+    .svc-td-empty {
+        display: none !important;
+    }
+
+    /* Addon Items on Mobile */
+    .svc-addon-block {
+        padding: 1.15rem 1rem;
+        border-radius: 16px;
+        margin-top: 1.25rem;
+    }
+    .svc-addon-block h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.85rem;
+    }
+    .svc-addon-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+    .svc-addon-item {
+        padding: 0.7rem 0.85rem;
+        font-size: 0.88rem;
+    }
+    .svc-addon-item b {
+        white-space: nowrap;
+        margin-left: 0.5rem;
+    }
+
+    /* Pricing CTA Box on Mobile */
+    .svc-pricing-cta-card {
+        padding: 1.35rem 1.15rem;
+        border-radius: 16px;
+        margin-top: 1.5rem;
+        text-align: center;
+        gap: 1.15rem;
+    }
+    .cta-card-content h4 {
+        font-size: 1.12rem;
+        margin-bottom: 0.35rem;
+        line-height: 1.35;
+    }
+    .cta-card-content p {
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+    .cta-card-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.65rem;
+    }
+    .cta-card-actions .btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Methods on Mobile */
+    .svc-methods-grid {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        margin-top: 1.25rem;
+    }
+    .svc-method-card {
+        padding: 1.25rem 1rem;
+        border-radius: 14px;
+    }
+    .method-icon-wrap {
+        width: 42px;
+        height: 42px;
+        margin-bottom: 0.85rem;
+    }
+
+    /* Steps on Mobile */
+    .svc-steps-flow {
+        gap: 0.85rem;
+        margin-top: 1.25rem;
+    }
+    .svc-step-node {
+        padding: 1rem 0.85rem;
+        gap: 0.85rem;
+        border-radius: 12px;
+    }
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+    }
+    .step-content h4 {
+        font-size: 1rem;
+    }
+    .step-content p {
+        font-size: 0.86rem;
+    }
+
+    /* Customer Reviews on Mobile */
+    .svc-review-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+    .svc-review-card {
+        padding: 1.25rem 1.15rem;
+        border-radius: 14px;
+    }
+
+    /* Quality Badges on Mobile */
+    .svc-quality-badges {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+    }
+    .quality-badge-item {
+        gap: 0.85rem;
+    }
+    .q-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* General Cards Polish on Mobile */
+    .collection-card {
+        border-radius: 12px !important;
+        border: 1px solid var(--border) !important;
     }
 }
 
